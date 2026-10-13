@@ -1,0 +1,131 @@
+{
+  "dialogues": {
+    "tareeq_al_najah_intro": {
+      "id": "tareeq_al_najah_intro",
+      "npcId": "npc_struggling_youth",
+      "speakerName": "ياسين",
+      "speakerRole": "باحث عن الأمل والتعافي",
+      "text": "أهلاً بك يا بني... كنت أظن في البداية أن تجربة تلك الحبوب والسموم هروب من القلق، لكنها تحولت إلى كابوس كاد يدمر صحتي وعائلتي. أفتش عن أمل حقيقي للخروج من هذا النفق.",
+      "options": [
+        {
+          "text": "🌱 ننصحك بطلب الرعاية فوراً في مركز علاج الإدمان بالمركز الصحي، التعافي ممكن وأنت لست وحدك!",
+          "nextDialogueId": "tareeq_al_najah_rehab_choice",
+          "action": "CHOOSE_REHAB"
+        },
+        {
+          "text": "🤝 نحن معك.. هل هناك شخص يروج هذه السموم ويستغل شباب الحي؟ نريد حماية الجميع.",
+          "nextDialogueId": "tareeq_al_najah_info_choice",
+          "action": "ASK_SUPPLIER"
+        },
+        {
+          "text": "⚠️ سأتظاهر بأني زبون لأقترب من المروج بنفسي وأكشفه!",
+          "nextDialogueId": "tareeq_al_najah_undercover_fail",
+          "action": "RECKLESS_UNDERCOVER"
+        }
+      ]
+    },
+    "tareeq_al_najah_rehab_choice": {
+      "id": "tareeq_al_najah_rehab_choice",
+      "npcId": "npc_struggling_youth",
+      "speakerName": "ياسين",
+      "speakerRole": "باحث عن الأمل والتعافي",
+      "text": "كلماتك الصادقة تمنحني شجاعة كبيرة لم أكن أجدها! الطبيبة فاطمة في المركز الصحي تدير وحدة الدعم النفسي والتعافي بكل سرية واحترام. سأتوجه إليها فوراً لبدء العلاج. شكراً لأنك لم تحكم علي بسوء.",
+      "options": [
+        {
+          "text": "الحمد لله! خطوة شجاعة، والآن دعنا نبلغ الشرطة عن الشخص الذي ورطك لحماية باقي الشباب.",
+          "nextDialogueId": "tareeq_al_najah_info_choice",
+          "action": "PROCEED_TO_POLICE_INFO"
+        },
+        {
+          "text": "بارك الله فيك، سأرافقك إلى المركز الصحي وأتمنى لك الشفاء العاجل.",
+          "nextDialogueId": "tareeq_al_najah_rehab_success",
+          "action": "COMPLETE_REHAB_PATH"
+        }
+      ]
+    },
+    "tareeq_al_najah_info_choice": {
+      "id": "tareeq_al_najah_info_choice",
+      "npcId": "npc_struggling_youth",
+      "speakerName": "ياسين",
+      "speakerRole": "باحث عن الأمل والتعافي",
+      "text": "نعم، هناك شخص غريب يرتدي قبعة داكنة يتربص قرب الزقاق الخلفي للحي السكني الشمالي (قرب شاحنات النقل). كان يوزع تلك السموم بالخفاء. أرجوك لا تقترب منه، أبلغ رجال الأمن الوطني فوراً!",
+      "options": [
+        {
+          "text": "🚨 سأتوجه فوراً إلى مركز الشرطة وأبلغ الملازم سليم والمحقق مراد بما عرفته.",
+          "nextDialogueId": "tareeq_al_najah_report_police_step",
+          "action": "GO_TO_POLICE"
+        }
+      ]
+    },
+    "tareeq_al_najah_undercover_fail": {
+      "id": "tareeq_al_najah_undercover_fail",
+      "npcId": "npc_struggling_youth",
+      "speakerName": "ياسين",
+      "speakerRole": "تحذير وتنبيه هام",
+      "text": "إياك أن تفعل ذلك أبداً! هؤلاء الأشخاص خطرون ومجرمون، وإذا شكوا في أمرك فقد تتعرض للأذى الشديد، كما أن التظاهر بالطلب قد يورطك في شبهات قانونية خطيرة! المواجهة والتحري هما مسؤولية رجال الشرطة المتخصصين فقط.",
+      "options": [
+        {
+          "text": "فهمت الدرس.. مهمتي هي الإبلاغ الصادق لحماية نفسي والآخرين، وليس التهور.",
+          "nextDialogueId": "tareeq_al_najah_info_choice",
+          "action": "LEARN_LESSON_FAIL"
+        }
+      ]
+    },
+    "tareeq_al_najah_report_police_step": {
+      "id": "tareeq_al_najah_report_police_step",
+      "npcId": "npc_police_officer",
+      "speakerName": "الملازم سليم",
+      "speakerRole": "ضابط الأمن الوطني",
+      "text": "أحسنت يا بني! تصرفك قمة في الوعي والمواطنة الصالحة. لقد تلقينا بلاغك بدقة ووجهنا دورية التحريات إلى موقع المشتبه به للقبض عليه قانونياً وتأمين الحي. وتوجيهك للشاب نحو العلاج أنقذ روحاً بريئة!",
+      "options": [
+        {
+          "text": "الحمد لله على نعمة الأمن والأمان في وطننا العزيز 🇩🇿",
+          "nextDialogueId": null,
+          "action": "COMPLETE_TAREEQ_NAJAH"
+        }
+      ]
+    },
+    "fire_emergency_alert": {
+      "id": "fire_emergency_alert",
+      "npcId": "npc_firefighter",
+      "speakerName": "عمر - رجل الإطفاء",
+      "speakerRole": "الحماية المدنية",
+      "text": "انتبه يا بني! وصلتنا إشارة عن تصاعد دخان في إحدى حاويات النفايات بالقرب من المخبزة بسبب رمي مادة قابلة للاشتعال. ساعدنا في تحذير المشاة وإبعادهم عن منطقة الخطر ريثما تصل سيارة الإطفاء!",
+      "options": [
+        {
+          "text": "سأقوم فوراً بإرشاد المارة للبقاء على مسافة آمنة!",
+          "nextDialogueId": null,
+          "action": "START_FIRE_EVACUATION"
+        }
+      ]
+    },
+    "elderly_crosswalk_help": {
+      "id": "elderly_crosswalk_help",
+      "npcId": "npc_elderly_citizen",
+      "speakerName": "عمي قدور",
+      "speakerRole": "شيخ من أهل الحي",
+      "text": "جزاك الله خيراً يا بني.. السيارات تسير مسرعة، وبمساعدتك ومرافقتك لي على ممر الراجلين سأعبر بأمان واطمئنان.",
+      "options": [
+        {
+          "text": "على الرحب والسعة يا عمي قدور، احترامك وبرك واجبنا جميعاً.",
+          "nextDialogueId": null,
+          "action": "START_CROSSWALK_ESCORT"
+        }
+      ]
+    },
+    "casbah_artisan_lesson": {
+      "id": "casbah_artisan_lesson",
+      "npcId": "npc_artisan",
+      "speakerName": "العم بلقاسم",
+      "speakerRole": "حرفي القصبة",
+      "text": "انظر إلى هذه الأواني الفخارية والنحاسية.. إنها تصنع بالصبر والدقة المتوارثة منذ أجيال في قصبة الجزائر وتلمسان وقسنطينة. حماية التراث تعني الحفاظ على هويتنا الجزائرية العريقة.",
+      "options": [
+        {
+          "text": "فخور بتراث بلادنا وأود أن أتعلم كيف أحافظ عليه وأعرف به!",
+          "nextDialogueId": null,
+          "action": "COMPLETE_HERITAGE_LESSON"
+        }
+      ]
+    }
+  }
+}

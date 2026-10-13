@@ -1,0 +1,274 @@
+{
+  "npcs": [
+    {
+      "id": "npc_cleaner",
+      "name": "العم إبراهيم",
+      "role": "cleaner",
+      "title": "🧹 حامي نظافة المدينة",
+      "category": "environment",
+      "categoryLabel": "🌿 النظافة والبيئة",
+      "badgeColor": "#27ae60",
+      "color": "#e67e22",
+      "skinColor": "#f0cbb0",
+      "hatType": "cap",
+      "position": { "x": -8, "y": 0, "z": 7.5 },
+      "dialogue": {
+        "greeting": "مرحباً يا بطل! يسعدني جداً أن أراك حريصاً على نظافة شوارعنا. هل تحب أن تتعلم معلومة بيئية جديدة؟",
+        "acceptText": "نعم بكل سرور!",
+        "declineText": "سأعود لاحقاً يا عمي"
+      }
+    },
+    {
+      "id": "npc_gardener",
+      "name": "العم رابح",
+      "role": "gardener",
+      "title": "🌱 خبير الأشجار والزهور",
+      "category": "environment",
+      "categoryLabel": "🌳 التشجير والطبيعة",
+      "badgeColor": "#2ecc71",
+      "color": "#27ae60",
+      "skinColor": "#e8b99c",
+      "hatType": "straw",
+      "position": { "x": 16, "y": 0, "z": 14 },
+      "dialogue": {
+        "greeting": "أهلاً بك في حديقتنا الجميلة! يد واحدة لا تصفق، وبمساعدتكم تصبح أشجارنا أكثر نضارة وظلاً. هل أنت مستعد لسؤال أخضر؟",
+        "acceptText": "مستعد تماماً!",
+        "declineText": "بعد قليل"
+      }
+    },
+    {
+      "id": "npc_historian",
+      "name": "المؤرخ سعيد",
+      "role": "historian",
+      "title": "📜 حارس ذاكرة الوطن",
+      "category": "history",
+      "categoryLabel": "🇩🇿 تاريخ وثورة الجزائر",
+      "badgeColor": "#b7950b",
+      "color": "#d4ac0d",
+      "skinColor": "#f4d0b6",
+      "hatType": "fez",
+      "position": { "x": 32, "y": 0, "z": -14 },
+      "dialogue": {
+        "greeting": "مرحباً ببراعم الجزائر وأمل المستقبل! تاريخنا عظيم ومليء بالتضحيات والبطولات. هل نختبر معلوماتك عن أمجاد وطننا؟",
+        "acceptText": "أريد معرفة التاريخ!",
+        "declineText": "في وقت لاحق"
+      }
+    },
+    {
+      "id": "npc_imam",
+      "name": "الشيخ يوسف",
+      "role": "imam",
+      "title": "🕌 مرشد القيم والأخلاق",
+      "category": "islamic",
+      "categoryLabel": "📖 مكارم الأخلاق والقيم",
+      "badgeColor": "#1abc9c",
+      "color": "#16a085",
+      "skinColor": "#f5d3be",
+      "hatType": "turban",
+      "position": { "x": -36, "y": 0, "z": 12 },
+      "dialogue": {
+        "greeting": "السلام عليكم ورحمة الله وبركاته يا بني! ما أجمل أن نتحلى بالصدق والأمانة والبر. هل تتفضل بالإجابة عن سؤال في الأخلاق؟",
+        "acceptText": "وعليكم السلام، نعم يا شيخنا",
+        "declineText": "سأمر بكم قريباً"
+      }
+    },
+    {
+      "id": "npc_teacher",
+      "name": "الأستاذ أحمد",
+      "role": "teacher",
+      "title": "🏫 مربي الأجيال",
+      "category": "math",
+      "categoryLabel": "🧮 الرياضيات والذكاء",
+      "badgeColor": "#8e44ad",
+      "color": "#2980b9",
+      "skinColor": "#f5cfb3",
+      "hatType": "none",
+      "position": { "x": -34, "y": 0, "z": -12 },
+      "dialogue": {
+        "greeting": "أهلاً بتلميذي النجيب! العقل السليم يحتاج للتفكير والرياضيات تنمي الذكاء وسرعة البديهة. هل نجرب مسألة حسابية ذكية؟",
+        "acceptText": "هيا لنتحدى الذكاء!",
+        "declineText": "استراحة قصيرة يا أستاذ"
+      }
+    },
+    {
+      "id": "npc_doctor",
+      "name": "الطبيبة فاطمة",
+      "role": "doctor",
+      "title": "🩺 سفيرة الصحة والوقاية",
+      "category": "health",
+      "categoryLabel": "🍎 الصحة والوقاية",
+      "badgeColor": "#e74c3c",
+      "color": "#c0392b",
+      "skinColor": "#fcd3bd",
+      "hatType": "none",
+      "position": { "x": 16, "y": 0, "z": -14 },
+      "dialogue": {
+        "greeting": "مرحباً يا بطلنا القوي! درهم وقاية خير من قنطار علاج. كيف نحافظ على صحتنا ونشاطنا؟ هل تريد سؤالاً في الصحة؟",
+        "acceptText": "نعم يا دكتورة!",
+        "declineText": "سأعود لاحقاً"
+      }
+    },
+    {
+      "id": "npc_grocer",
+      "name": "عمي صالح",
+      "role": "grocer",
+      "title": "🛒 بائع السوق الأمين",
+      "category": "civics",
+      "categoryLabel": "🤝 المعاملة الطيبة والغذاء",
+      "badgeColor": "#e67e22",
+      "color": "#d35400",
+      "skinColor": "#e8b898",
+      "hatType": "cap",
+      "position": { "x": 20, "y": 0, "z": 32 },
+      "dialogue": {
+        "greeting": "يا هلا بابن حومتنا العزيز! خضار وفواكه بلادنا طازجة ومفيدة. هل تعرف فوائد الغذاء الطبيعي؟",
+        "acceptText": "أخبرني يا عمي صالح",
+        "declineText": "أكمل جولتي أولاً"
+      }
+    },
+    {
+      "id": "npc_librarian",
+      "name": "أمين المكتبة كريم",
+      "role": "librarian",
+      "title": "📚 رفيق الكتب والمعرفة",
+      "category": "science",
+      "categoryLabel": "🔬 العلوم والاكتشاف",
+      "badgeColor": "#2980b9",
+      "color": "#34495e",
+      "skinColor": "#f5d0b5",
+      "hatType": "none",
+      "position": { "x": -18, "y": 0, "z": -14 },
+      "dialogue": {
+        "greeting": "أهلاً بك في واحة القراءة والعلوم! في كل كتاب سر جديد عن الكون والطبيعة. هل نجيب عن سؤال علمي شيق؟",
+        "acceptText": "أنا جاهز للاكتشاف!",
+        "declineText": "لاحقاً إن شاء الله"
+      }
+    },
+    {
+      "id": "npc_police_officer",
+      "name": "الملازم سليم",
+      "role": "police_officer",
+      "title": "👮‍♂️ ضابط الأمن الوطني",
+      "category": "citizenship",
+      "categoryLabel": "🚨 الأمن والسلامة والمواطنة",
+      "badgeColor": "#1b3b6f",
+      "color": "#111c2e",
+      "skinColor": "#f0cbb0",
+      "hatType": "police",
+      "position": { "x": -25, "y": 0, "z": 40 },
+      "dialogue": {
+        "greeting": "مرحباً يا بني في مقر الأمن الوطني! أمن الوطن وسلامة المواطنين شرف ومسؤولية مشتركة بين الشرطة وكل مواطن صالح. هل تريد أن تتعلم قواعد السلامة والقانون؟",
+        "acceptText": "نعم يا حضرة الضابط!",
+        "declineText": "جولة سريعة وأعود"
+      }
+    },
+    {
+      "id": "npc_police_inspector",
+      "name": "المحقق مراد",
+      "role": "police_inspector",
+      "title": "🕵️‍♂️ مفتش التحريات والتحقيق",
+      "category": "security",
+      "categoryLabel": "🔍 التحريات والعدالة",
+      "badgeColor": "#2c3e50",
+      "color": "#34495e",
+      "skinColor": "#f4d0b6",
+      "hatType": "none",
+      "position": { "x": -32, "y": 0, "z": 42 },
+      "dialogue": {
+        "greeting": "أهلاً بك يا بني. التحريات تحتاج إلى اليقظة والدقة وعدم التسرع. تذكر أن واجبي جمع الأدلة، وواجب المواطن الإبلاغ الصادق لحماية المجتمع.",
+        "acceptText": "مستعد للتعاون",
+        "declineText": "سأعود لاحقاً"
+      }
+    },
+    {
+      "id": "npc_firefighter",
+      "name": "عمر - رجل الإطفاء",
+      "role": "firefighter",
+      "title": "🚒 نجدة الحماية المدنية",
+      "category": "safety",
+      "categoryLabel": "🔥 الإطفاء والسلامة العامة",
+      "badgeColor": "#c0392b",
+      "color": "#b33939",
+      "skinColor": "#e8b99c",
+      "hatType": "helmet",
+      "position": { "x": -28, "y": 0, "z": -38 },
+      "dialogue": {
+        "greeting": "حيّاك الله يا بطل! رجال الحماية المدنية في خدمة الجزائر ليل نهار لإنقاذ الأرواح وإخماد الحرائق. الوقاية خير من ألف إطفاء!",
+        "acceptText": "علمني قواعد السلامة!",
+        "declineText": "شكراً يا بطل"
+      }
+    },
+    {
+      "id": "npc_artisan",
+      "name": "العم بلقاسم",
+      "role": "artisan",
+      "title": "🏺 فنان الصناعات التقليدية",
+      "category": "heritage",
+      "categoryLabel": "🏛️ التراث والأصالة الجزائرية",
+      "badgeColor": "#d35400",
+      "color": "#b87333",
+      "skinColor": "#f0cbb0",
+      "hatType": "fez",
+      "position": { "x": 38, "y": 0, "z": 15 },
+      "dialogue": {
+        "greeting": "مرحباً ببراعم القصبة الأصيلة! الفخار والنحاس والزرابي حكايات أجدادنا وتراث خالد منذ قرون. هل تحب استكشاف كنوز صناعتنا التقليدية؟",
+        "acceptText": "أريد معرفة التراث!",
+        "declineText": "في وقت لاحق"
+      }
+    },
+    {
+      "id": "npc_struggling_youth",
+      "name": "ياسين",
+      "role": "struggling_youth",
+      "title": "🕊️ باحث عن الأمل والتعافي",
+      "category": "awareness",
+      "categoryLabel": "🌱 التوعية والوقاية والأمل",
+      "badgeColor": "#16a085",
+      "color": "#7f8c8d",
+      "skinColor": "#fcd3bd",
+      "hatType": "none",
+      "position": { "x": 28, "y": 0, "z": 20 },
+      "dialogue": {
+        "greeting": "أهلاً يا صغيري... أشعر أحياناً بضياع كبير وتعب، كنت أظن أن تجربة تلك السموم هروب من المشاكل لكنها كادت تدمر حياتي. أبحث عن يد مخلصة تدلني على طريق النجاة.",
+        "acceptText": "أنا بجانبك ونساعدك!",
+        "declineText": "أتمنى لك السلامة"
+      }
+    },
+    {
+      "id": "npc_suspect",
+      "name": "شخص غريب مريب",
+      "role": "suspect_promoter",
+      "title": "⚠️ مشتبه به يتربص بالحي",
+      "category": "security",
+      "categoryLabel": "🚨 اليقظة والإبلاغ الأمني",
+      "badgeColor": "#e74c3c",
+      "color": "#2c3e50",
+      "skinColor": "#dcdde1",
+      "hatType": "cap",
+      "position": { "x": -18, "y": 0, "z": -34 },
+      "dialogue": {
+        "greeting": "ماذا تنظر إلي؟ ابتعد من هنا ولا تسأل كثيراً...",
+        "acceptText": "سأبلغ الشرطة فوراً",
+        "declineText": "أبتعد بسلام"
+      }
+    },
+    {
+      "id": "npc_elderly_citizen",
+      "name": "عمي قدور",
+      "role": "elderly_citizen",
+      "title": "👴 شيخ وقور من أهل الحي",
+      "category": "civics",
+      "categoryLabel": "🤝 بر الكبار ومساعدة الآخرين",
+      "badgeColor": "#8e44ad",
+      "color": "#7f8c8d",
+      "skinColor": "#f5cfb3",
+      "hatType": "turban",
+      "position": { "x": 12, "y": 0, "z": 7.5 },
+      "dialogue": {
+        "greeting": "بارك الله فيك يا ولدي. خطواتي ثقيلة وسرعة السيارات تخيفني عند عبور الطريق. هل تتفضل بمرافقتي عبر ممر الراجلين؟",
+        "acceptText": "بكل احترام وسرور يا عمي!",
+        "declineText": "لحظة واحدة"
+      }
+    }
+  ]
+}
