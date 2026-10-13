@@ -1,0 +1,4 @@
+@AGENTS.md
+@wladz/WLADZ_TEAM_PROMPT.md
+@wladz/CRITICAL_CHANGES.md
+@wladz/AGENTS.md

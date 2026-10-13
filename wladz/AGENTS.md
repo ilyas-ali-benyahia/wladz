@@ -1,3 +1,7 @@
+# WLADZ — team rules first
+
+Before any action, read and follow `WLADZ_TEAM_PROMPT.md` (common team rules) and read `CRITICAL_CHANGES.md` locally and on `origin/main` (`git show origin/main:wladz/CRITICAL_CHANGES.md`). Report every unacknowledged entry to the developer before doing anything else.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know
