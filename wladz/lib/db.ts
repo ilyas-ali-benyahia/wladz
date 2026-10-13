@@ -14,15 +14,34 @@ function createDatabase() {
 
   const database = new DatabaseSync(path);
   database.exec(`
+    PRAGMA busy_timeout = 5000;
     PRAGMA foreign_keys = ON;
     PRAGMA journal_mode = WAL;
-    PRAGMA busy_timeout = 5000;
+  `);
 
+  // Migration CC-20261013-hub-core-01 : un ancien schéma (sans full_name)
+  // est incompatible, ses tables sont recréées.
+  const userColumns = database.prepare("PRAGMA table_info(users)").all();
+  if (
+    userColumns.length > 0 &&
+    !userColumns.some((column) => column.name === "full_name")
+  ) {
+    database.exec(`
+      DROP TABLE IF EXISTS sessions;
+      DROP TABLE users;
+    `);
+  }
+
+  database.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
-      email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+      full_name TEXT NOT NULL UNIQUE COLLATE NOCASE,
+      birth_date TEXT NOT NULL,
+      parent_phone TEXT NOT NULL,
       password_hash TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+      points INTEGER NOT NULL DEFAULT 0 CHECK (points >= 0),
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+      updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
     );
 
     CREATE TABLE IF NOT EXISTS sessions (
@@ -39,4 +58,8 @@ function createDatabase() {
   return database;
 }
 
-export const db = (globalForAuth.authDatabase ??= createDatabase());
+// Ouverture paresseuse : `next build` importe les routes dans plusieurs
+// processus à la fois et ne doit pas toucher au fichier SQLite.
+export function getDb() {
+  return (globalForAuth.authDatabase ??= createDatabase());
+}
