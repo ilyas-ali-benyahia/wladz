@@ -2,16 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { GameProps } from "@/types/game";
-import { manifest } from "./manifest";
-import { questions } from "./data/content";
+import { manifest } from "../manifest";
+import { questions } from "../_data/content";
 
 // Hors du composant : React 19 interdit les fonctions impures (Date.now) dans le rendu.
 function elapsedSince(start: number) {
   return Date.now() - start;
 }
 
-// Point d'entrée du jeu : composant client exporté par défaut, qui respecte GameProps.
-// Le hub affiche l'intro et l'écran de résultat ; le jeu ne gère que la partie elle-même.
+// Composant principal du jeu : composant client exporté par défaut, qui respecte GameProps.
+// GameShell affiche l'intro et l'écran de résultat ; le jeu ne gère que la partie elle-même.
 export default function Game({ player, onFinish, onExit }: GameProps) {
   const startedAt = useRef(0);
   const [index, setIndex] = useState(0);

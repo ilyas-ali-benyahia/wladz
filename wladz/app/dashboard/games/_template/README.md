@@ -1,6 +1,6 @@
-# <Titre du jeu> — `games/<slug>/`
+# <Titre du jeu> — `app/dashboard/games/<slug>/`
 
-> Copier ce dossier vers `games/<slug>/`, puis remplir chaque section. Voir `WLADZ_TEAM_PROMPT.md` §6 et §9.
+> Copier ce dossier vers `app/dashboard/games/<slug>/`, puis remplir chaque section. Voir `WLADZ_TEAM_PROMPT.md` §6 et §9.
 
 ## Équipe
 
@@ -26,19 +26,13 @@ Une ou deux phrases : de quoi parle le jeu, que fait le joueur.
 
 ## Contenu et sources
 
-| Élément (fichier `data/…`) | Source | Vérifié par | Date |
+| Élément (fichier `_data/…`) | Source | Vérifié par | Date |
 | --- | --- | --- | --- |
 | … | … | … | … |
 
-## Assets et licences
-
-| Fichier (`public/games/<slug>/…`) | Origine (créé par l'équipe / CC0 / CC-BY…) | Attribution |
-| --- | --- | --- |
-| `thumbnail.webp` | … | … |
-
 ## Checklist de validation (avant `status: "pret"`)
 
-- [ ] Tout le contenu est dans `data/` et a été relu par un humain de l'équipe.
+- [ ] Tout le contenu est dans `_data/` et a été relu par un humain de l'équipe.
 - [ ] Aucun `TODO-VERIFICATION` restant.
 - [ ] Conforme à la charte de contenu (§9) : religion, culture, société.
 - [ ] Testé sur mobile (360 px) et desktop, en arabe RTL.

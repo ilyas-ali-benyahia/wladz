@@ -30,3 +30,26 @@
 ## Journal
 
 <!-- Ajouter les nouvelles entrées SOUS cette ligne, à la fin du fichier. -->
+
+### CC-20261013-hub-core-01 — Jeux dans `app/dashboard/games/<slug>/` et règles allégées
+
+- **Date** : 2026-10-13
+- **Développeur** : simo-sh
+- **Groupe** : hub-core
+- **Branche / PR** : main (push direct)
+- **Type** : évolution de contrat (Core)
+- **Règle(s) concernée(s)** : WLADZ_TEAM_PROMPT.md §3, §5, §6, §8.5, §11, §12
+- **Changement** :
+  - Les jeux ne vivent plus dans `games/<slug>/` mais dans le dossier de route `app/dashboard/games/<slug>/` (URL `/dashboard/games/<slug>`), avec `page.tsx`, `manifest.ts`, `README.md`, `_components/Game.tsx`, `_data/`.
+  - Le modèle est `app/dashboard/games/_template/` ; `components/games/GameShell.tsx` (version minimale) affiche l'intro et le résultat.
+  - Le registre généré est `lib/games.generated.ts` ; plus de bac à sable `app/sandbox/` (chaque jeu a sa route).
+  - Fin des PR et approbations obligatoires : on travaille sur `main` avec `git pull --no-rebase` avant chaque push ; les commandes forcées restent interdites.
+  - Licences d'assets et polices/CDN externes : plus aucune contrainte pour le prototype.
+  - Jeu HTML autonome ou React : au choix du développeur.
+- **Raison** : routes plus propres, un jeu = une URL ; vitesse prioritaire sur le formalisme.
+- **Conséquences et risques acceptés** : sans relecture obligatoire, chacun vérifie l'existant et reste dans sa zone avant de pousser.
+- **Impact sur les autres groupes** : tous les groupes jeux.
+- **Action requise pour les autres** : créer son jeu en copiant `app/dashboard/games/_template/`.
+- **Nouvelle règle effective** : celle du WLADZ_TEAM_PROMPT.md à jour au 2026-10-13.
+- **Statut** : actif
+

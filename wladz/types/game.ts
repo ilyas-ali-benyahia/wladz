@@ -19,7 +19,7 @@ export type GameStatus = "en-developpement" | "pret";
 export const MAX_POINTS_PER_RUN = 100;
 
 export interface GameManifest {
-  slug: string; // = nom du dossier games/<slug>, kebab-case ASCII
+  slug: string; // = nom du dossier app/dashboard/games/<slug>, kebab-case ASCII
   title: LocalizedText;
   description: LocalizedText; // 1 à 2 phrases, affichées sur la carte du hub
   category: GameCategory;
