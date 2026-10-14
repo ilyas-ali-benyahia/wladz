@@ -161,27 +161,24 @@ export function FullscreenGameLauncher({
                 }`}
               />
               {externalOrigin ? (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  icon={X}
-                  iconPosition="start"
-                  onClick={stop}
-                  className="absolute end-3 bottom-3 text-dz-red!"
-                >
-                  خروج
-                </Button>
+                // Conteneur positionné : .wz-btn (app/ui.css) impose position: relative.
+                <div className="absolute end-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-10">
+                  <Button variant="secondary" size="sm" icon={X} iconPosition="start" onClick={stop} className="text-dz-red!">
+                    خروج
+                  </Button>
+                </div>
               ) : null}
               {fullscreen.supported && !fullscreen.isFullscreen ? (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  icon={Maximize}
-                  onClick={fullscreen.enter}
-                  aria-label="ملء الشاشة"
-                  title="ملء الشاشة"
-                  className="absolute start-3 bottom-3"
-                />
+                <div className="absolute start-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-10">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    icon={Maximize}
+                    onClick={fullscreen.enter}
+                    aria-label="ملء الشاشة"
+                    title="ملء الشاشة"
+                  />
+                </div>
               ) : null}
             </div>,
             document.body,

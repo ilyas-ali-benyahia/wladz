@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import {
   Amphora,
   Compass,
+  Flag,
   Gamepad2,
   MoonStar,
   Rocket,
@@ -26,6 +27,7 @@ const gameArt: Record<string, { icon: LucideIcon; tone: string }> = {
   myths: { icon: SearchCheck, tone: "#d21034" },
   ghiras: { icon: Sprout, tone: "#4c9a2a" },
   salati: { icon: MoonStar, tone: "#0b7a43" },
+  mujahideen: { icon: Flag, tone: "#b8892b" },
 };
 
 const fallback = { icon: Gamepad2, tone: "#2f8f5b" };

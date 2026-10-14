@@ -4,6 +4,10 @@ export type Game = {
   description: string;
   // Partie courte, listée dans « ألعاب سريعة ».
   quick?: boolean;
+  // Jeu principal de l'application : lien à part dans la barre latérale, absent des listes.
+  featured?: boolean;
+  // Titre affiché avec le prénom de l'enfant connecté : « <prénom>: <playerTitle> ».
+  playerTitle?: string;
 };
 
 export const games: Game[] = [
@@ -26,11 +30,18 @@ export const games: Game[] = [
     slug: "amine",
     title: "أمين: طريق الحياة",
     description: "عِش حياة أمين في حومة جزائرية: كل قرار يغيّر طريقه، و72 نهاية مختلفة تنتظرك.",
+    featured: true,
+    playerTitle: "طريق الحياة",
   },
   {
     slug: "treasures",
     title: "كنوز الجزائر",
     description: "رحلة عبر ولايات الجزائر الـ 58: معالم وتراث وتاريخ، مرحلة بعد مرحلة.",
+  },
+  {
+    slug: "mujahideen",
+    title: "المجاهدون الستة",
+    description: "ليلة أول نوفمبر 1954: قُد القادة الستة عبر جبال الأوراس وأجب عن أسئلة حولهم لتفتح الطريق.",
   },
   {
     slug: "salati",
@@ -58,3 +69,10 @@ export const games: Game[] = [
 export function findGame(slug: string) {
   return games.find((game) => game.slug === slug);
 }
+
+// Titre du jeu pour l'enfant connecté (« ياسمين: طريق الحياة »), sinon le titre habituel.
+export function gameTitle(game: Pick<Game, "title" | "playerTitle">, firstName: string) {
+  return game.playerTitle && firstName ? `${firstName}: ${game.playerTitle}` : game.title;
+}
+
+export const featuredGame = games.find((game) => game.featured)!;

@@ -10,7 +10,7 @@ export default function GamesPage() {
         <IconTile icon={Gamepad2} tone="#2f8f5b" size="sm" />
         الألعاب
       </h1>
-      <GameList list={games.filter((game) => !game.quick)} />
+      <GameList list={games.filter((game) => !game.quick && !game.featured)} />
     </>
   );
 }

@@ -6,13 +6,14 @@ import { AmineLauncher } from "@/games/amine/AmineLauncher";
 import { ChoicesGame } from "@/games/choices/ChoicesGame";
 import { GhirasLauncher } from "@/games/ghiras/GhirasLauncher";
 import { MathLauncher } from "@/games/math/MathLauncher";
+import { MujahideenLauncher } from "@/games/mujahideen/MujahideenLauncher";
 import { MythsGame } from "@/games/myths/MythsGame";
 import { SalatiGame } from "@/games/salati/SalatiGame";
 import { SkillsLauncher } from "@/games/skills/SkillsLauncher";
 import { SpaceGame } from "@/games/space/SpaceGame";
 import { TreasuresLauncher } from "@/games/treasures/TreasuresLauncher";
 import { getSessionUser } from "@/lib/auth";
-import { findGame } from "@/lib/games";
+import { findGame, gameTitle } from "@/lib/games";
 import { getAnsweredQuestions } from "@/lib/points";
 
 export default async function GamePage({ params }: PageProps<"/dashboard/games/[gameId]">) {
@@ -29,20 +30,22 @@ export default async function GamePage({ params }: PageProps<"/dashboard/games/[
   const answered = getAnsweredQuestions(user.id, game.slug);
 
   // Les jeux en iframe passent seuls en plein écran au lancement.
+  const firstName = user.full_name.split(" ")[0];
   const inPage = ["space", "choices", "myths", "salati"].includes(game.slug);
 
   return (
-    <GameStage title={game.title} canGoFullscreen={inPage}>
+    <GameStage title={gameTitle(game, firstName)} canGoFullscreen={inPage}>
       {game.slug === "space" ? <SpaceGame initialAnswered={answered} /> : null}
       {game.slug === "choices" ? <ChoicesGame tier={tier} initialAnswered={answered} /> : null}
       {game.slug === "math" ? <MathLauncher /> : null}
       {game.slug === "treasures" ? <TreasuresLauncher /> : null}
-      {game.slug === "amine" ? <AmineLauncher /> : null}
+      {game.slug === "amine" ? <AmineLauncher title={gameTitle(game, firstName)} /> : null}
       {game.slug === "ghiras" ? <GhirasLauncher /> : null}
+      {game.slug === "mujahideen" ? <MujahideenLauncher /> : null}
       {game.slug === "salati" ? (
         <SalatiGame
           player={{
-            firstName: user.full_name.split(" ")[0],
+            firstName,
             age: Number(new Date().getFullYear()) - Number(user.birth_date.slice(0, 4)),
           }}
         />

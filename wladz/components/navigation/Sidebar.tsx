@@ -5,21 +5,42 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut, Star } from "lucide-react";
 import { LogoutButton } from "@/components/navigation/LogoutButton";
-import { navLinks } from "@/components/navigation/navLinks";
-import { IconTile } from "@/components/ui/GameIcon";
+import { navLinks, type NavLink } from "@/components/navigation/navLinks";
+import { IconTile, gameArtFor } from "@/components/ui/GameIcon";
+import { featuredGame, gameTitle } from "@/lib/games";
+
+const featuredHref = `/dashboard/games/${featuredGame.slug}`;
+
+// Liens de navigation, avec le jeu principal (« <prénom>: طريق الحياة ») juste après l'accueil.
+function navLinksFor(firstName: string): (NavLink & { featured?: boolean })[] {
+  const { icon, tone } = gameArtFor(featuredGame.slug);
+  const main = {
+    href: featuredHref,
+    label: gameTitle(featuredGame, firstName),
+    short: "طريقي",
+    description: featuredGame.description,
+    icon,
+    tone,
+    featured: true,
+  };
+  return [navLinks[0], main, ...navLinks.slice(1)];
+}
 
 function useIsActive() {
   const pathname = usePathname();
   return (href: string) =>
-    href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
+    href === "/dashboard"
+      ? pathname === "/dashboard"
+      : pathname.startsWith(href) && (href === featuredHref || !pathname.startsWith(featuredHref));
 }
 
 // Lien de la barre latérale : soulèvement, balayage blanc et halo vert au survol.
 const navItem =
   "wz-nav-item flex items-center gap-3 rounded-3xl p-2.5 text-lg font-bold transition-all duration-300";
 
-export function Sidebar({ points }: { points: number }) {
+export function Sidebar({ points, firstName }: { points: number; firstName: string }) {
   const isActive = useIsActive();
+  const links = navLinksFor(firstName);
 
   return (
     <>
@@ -30,7 +51,7 @@ export function Sidebar({ points }: { points: number }) {
         </Link>
 
         <nav className="flex flex-col gap-2">
-          {navLinks.map(({ href, label, icon, tone }) => {
+          {links.map(({ href, label, icon, tone, featured }) => {
             const active = isActive(href);
             return (
               <Link
@@ -42,11 +63,20 @@ export function Sidebar({ points }: { points: number }) {
                 className={`${navItem} ${
                   active
                     ? "bg-white/85 text-dz-green shadow-lg ring-2 ring-dz-green-light/70"
-                    : "text-ink-soft hover:bg-white/60 hover:text-ink"
+                    : featured
+                      ? "bg-white/50 text-ink ring-2 ring-[#7c5ce6]/35 hover:bg-white/70"
+                      : "text-ink-soft hover:bg-white/60 hover:text-ink"
                 }`}
               >
-                <IconTile icon={icon} tone={tone} size="sm" className={active ? "scale-110" : ""} />
-                <span className="hidden lg:inline">{label}</span>
+                <IconTile icon={icon} tone={tone} size="sm" className={`shrink-0 ${active ? "scale-110" : ""}`} />
+                {featured ? (
+                  <span className="hidden min-w-0 lg:block">
+                    <span className="block truncate">{label}</span>
+                    <span className="block text-xs font-bold text-[#7c5ce6]">اللعبة الرئيسية</span>
+                  </span>
+                ) : (
+                  <span className="hidden lg:inline">{label}</span>
+                )}
               </Link>
             );
           })}
@@ -74,7 +104,7 @@ export function Sidebar({ points }: { points: number }) {
 
       {/* Phone: bottom tab bar */}
       <nav className="wz-glass fixed inset-x-0 bottom-0 z-30 flex justify-around rounded-t-[1.75rem] px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] short:rounded-t-2xl short:pt-1 short:pb-[max(0.25rem,env(safe-area-inset-bottom))] md:hidden">
-        {navLinks.map(({ href, label, short, icon, tone }) => {
+        {links.map(({ href, label, short, icon, tone }) => {
           const active = isActive(href);
           return (
             <Link
