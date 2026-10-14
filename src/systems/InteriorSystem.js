@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { events } from '../core/EventBus.js';
 import { addSurfaceDetail } from '../core/MaterialUpgrader.js';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+import { CharacterModel } from './CharacterModel.js';
+import { OUTFITS } from '../data/outfits.js';
 
 /**
  * InteriorSystem: enterable landmarks with Arabic name signs.
@@ -69,7 +71,8 @@ const LANDMARKS = [
   { id: 'townhall', name: 'مقر البلدية', sub: 'المجلس الشعبي البلدي', door: [21, -60.5], normal: [0, 1], color: '#0b5345' },
   { id: 'casbah', name: 'دار القصبة العتيقة', sub: 'تراث عالمي', door: [54.8, 21], normal: [-1, 0], color: '#784212' },
   { id: 'association', name: 'جمعية شباب التطوع', sub: 'يد واحدة لا تصفق', door: [-21, 10.2], normal: [0, -1], color: '#1e8449' },
-  { id: 'home', name: 'منزلي', sub: 'بيت العائلة', door: [75, 54.6], normal: [0, -1], color: '#7d5a3c' }
+  { id: 'home', name: 'منزلي', sub: 'بيت العائلة', door: [75, 54.6], normal: [0, -1], color: '#7d5a3c' },
+  { id: 'clothes', name: 'متجر الأناقة', sub: 'ملابس يومية ورياضية وتقليدية', door: [76, -53.3], normal: [0, 1], color: '#7d3c98' }
 ];
 
 export class InteriorSystem {
@@ -142,7 +145,7 @@ export class InteriorSystem {
   buildInterior(l, index) {
     const sizes = {
       museum: [24, 18, 7], mosque: [22, 20, 8], library: [20, 16, 5.5], school: [18, 14, 4.5], clinic: [16, 14, 4.5],
-      police: [18, 14, 4.5], fire: [22, 16, 7], townhall: [20, 16, 6], casbah: [16, 16, 7], association: [18, 14, 5], home: [14, 11, 3.6]
+      police: [18, 14, 4.5], fire: [22, 16, 7], townhall: [20, 16, 6], casbah: [16, 16, 7], association: [18, 14, 5], home: [14, 11, 3.6], clothes: [14, 10, 4.2]
     };
     const [w, d, h] = sizes[l.id];
     const origin = new THREE.Vector3(500 + (index % 3) * 60, 0, -60 + Math.floor(index / 3) * 60);
@@ -152,7 +155,7 @@ export class InteriorSystem {
 
     const palette = {
       museum: [0xf3ead8, 0xd9cdb6], mosque: [0xf7f3e8, 0x9c2a2a], library: [0xefe4cf, 0x8d6e53], school: [0xf2efe4, 0xc9b79a],
-      clinic: [0xf4f8f8, 0xdfe7e6], police: [0xe8ecf1, 0xb9b3a7], fire: [0xe9e4dc, 0x8a8a8a], townhall: [0xf1ece0, 0xcbbd9f], casbah: [0xfbf6ec, 0x2e86c1], association: [0xf6efe0, 0xc9b79a], home: [0xf7efe1, 0xa47551]
+      clinic: [0xf4f8f8, 0xdfe7e6], police: [0xe8ecf1, 0xb9b3a7], fire: [0xe9e4dc, 0x8a8a8a], townhall: [0xf1ece0, 0xcbbd9f], casbah: [0xfbf6ec, 0x2e86c1], association: [0xf6efe0, 0xc9b79a], home: [0xf7efe1, 0xa47551], clothes: [0xf8f1f8, 0xd8c7b0]
     }[l.id];
 
     // Shell: inward-facing box (walls + ceiling), lit by the shared room light; does not block the sun
@@ -203,7 +206,8 @@ export class InteriorSystem {
     const addBox = (x, z, sx, sz, hh = 2) => {
       this.collision.addBox(origin.x + x - sx / 2, origin.z + z - sz / 2, origin.x + x + sx / 2, origin.z + z + sz / 2, hh);
     };
-    const poi = (x, z, title, text) => interior.pois.push({ pos: origin.clone().add(new THREE.Vector3(x, 0, z)), title, text });
+    // Info points show a fact; action points (shop counter, wardrobe) open a panel instead
+    const poi = (x, z, title, text, action = null) => interior.pois.push({ pos: origin.clone().add(new THREE.Vector3(x, 0, z)), title, text, action });
 
     this.furnish(l.id, room, interior, addBox, poi);
 
@@ -407,6 +411,47 @@ export class InteriorSystem {
       poi(-1.6, d / 2 - 1.2, 'مفتاح الإنارة', 'أطفئ الأضواء والأجهزة عند خروجك من البيت: ترشيد الكهرباء يحمي البيئة ويخفّف فاتورة العائلة.');
       poi(1.6, d / 2 - 1.2, 'مفاتيح السيارة', 'سيارة العائلة متوقفة في الممر أمام المنزل. اقترب منها واضغط E للركوب. W/S للتقدم والرجوع، A/D للانعطاف، والمسافة للفرملة. احترم إشارات المرور والراجلين!');
       poi(3.3, -4.3, 'صنبور الماء', 'أغلق الصنبور جيداً بعد الاستعمال: الماء ثروة ثمينة يجب ترشيدها.');
+      // Wardrobe: change between owned outfits and appearance
+      add(rbox(0.62, 2.2, 1.7, mat(0xb08a62, 0.6), 0.04), -w / 2 + 0.33, 1.1, -3.4);
+      [-0.42, 0.42].forEach(z => add(rbox(0.03, 0.3, 0.04, mat(0xd4af37, 0.3, { metalness: 0.7 }), 0.01), -w / 2 + 0.66, 1.15, -3.4 + z * 0.15));
+      addBox(-w / 2 + 0.33, -3.4, 0.7, 1.8, 2.2);
+      poi(-w / 2 + 1.4, -3.4, '👕 خزانة الملابس', '', 'wardrobe');
+    } else if (id === 'clothes') {
+      // Clothing shop: racks of garments, mannequins wearing the outfits, mirror and the checkout counter
+      const chrome = mat(0xc9ced3, 0.3, { metalness: 0.8 }), wood = mat(0x8d6e4f, 0.6);
+      const rb = (sx, sy, sz, m, r = 0.04) => new THREE.Mesh(new RoundedBoxGeometry(sx, sy, sz, 2, r), m);
+      const garmentColors = [0x7c3aed, 0x1e8449, 0xffffff, 0x2ecc71, 0x7b1e3a, 0x2c5f8a, 0xf39c12, 0xd9667a];
+      [[-4.6, -1.5], [-4.6, 1.6]].forEach(([x, z], r) => {
+        [-1.1, 1.1].forEach(dz => add(new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.6, 8), chrome), x, 0.8, z + dz));
+        const bar = add(new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 2.3, 8), chrome), x, 1.6, z);
+        bar.rotation.x = Math.PI / 2;
+        for (let i = 0; i < 6; i++) add(rb(0.42, 0.8, 0.07, mat(garmentColors[(i + r * 3) % garmentColors.length], 0.9), 0.03), x, 1.15, z - 0.9 + i * 0.36).rotation.y = Math.PI / 2;
+        addBox(x, z, 0.6, 2.5, 1.7);
+      });
+      // Mannequins on pedestals wearing three of the outfits (same rig as the player)
+      const pale = { skin: 0xe9e4dc, hair: 0xd8d2c8, hairStyle: 'crop', hijab: 0xe9e4dc };
+      [['boy_purple', 'sport', -1.6], ['girl_green', 'traditional', 0.2], ['boy_purple', 'volunteer', 2.0]].forEach(([type, id, x]) => {
+        add(new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.55, 0.25, 32), mat(0xffffff, 0.4)), x, 0.125, -d / 2 + 1.4);
+        const outfit = OUTFITS.find(o => o.id === id)[type.startsWith('girl') ? 'girl' : 'boy'];
+        const m = new CharacterModel(type, { appearance: pale, outfit });
+        for (let i = 0; i < 10; i++) m.update(1 / 30, { isMoving: false });
+        m.group.position.set(x, 0.25, -d / 2 + 1.4);
+        room.add(m.group);
+        addBox(x, -d / 2 + 1.4, 1.1, 1.1, 2);
+      });
+      // Mirror on the right wall
+      const frame = rb(0.08, 2.1, 1.2, wood, 0.03);
+      add(frame, w / 2 - 0.08, 1.35, 1.5);
+      add(new THREE.Mesh(new THREE.PlaneGeometry(1.0, 1.9), mat(0xdfe8ee, 0.05, { metalness: 0.9 })), w / 2 - 0.13, 1.35, 1.5).rotation.y = -Math.PI / 2;
+      // Checkout counter
+      add(rb(2.6, 1.0, 0.8, wood), 4.2, 0.5, -1.5);
+      add(rb(2.7, 0.06, 0.9, mat(0xf4f1ea, 0.4), 0.02), 4.2, 1.03, -1.5);
+      add(rb(0.4, 0.28, 0.3, mat(0x2c3e50, 0.4), 0.03), 3.6, 1.2, -1.5);
+      addBox(4.2, -1.5, 2.8, 1.0, 1.2);
+      const sign = textPanel('تخفيضات المتطوعين', 3.0, 0.9, { bg: '#7d3c98', sub: 'كل قطعة بعرق جبينك', size: 90 });
+      sign.rotation.y = -Math.PI / 2;
+      add(sign, w / 2 - 0.06, 2.9, -2.2);
+      poi(4.2, -0.4, '🛍️ صندوق الدفع: تصفّح الملابس وجرّبها', '', 'shop');
     } else if (id === 'casbah') {
       // Courtyard house: central fountain, arches and zellige floor
       const zellige = new THREE.Mesh(new THREE.CircleGeometry(3.2, 8), mat(0x1f618d, 0.5, { polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 }));
@@ -442,7 +487,7 @@ export class InteriorSystem {
       this.nearExit = p.distanceTo(it.exit) < 1.8;
       this.nearPOI = this.nearExit ? null : it.pois.find(q => p.distanceTo(q.pos) < 2.0) || null;
       if (this.nearExit) hint = `اضغط <b>E</b> للخروج من ${it.name}`;
-      else if (this.nearPOI) hint = `اضغط <b>E</b> لقراءة: ${this.nearPOI.title}`;
+      else if (this.nearPOI) hint = this.nearPOI.action ? `اضغط <b>E</b>: ${this.nearPOI.title}` : `اضغط <b>E</b> لقراءة: ${this.nearPOI.title}`;
     }
     if (hint !== this.lastHint) {
       this.lastHint = hint;
@@ -455,6 +500,10 @@ export class InteriorSystem {
     if (this.busy) return false;
     if (!this.current && this.nearDoor) { this.enter(this.nearDoor); return true; }
     if (this.current && this.nearExit) { this.exit(); return true; }
+    if (this.current && this.nearPOI && this.nearPOI.action) {
+      events.emit('INTERIOR_ACTION', { id: this.current.id, action: this.nearPOI.action });
+      return true;
+    }
     if (this.current && this.nearPOI) {
       events.emit('TOAST', `📖 ${this.nearPOI.text}`);
       events.emit('INTERIOR_POI_READ', { id: this.current.id, title: this.nearPOI.title });

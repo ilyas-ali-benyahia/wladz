@@ -35,10 +35,13 @@ export class PlayerController {
     if (charType === 'boy') resolvedType = 'boy_purple';
     if (charType === 'girl') resolvedType = 'girl_green';
     this.gender = resolvedType;
+    const carrying = this.model ? this.model.carrying : false; // keep a carried item pose across outfit changes
     if (this.model) {
       this.group.remove(this.model.group);
     }
-    this.model = new CharacterModel(resolvedType);
+    // Appearance and outfit come from the wardrobe (character selection / clothing shop)
+    this.model = new CharacterModel(resolvedType, this.lookFor ? this.lookFor(resolvedType) : {});
+    this.model.carrying = carrying;
     this.group.add(this.model.group);
     this.group.position.copy(this.position);
   }
@@ -124,8 +127,8 @@ export class PlayerController {
       isJumping: !this.isGrounded
     });
 
-    // 4. Update smooth Third Person Camera
-    this.updateCamera(dt);
+    // 4. Update smooth Third Person Camera (unless another view owns it, e.g. the clothing panel)
+    if (!(this.cameraHold && this.cameraHold())) this.updateCamera(dt);
   }
 
   updateCamera(dt) {

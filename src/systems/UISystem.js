@@ -81,6 +81,12 @@ export class UISystem {
       this.previewPop = 0; // the new model grows in (see main.js preview)
       this.previewYaw = 0;
       if (this.previewStage) this.previewStage.userData.ring.material.color.setHex(charType === 'girl_green' ? 0x2ecc71 : 0x8e5cf7);
+      this.renderCharCustom();
+    };
+    // Appearance controls under the cards (skin tone, hair or hijab colour, hairstyle)
+    this.renderCharCustom = () => {
+      const box = document.getElementById('char-custom');
+      if (box && this.game.wardrobe) this.game.wardrobe.renderAppearance(box, this.selectedCharType);
     };
     charCards.forEach(card => {
       card.addEventListener('click', () => {
@@ -257,6 +263,7 @@ export class UISystem {
     this.previewStage.visible = true;
     this.selectCharacter(this.selectedCharType || 'boy_purple');
     this.game.player.switchGender(this.selectedCharType);
+    this.renderCharCustom();
   }
 
   /** Small showcase stage under the character: stone disc and a soft light ring in the hero's colour */

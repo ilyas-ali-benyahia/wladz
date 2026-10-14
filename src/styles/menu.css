@@ -413,3 +413,21 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Appearance controls on the character selection screen */
+.char-custom {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+  background: rgba(10, 18, 30, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 6px 16px;
+  backdrop-filter: blur(10px);
+  max-width: min(980px, 96vw);
+}
+.char-custom .wd-row { padding: 6px 0; gap: 6px; }
+.char-custom .wd-label { font-size: 12px; }
+.char-custom .wd-swatch { width: 26px; height: 26px; }
+.char-custom .wd-chip { padding: 4px 10px; font-size: 12px; }

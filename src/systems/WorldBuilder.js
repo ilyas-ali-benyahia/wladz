@@ -47,6 +47,7 @@ export class WorldBuilder {
     this.createTownHallBuilding();
     this.createCasbahHeritageQuarter();
     this.createPlayerHome();
+    this.createClothingShop();
   }
 
   // ═════════════════════════════════════════════════════
@@ -1112,6 +1113,26 @@ export class WorldBuilder {
     this.collisionSystem.addBox(b.minX - 0.15, b.minZ - 0.15, b.maxX + 0.15, b.maxZ + 0.15, b.h + 3.2);
     [doorX - 1.4, doorX + 1.4].forEach(px => this.collisionSystem.addBox(px - 0.35, b.minZ - 1.05, px + 0.35, b.minZ - 0.35, 1.2));
     this.collisionSystem.addBox(79.0, 51.6, 80.2, 52.8, 1.2);
+  }
+
+  // ═════════════════════════════════════════════════════
+  // Clothing shop (north-east block, facing the ring road)
+  // ═════════════════════════════════════════════════════
+  createClothingShop() {
+    const x = 76, z = -57.5;
+    this.buildings.createCartoonShop(x, z, 'clothes', 0);
+    this.collisionSystem.addBox(x - 4.5, z - 4.0, x + 4.5, z + 3.9, 6);
+    // Paved forecourt from the sidewalk to the shop front
+    const pave = addSurfaceDetail(new THREE.MeshStandardMaterial({ color: 0xd9cfc0, roughness: 0.85 }), 0.06, 0.8);
+    const slab = new THREE.Mesh(new RoundedBoxGeometry(10, 0.2, 2.9, 2, 0.04), pave);
+    slab.position.set(x, 0.1, -52.3);
+    slab.receiveShadow = true;
+    this.scene.add(slab);
+    this.nature.createPottedPlant(x - 3.6, -52.6, 0.8);
+    this.nature.createPottedPlant(x + 3.6, -52.6, 0.8);
+    this.collisionSystem.addBox(x - 3.95, -52.95, x - 3.25, -52.25, 1.2);
+    this.collisionSystem.addBox(x + 3.25, -52.95, x + 3.95, -52.25, 1.2);
+    this.clothingShop = { door: [x, -53.3] };
   }
 
   createCasbahHeritageQuarter() {

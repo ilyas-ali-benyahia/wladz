@@ -301,6 +301,19 @@ export class CharacterModel {
       if (this.options.secondaryColor !== undefined) pantsColor = this.options.secondaryColor;
       if (this.options.shoeColor !== undefined) shoeColor = this.options.shoeColor;
     }
+    // Player appearance (character selection) and outfit (clothing shop): colours + garment shapes on the same rig
+    const look = !isNPC ? this.options.appearance || null : null;
+    const outfit = !isNPC ? this.options.outfit || null : null;
+    if (look) {
+      if (look.skin !== undefined) skinColor = look.skin;
+      if (look.hair !== undefined) hairColor = look.hair;
+    }
+    if (outfit) {
+      shirtColor = outfit.shirt;
+      pantsColor = outfit.pants;
+      shoeColor = outfit.shoes;
+      if (outfit.collar !== undefined) collarColor = outfit.collar;
+    }
     if (isNPC) {
       skinColor = this.options.skinColor || 0xe8bd9c;
       shirtColor = this.options.primaryColor || 0x27ae60;
@@ -340,7 +353,7 @@ export class CharacterModel {
     this.role = role;
     this.isNPC = isNPC;
     const isFemaleNPC = isNPC && this.options.gender === 'female';
-    const robeLen = ROBE_ROLES[role] ?? (isFemaleNPC ? 0.97 : 0);
+    const robeLen = ROBE_ROLES[role] ?? (isFemaleNPC ? 0.97 : (outfit && outfit.robe) || 0);
     this.strideScale = robeLen > 0.9 ? (isFemaleNPC ? 0.7 : 0.6) : 1.0;
 
     // ─────────────────────────────────────────────────────────────
@@ -409,7 +422,7 @@ export class CharacterModel {
     torso.add(collar);
 
     // Jacket zip / stripes for Amin
-    if (type === 'boy_purple' || type === 'boy') {
+    if ((type === 'boy_purple' || type === 'boy') && (!outfit || outfit.zip)) {
       const zip = new THREE.Mesh(new THREE.PlaneGeometry(0.012, H * 0.85), decalMat({ color: 0xffffff }));
       zip.position.set(0, H * 0.47, frontZ(H * 0.47) + 0.002);
       torso.add(zip);
@@ -467,6 +480,51 @@ export class CharacterModel {
       }
     }
 
+    // Outfit garments over the torso: vest, kit / hi-vis bands, embroidered buttons, fan scarf
+    if (outfit) {
+      const depth = D.chestD / W;
+      const radiusAt = (f) => profile.reduce((acc, [h, rr]) => (h <= f ? rr : acc), W);
+      if (outfit.vest !== undefined) {
+        const vest = new THREE.Mesh(
+          cachedGeo(`vest:${H}:${W}`, () => new THREE.LatheGeometry(
+            profile.filter(([f]) => f >= 0.3 && f <= 0.97).map(([f, r]) => new THREE.Vector2(r * 1.045, f * H)), 28)),
+          clothMat({ color: outfit.vest, side: THREE.DoubleSide })
+        );
+        vest.scale.z = depth;
+        torso.add(vest);
+      }
+      (outfit.bands || []).forEach((c, i) => {
+        const f = [0.62, 0.36][i] ?? 0.5;
+        const r = radiusAt(f) * (outfit.vest !== undefined ? 1.075 : 1.04);
+        const band = new THREE.Mesh(cachedGeo(`band:${r.toFixed(4)}`, () => new THREE.CylinderGeometry(r, r, 0.035, 28, 1, true)), clothMat({ color: c, roughness: 0.5 }));
+        band.scale.z = depth;
+        band.position.y = H * f;
+        torso.add(band);
+      });
+      if (outfit.buttons) {
+        const gold = decalMat({ color: 0xd4a017, roughness: 0.35 });
+        for (let b = 0; b < 4; b++) {
+          const h = H * (0.32 + b * 0.15);
+          const button = new THREE.Mesh(cachedGeo('button', () => new THREE.CircleGeometry(0.008, 10)), gold);
+          button.position.set(0, h, frontZ(h) + 0.003);
+          torso.add(button);
+        }
+      }
+      if (outfit.scarf) {
+        outfit.scarf.forEach((c, i) => {
+          const ring = new THREE.Mesh(cachedGeo(`scarf:${D.neck}`, () => new THREE.TorusGeometry(D.neck * 0.72 + 0.02, 0.022, 10, 26)), clothMat({ color: c }));
+          ring.rotation.x = Math.PI / 2;
+          ring.position.y = H * 0.985 + i * 0.03;
+          torso.add(ring);
+        });
+        const tail = new THREE.Mesh(cachedGeo('scarf-tail', () => new THREE.CapsuleGeometry(0.022, 0.13, 3, 8)), clothMat({ color: outfit.scarf[0] }));
+        tail.scale.z = 0.4;
+        tail.position.set(W * 0.28, H * 0.86, frontZ(H * 0.86) + 0.012);
+        tail.rotation.z = 0.15;
+        torso.add(tail);
+      }
+    }
+
     // Traditional gandoura / qamis or doctor's coat: flared robe hanging from the waist
     if (robeLen > 0) {
       const len = (D.thigh + D.shin) * robeLen;
@@ -475,7 +533,7 @@ export class CharacterModel {
           new THREE.Vector2(D.hipW * 1.06, 0.05), new THREE.Vector2(D.hipW * 1.18, -len * 0.35),
           new THREE.Vector2(D.hipW * 1.45, -len), new THREE.Vector2(D.hipW * 1.4, -len - 0.01)
         ], 28),
-        role === 'doctor' ? clothMat({ color: 0xf4f6f7, side: THREE.DoubleSide }) : clothMat({ color: shirtColor, side: THREE.DoubleSide })
+        role === 'doctor' ? clothMat({ color: 0xf4f6f7, side: THREE.DoubleSide }) : clothMat({ color: (outfit && outfit.robeColor) ?? shirtColor, side: THREE.DoubleSide })
       );
       robe.scale.z = 0.85;
       hips.add(robe);
@@ -518,7 +576,7 @@ export class CharacterModel {
 
     // Hair, hijab and beards are sculpted shells that follow the same skull (no hats, no loose primitives)
     if (isFemale) {
-      const hijabColor = this.options.hijabColor ?? HERO_HIJAB[type] ?? 0x7a5c7e;
+      const hijabColor = (look && look.hijab) ?? this.options.hijabColor ?? HERO_HIJAB[type] ?? 0x7a5c7e;
       this.buildHijab(headGroup, headRadius, clothMat({ color: hijabColor }), torso, SY);
     } else {
       shellOnHead(makeHeadShell(headRadius, `hair-${this.chooseHairStyle(type, role)}`, hairOffset(this.chooseHairStyle(type, role))), hairMat);
@@ -531,7 +589,7 @@ export class CharacterModel {
     // ─────────────────────────────────────────────────────────────
     // 6. Arms & legs
     // ─────────────────────────────────────────────────────────────
-    const longSleeves = type === 'boy_purple' || LONG_SLEEVE_ROLES.includes(role) || isFemale;
+    const longSleeves = outfit ? (outfit.longSleeves !== false || isFemale) : (type === 'boy_purple' || LONG_SLEEVE_ROLES.includes(role) || isFemale);
     ['left', 'right'].forEach((name, i) => {
       const side = i === 0 ? -1 : 1;
       const arm = this.createArm(side, skinMat, shirtMat, longSleeves);
@@ -539,7 +597,7 @@ export class CharacterModel {
       torso.add(arm);
       this.bones[name + 'Arm'] = arm;
 
-      const leg = this.createLeg(side, pantsMat, shoeMat, whiteMat);
+      const leg = this.createLeg(side, pantsMat, shoeMat, whiteMat, outfit && outfit.shorts && !isFemale ? skinMat : null);
       leg.position.set(side * D.hipW * 0.52, -0.05, 0);
       hips.add(leg);
       this.bones[name + 'Leg'] = leg;
@@ -604,6 +662,7 @@ export class CharacterModel {
 
   /** Hairstyle per character: uniforms keep it short, elders recede, everyone else varies but stays stable */
   chooseHairStyle(type, role) {
+    if (!this.isNPC && this.options.appearance && this.options.appearance.hairStyle) return this.options.appearance.hairStyle;
     if (type === 'boy_purple' || type === 'boy') return 'sidepart';
     if (['police_officer', 'police_inspector', 'firefighter', 'imam'].includes(role)) return 'crop';
     if (role === 'elderly_citizen' || role === 'historian') return 'receding';
@@ -667,7 +726,7 @@ export class CharacterModel {
   /**
    * Leg: hip → thigh → knee → shin → ankle → shoe
    */
-  createLeg(side, pantsMat, shoeMat, whiteMat) {
+  createLeg(side, pantsMat, shoeMat, whiteMat, shinSkinMat = null) {
     const D = this.dims;
     const hipJoint = new THREE.Group();
 
@@ -678,7 +737,13 @@ export class CharacterModel {
     knee.position.y = -D.thigh;
     hipJoint.add(knee);
     knee.add(new THREE.Mesh(jointBall(D.shinR * 1.1), pantsMat));
-    knee.add(new THREE.Mesh(limbGeo(D.shinR * 1.05, D.shinR * 0.9, D.shin), pantsMat));
+    knee.add(new THREE.Mesh(limbGeo(D.shinR * 1.05, D.shinR * 0.9, D.shin), shinSkinMat || pantsMat));
+    if (shinSkinMat) {
+      // Sports kit: knee-length shorts (thigh stays in the shorts colour) and white socks
+      const sock = new THREE.Mesh(limbGeo(D.shinR * 1.0, D.shinR * 0.93, D.shin * 0.42), whiteMat);
+      sock.position.y = -D.shin * 0.58;
+      knee.add(sock);
+    }
 
     const foot = new THREE.Group();
     foot.position.y = -D.shin;

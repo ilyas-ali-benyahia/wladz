@@ -18,6 +18,8 @@ import { TrafficSystem } from './systems/TrafficSystem.js';
 import { PedestrianSystem } from './systems/PedestrianSystem.js';
 import { InteriorSystem } from './systems/InteriorSystem.js';
 import { PlayerVehicleSystem } from './systems/PlayerVehicleSystem.js';
+import { WardrobeSystem } from './systems/WardrobeSystem.js';
+import { events } from './core/EventBus.js';
 
 class GhirassGameApp {
   constructor() {
@@ -69,6 +71,14 @@ class GhirassGameApp {
     this.missionSystem.emitUpdate();
 
     // Pedestrians steer around NPCs who stand still on the sidewalks
+    // Appearance and clothing (character selection, clothing shop, home wardrobe)
+    this.wardrobe = new WardrobeSystem(this);
+    this.player.cameraHold = () => this.wardrobe.isOpen;
+    events.on('INTERIOR_ACTION', ({ action }) => {
+      if (action === 'shop') this.wardrobe.open('shop');
+      else if (action === 'wardrobe') this.wardrobe.open('home');
+    });
+
     // The family car parked in the home driveway (the only drivable vehicle)
     this.vehicle = new PlayerVehicleSystem(this.engine, this.collisionSystem, this.player, this.input, this.ui, this.worldBuilder.playerHome.carSpot);
     this.vehicle.canUse = () => !this.interiors.isInside() && !this.interiors.busy;
@@ -119,6 +129,7 @@ class GhirassGameApp {
 
     // Escape for pause menu
     this.input.onEscape = () => {
+      if (this.wardrobe && this.wardrobe.isOpen) { this.wardrobe.close(); return; }
       if (this.ui.dialogOverlay.classList.contains('show')) {
         this.ui.closeDialogue();
       } else if (this.ui.questionOverlay.classList.contains('show')) {
@@ -157,6 +168,9 @@ class GhirassGameApp {
 
       if (!this.vehicle.driving) this.interiors.update();
 
+      // Clothing panel open: show the character from the front, standing left of the panel
+      if (this.wardrobe.isOpen) this.updateWardrobeCamera(dt);
+
       // Update Missions
       this.missionSystem.update(dt, this.player.position);
 
@@ -188,6 +202,24 @@ class GhirassGameApp {
     }
   }
 
+  updateWardrobeCamera(dt) {
+    const p = this.player.position;
+    const it = this.interiors.current;
+    // Face the open part of the room (its centre), camera in front of the character
+    let dx = 0, dz = 1;
+    if (it) { dx = it.origin.x - p.x; dz = it.origin.z - p.z; const l = Math.hypot(dx, dz) || 1; dx /= l; dz /= l; }
+    else { dx = Math.sin(this.player.heading); dz = Math.cos(this.player.heading); }
+    this.player.heading = Math.atan2(dx, dz);
+    this.player.group.rotation.y = this.player.heading;
+    const cam = new THREE.Vector3(p.x + dx * 2.6, p.y + 1.25, p.z + dz * 2.6);
+    const b = this.player.cameraBounds;
+    if (b) { cam.x = THREE.MathUtils.clamp(cam.x, b.minX, b.maxX); cam.z = THREE.MathUtils.clamp(cam.z, b.minZ, b.maxZ); }
+    // Look slightly to the character's left so it appears beside the panel on the right
+    const look = new THREE.Vector3(p.x - dz * 0.55, p.y + 0.95, p.z + dx * 0.55);
+    this.engine.camera.position.lerp(cam, Math.min(1, dt * 6));
+    this.engine.camera.lookAt(look);
+  }
+
   saveCurrentGame() {
     const data = {
       gender: this.ui.selectedGender,
@@ -196,7 +228,8 @@ class GhirassGameApp {
       missionProgress: this.missionSystem.currentProgress,
       achievements: this.achievementSystem.getState(),
       timeOfDay: this.environment.timeOfDay,
-      vehicle: this.vehicle.getState()
+      vehicle: this.vehicle.getState(),
+      wardrobe: this.wardrobe.getState()
     };
     this.saveSystem.saveGame(data);
   }
@@ -205,6 +238,7 @@ class GhirassGameApp {
     const data = this.saveSystem.loadGame();
     if (!data) return;
 
+    if (data.wardrobe) this.wardrobe.loadState(data.wardrobe);
     if (data.gender) {
       // Only two characters remain (boy / girl): older saves with another girl map to the girl
       const type = /^girl|^sara|^rayan/.test(data.gender) ? 'girl_green' : 'boy_purple';

@@ -226,6 +226,11 @@ export class CartoonBuildingGenerator {
       awningColor1 = 0x2980b9;
       signTitle = '🥬 متجر خضر وفواكه بلادنا';
       signColor = 0x27ae60;
+    } else if (type === 'clothes') {
+      wallColor = 0xf3e5f5;
+      awningColor1 = 0x8e44ad;
+      signTitle = '👕 متجر الأناقة للملابس';
+      signColor = 0x8e44ad;
     }
 
     // 1. Building Body
