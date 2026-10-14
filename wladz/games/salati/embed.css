@@ -51,3 +51,9 @@
 .wladz-salati :is(h1, h2, h3, h4, button, input, select, textarea) {
   font-family: var(--font-cairo), system-ui, sans-serif;
 }
+
+/* Plein écran WLADZ (GameStage) : le jeu prend toute la hauteur sous la barre du haut. */
+.wladz-immersive .wladz-salati {
+  height: calc(100dvh - 4.5rem);
+  min-height: 24rem;
+}

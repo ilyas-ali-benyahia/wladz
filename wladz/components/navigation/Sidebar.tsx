@@ -68,7 +68,7 @@ export function Sidebar({ points }: { points: number }) {
       </aside>
 
       {/* Phone: top brand bar */}
-      <header className="fixed inset-x-0 top-0 z-30 flex items-center justify-between bg-white/90 px-4 py-3 shadow-sm shadow-dz-green/10 backdrop-blur md:hidden">
+      <header className="fixed inset-x-0 top-0 z-30 short:absolute flex items-center justify-between bg-white/90 px-4 py-3 shadow-sm shadow-dz-green/10 backdrop-blur md:hidden">
         <Link href="/dashboard" aria-label="WLADZ" className="flex items-center">
           <Logo className="h-11 w-auto" priority />
         </Link>
@@ -76,7 +76,7 @@ export function Sidebar({ points }: { points: number }) {
       </header>
 
       {/* Phone: bottom tab bar */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around rounded-t-[1.75rem] bg-white px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-6px_24px_-8px] shadow-dz-green/10 md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around rounded-t-[1.75rem] bg-white px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] short:rounded-t-2xl short:pt-1 short:pb-[max(0.25rem,env(safe-area-inset-bottom))] shadow-[0_-6px_24px_-8px] shadow-dz-green/10 md:hidden">
         {navLinks.map(({ href, label, short, icon: Icon, tile }) => {
           const active = isActive(href);
           return (
@@ -85,10 +85,10 @@ export function Sidebar({ points }: { points: number }) {
               href={href}
               aria-label={label}
               aria-current={active ? "page" : undefined}
-              className="flex min-w-0 flex-1 flex-col items-center gap-1 py-1"
+              className="flex min-w-0 flex-1 flex-col items-center justify-center gap-1 py-1 short:flex-row short:gap-2 short:py-0.5"
             >
               <span
-                className={`grid size-11 place-items-center rounded-2xl transition-all ${
+                className={`grid size-11 shrink-0 place-items-center rounded-2xl transition-all short:size-9 short:translate-y-0 ${
                   active
                     ? `${tile} -translate-y-1.5 text-white shadow-md`
                     : "bg-dz-green-soft text-ink-soft"

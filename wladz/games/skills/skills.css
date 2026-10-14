@@ -223,3 +223,8 @@ h1 span{text-shadow:0 2px 0 #e9a21f}
   .pic-box{height:auto;min-height:200px}
   .pic{font-size:64px}
 }
+
+/* ── WLADZ : grands écrans — le jeu (tailles en px) est agrandi au lieu de rester petit ── */
+@media (min-width: 1600px) and (min-height: 820px) { html { zoom: 1.15; } }
+@media (min-width: 1900px) and (min-height: 980px) { html { zoom: 1.3; } }
+@media (min-width: 2400px) and (min-height: 1300px) { html { zoom: 1.7; } }

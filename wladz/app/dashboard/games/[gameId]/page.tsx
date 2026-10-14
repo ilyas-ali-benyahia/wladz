@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
+import { GameStage } from "@/components/games/GameStage";
 import { ageTier } from "@/games/ageTier";
 import { AmineLauncher } from "@/games/amine/AmineLauncher";
 import { ChoicesGame } from "@/games/choices/ChoicesGame";
@@ -28,14 +28,11 @@ export default async function GamePage({ params }: PageProps<"/dashboard/games/[
   const tier = ageTier(user.birth_date, new Date());
   const answered = getAnsweredQuestions(user.id, game.slug);
 
+  // Les jeux en iframe passent seuls en plein écran au lancement.
+  const inPage = ["space", "choices", "myths", "salati"].includes(game.slug);
+
   return (
-    <>
-      <Link
-        href="/dashboard"
-        className="mb-3 inline-flex h-11 items-center rounded-2xl border-2 border-dz-green bg-white px-4 text-base font-bold text-dz-green transition hover:bg-dz-green-soft"
-      >
-        العودة
-      </Link>
+    <GameStage title={game.title} canGoFullscreen={inPage}>
       {game.slug === "space" ? <SpaceGame initialAnswered={answered} /> : null}
       {game.slug === "choices" ? <ChoicesGame tier={tier} initialAnswered={answered} /> : null}
       {game.slug === "math" ? <MathLauncher /> : null}
@@ -52,6 +49,6 @@ export default async function GamePage({ params }: PageProps<"/dashboard/games/[
       ) : null}
       {game.slug === "skills" ? <SkillsLauncher /> : null}
       {game.slug === "myths" ? <MythsGame tier={tier} initialAnswered={answered} /> : null}
-    </>
+    </GameStage>
   );
 }

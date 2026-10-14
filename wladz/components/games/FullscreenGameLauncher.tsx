@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useFullscreen } from "@/components/games/useFullscreen";
 
 // Jeux repris d'autres projets : ils tournent dans une iframe plein écran (leurs styles
 // globaux restent isolés) et s'arrêtent proprement quand l'iframe est retirée.
@@ -31,23 +32,39 @@ export function FullscreenGameLauncher({
   const router = useRouter();
   const [playing, setPlaying] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const fullscreen = useFullscreen();
+  // Le plein écran demandé au lancement est quitté à la fermeture du jeu, pas celui de l'enfant.
+  const enteredOnPlay = useRef(false);
+
+  function play() {
+    enteredOnPlay.current = !fullscreen.isFullscreen;
+    fullscreen.enter();
+    setPlaying(true);
+  }
+
+  function stop() {
+    setPlaying(false);
+    setLoaded(false);
+    if (enteredOnPlay.current) fullscreen.exit();
+    enteredOnPlay.current = false;
+    // Met à jour le total de points gagné pendant la partie.
+    router.refresh();
+  }
+
+  const stopRef = useRef(stop);
+  useEffect(() => {
+    stopRef.current = stop;
+  });
 
   useEffect(() => {
     if (!playing) return;
-
-    function close() {
-      setPlaying(false);
-      setLoaded(false);
-      // Met à jour le total de points gagné pendant la partie.
-      router.refresh();
-    }
 
     function onMessage(event: MessageEvent) {
       const trusted =
         event.origin === window.location.origin || (externalOrigin && event.origin === externalOrigin);
       if (!trusted || typeof event.data !== "object" || event.data === null) return;
 
-      if (event.data.type === "wladz:game-exit") close();
+      if (event.data.type === "wladz:game-exit") stopRef.current();
 
       if (
         event.data.type === "wladz:ending" &&
@@ -83,7 +100,7 @@ export function FullscreenGameLauncher({
       </ul>
       <button
         type="button"
-        onClick={() => setPlaying(true)}
+        onClick={play}
         className="mx-auto mt-6 flex min-h-12 cursor-pointer items-center justify-center fun-btn bg-dz-green px-8 text-lg font-extrabold text-white transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
       >
         العب الآن
@@ -112,14 +129,21 @@ export function FullscreenGameLauncher({
           {externalOrigin ? (
             <button
               type="button"
-              onClick={() => {
-                setPlaying(false);
-                setLoaded(false);
-                router.refresh();
-              }}
+              onClick={stop}
               className="absolute end-3 bottom-3 flex min-h-11 cursor-pointer items-center gap-2 rounded-2xl bg-white/90 px-4 text-base font-extrabold text-dz-red shadow-lg backdrop-blur transition hover:bg-white"
             >
               <span aria-hidden="true">✕</span> خروج
+            </button>
+          ) : null}
+          {fullscreen.supported && !fullscreen.isFullscreen ? (
+            <button
+              type="button"
+              onClick={fullscreen.enter}
+              aria-label="ملء الشاشة"
+              title="ملء الشاشة"
+              className="absolute start-3 bottom-3 flex size-11 cursor-pointer items-center justify-center rounded-2xl bg-white/85 text-xl text-dz-green shadow-lg backdrop-blur transition hover:bg-white"
+            >
+              <span aria-hidden="true">⛶</span>
             </button>
           ) : null}
         </div>
