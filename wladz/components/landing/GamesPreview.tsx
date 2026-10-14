@@ -69,6 +69,15 @@ const games: readonly Game[] = [
     image: "/games/treasures/assets/banner.jpg",
   },
   {
+    id: "ghiras",
+    title: "غِراس المواطنة",
+    category: "المواطنة والبيئة",
+    type: "مدينة ثلاثية الأبعاد",
+    description: "نظّف حيّك، اغرس الأشجار، ساعد الكبار، وزر المتحف في مدينة جزائرية تستكشفها بحرّية.",
+    color: "mint",
+    image: "/games/ghiras/cover.jpg",
+  },
+  {
     id: "salati",
     title: "صلاتي",
     category: "القيم والعبادات",

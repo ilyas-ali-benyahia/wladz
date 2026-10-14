@@ -1,0 +1,281 @@
+// Corps de index.html de « غِراس المواطنة » (branche game/ghiras), repris tel quel ;
+// seuls ajouts WLADZ : chemin de l'image de couverture et boutons « خروج ».
+export const ghirasMarkup = `<!-- 3D Game Canvas -->
+  <canvas id="game-canvas"></canvas>
+
+  <!-- 1. Title / Welcome Screen (غلاف اللعبة السينمائي الفخم) -->
+  <div id="title-screen">
+    <div class="cover-overlay"></div>
+    <div class="title-content-box">
+      <div class="title-tag">🇩🇿 مغامرة المواطن الصغير ثلاثية الأبعاد 3D</div>
+      <h1 class="game-logo">غِراس المواطنة</h1>
+      <p class="slogan">«ازرع الخير في لعبتك... ليكبر أثره في حياتك ومجتمعك»</p>
+      
+      <div class="feature-grid">
+        <div class="feat-card">
+          <div class="icon">🧹</div>
+          <div class="name">مدينتنا أنظف</div>
+          <div class="desc">جمع النفايات والمحافظة على البيئة</div>
+        </div>
+        <div class="feat-card">
+          <div class="icon">🌳</div>
+          <div class="name">غرس وسقاية الأشجار</div>
+          <div class="desc">زيادة الرقعة الخضراء في الحديقة</div>
+        </div>
+        <div class="feat-card">
+          <div class="icon">🇩🇿</div>
+          <div class="name">تاريخ وثورة الجزائر</div>
+          <div class="desc">استكشاف بطولات الأجداد في المتحف</div>
+        </div>
+        <div class="feat-card">
+          <div class="icon">🕌</div>
+          <div class="name">مكارم الأخلاق</div>
+          <div class="desc">الصدق والأمانة وبر الوالدين بالمسجد</div>
+        </div>
+      </div>
+
+      <div class="menu-buttons-group">
+        <button id="start-btn" class="primary-btn pulse-glow">ابدأ المغامرة الآن 🎮</button>
+        <button id="continue-btn" class="secondary-btn" style="display: none;">📂 متابعة التقدم</button>
+        <button type="button" class="secondary-btn wladz-exit">✕ خروج من اللعبة</button>
+      </div>
+
+      <div class="cover-footer-info">
+        <span>🎮 تحكم بالحاسوب: WASD للحركة | Shift للجري السريع | Space للقفز | E للتحدث والتفاعل</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Character Selection Screen: a boy or a girl -->
+  <div id="character-select-screen">
+    <div class="char-title">
+      <h2>اختر شخصيتك</h2>
+      <p>ولد أو بنت: اختر مظهر بطلك الصغير في مدينة غِراس المواطنة 🌱</p>
+    </div>
+
+    <div class="char-stage">
+      <div class="char-selection-controls">
+        <button type="button" id="select-boy-btn" class="char-opt-card active" data-type="boy_purple" data-gender="boy" style="--accent: #7c3aed; --accent-2: #4f46e5;">
+          <span class="char-check">✓</span>
+          <span class="char-avatar-badge"><span>👦</span></span>
+          <span class="char-gender">ولد</span>
+          <span class="char-name">أمين</span>
+          <span class="char-sub">نشيط ورياضي، يحب المبادرات البيئية والعمل التطوعي في حيّه.</span>
+          <span class="char-traits"><span>⚽ رياضي</span><span>🤝 متطوع</span><span>🌱 صديق البيئة</span></span>
+        </button>
+
+        <div class="char-stage-gap" aria-hidden="true"></div>
+
+        <button type="button" id="select-girl-btn" class="char-opt-card" data-type="girl_green" data-gender="girl" style="--accent: #16a085; --accent-2: #27ae60;">
+          <span class="char-check">✓</span>
+          <span class="char-avatar-badge"><span>🧕</span></span>
+          <span class="char-gender">بنت</span>
+          <span class="char-name">ريان</span>
+          <span class="char-sub">ذكية ومجتهدة، تحب الغرس ورعاية الحدائق ومساعدة الآخرين.</span>
+          <span class="char-traits"><span>📚 مجتهدة</span><span>🌳 تحب الغرس</span><span>💚 تساعد الجميع</span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="char-footer">
+      <div id="char-custom" class="char-custom" aria-label="تخصيص المظهر"></div>
+      <div class="char-hint">🔄 اسحب بالفأرة لتدوير الشخصية • ← → للتبديل</div>
+      <button id="confirm-character-btn" class="primary-btn">ابدأ اللعب 🏙️</button>
+    </div>
+  </div>
+
+  <!-- 3. In-Game HUD -->
+  <div id="hud">
+    <!-- Player Card & Resources (Top Right) -->
+    <div id="player-hud-card">
+      <div id="hud-avatar-box">
+        <span id="hud-avatar">👦</span>
+      </div>
+      
+      <div class="player-details">
+        <div class="level-row">
+          <span id="hud-level-badge">المستوى <span id="hud-level-val">1</span></span>
+          <span id="hud-level-title">المواطن الصغير</span>
+        </div>
+        <div class="xp-bar-container">
+          <div id="hud-xp-fill"></div>
+        </div>
+        <span id="hud-xp-val">0 / 100 XP</span>
+      </div>
+
+      <div class="resources-row">
+        <div class="res-chip" title="العملات المكتسبة">
+          <span class="icon">💰</span>
+          <span class="val" id="hud-coins-val">50</span>
+        </div>
+        <div class="res-chip" title="ماء السقاية">
+          <span class="icon">💧</span>
+          <span class="val" id="hud-water-val">5/10</span>
+          <div id="hud-water-bar-wrap">
+            <div id="hud-water-fill"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Mission Card (Top Left) -->
+    <div id="mission-hud-card">
+      <div class="mission-tag">
+        <span id="hud-mission-status-badge" style="background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; border-radius: 4px; padding: 2px 6px; font-size: 0.75rem; margin-left: 6px;">جارية</span>
+        📋 المهمة النشطة
+      </div>
+      <div id="hud-mission-title">مدينتنا أنظف</div>
+      <div id="hud-mission-desc">اجمع النفايات المتناثرة في الشوارع وضعها في أماكنها المخصصة</div>
+      <div class="mission-progress-row">
+        <span>التقدم</span>
+        <span id="hud-mission-progress">0 / 5 قطع نفايات</span>
+      </div>
+      <div id="hud-mission-bar-wrap">
+        <div id="hud-mission-bar-fill"></div>
+      </div>
+    </div>
+
+    <!-- Mini-Map and Quick Actions Dock (Bottom Left) -->
+    <div id="map-dock-group">
+      <div id="minimap-wrap" title="خريطة المدينة المصغرة">
+        <canvas id="minimap-canvas" width="140" height="140"></canvas>
+      </div>
+
+      <div class="dock-actions">
+        <button id="hud-map-btn" class="dock-btn" title="الخريطة الكاملة (M)">🗺️</button>
+        <button id="hud-ach-btn" class="dock-btn" title="أوسمة الإنجاز">🏆</button>
+        <button id="hud-book-btn" class="dock-btn" title="الموسوعة">📖</button>
+        <button id="hud-time-btn" class="dock-btn" title="تغيير وقت اليوم">☀️</button>
+        <button id="hud-pause-btn" class="dock-btn" title="القائمة والإعدادات (ESC)">⚙️</button>
+      </div>
+    </div>
+
+    <!-- Interaction Prompt (Center) -->
+    <div id="interact-hint">اضغط <b>E</b> للتحدث</div>
+
+    <!-- Controls Guide (Bottom Right) -->
+    <div id="controls-guide">
+      <b>W A S D</b> : التحرك في المدينة<br>
+      <b>الفأرة</b> : النظر وتدوير الكاميرا<br>
+      <b>Shift</b> : الجري السريع<br>
+      <b>Space</b> : القفز<br>
+      <b>E</b> : التحدث والتفاعل<br>
+      <b>M</b> : الخريطة المكبرة
+    </div>
+  </div>
+
+  <!-- 4. Floating Text Container -->
+  <div id="float-container"></div>
+
+  <!-- 5. Toast Banner -->
+  <div id="toast"></div>
+
+  <!-- 6. Dialogue Overlay with NPCs -->
+  <div id="dialog-overlay" class="modal-overlay">
+    <div id="dialog-box">
+      <div class="dialog-header">
+        <div id="dialog-npc-avatar">👤</div>
+        <div class="npc-meta">
+          <div id="dialog-npc-name">الشيخ يوسف</div>
+          <div id="dialog-npc-role">إمام المسجد الكبير</div>
+        </div>
+        <button id="dialog-speak-btn" class="dock-btn" title="إعادة الاستماع للصوت" style="margin-right: auto; width: 34px; height: 34px;">🔊</button>
+      </div>
+      <div id="dialog-text">السلام عليكم ورحمة الله وبركاته!</div>
+      <div id="dialog-branch-choices" style="display: none; flex-direction: column; gap: 8px; margin: 12px 0;"></div>
+      <div class="dialog-actions" id="dialog-standard-actions">
+        <button id="dialog-decline-btn" class="dialog-btn decline">لاحقاً</button>
+        <button id="dialog-accept-btn" class="dialog-btn accept">نعم بكل سرور</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Educational Question Modal -->
+  <div id="question-overlay" class="modal-overlay">
+    <div id="question-box">
+      <div class="q-top-row">
+        <span id="q-category-badge">تاريخ الجزائر</span>
+        <span id="q-npc-source">المؤرخ سعيد</span>
+      </div>
+      <div id="q-text">في أي سنة اندلعت ثورة التحرير الجزائرية المجيدة؟</div>
+      <div id="q-choices"></div>
+      <div id="q-feedback"></div>
+      <div id="q-reward"></div>
+      <button id="q-next-btn">متابعة واستلام المكافأة ▶</button>
+    </div>
+  </div>
+
+  <!-- 8. Mission Complete Modal -->
+  <div id="mission-complete-modal">
+    <h2 id="mc-title">🎉 تم إكمال المهمة!</h2>
+    <p id="mc-desc">أحسنت يا بطل! أصبحت مدينتنا أنظف بفضلك.</p>
+    <div class="rewards-tag" id="mc-rewards">+60 XP • +30 💰</div>
+    <div class="mc-buttons-row" style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+      <button id="mc-next-btn" class="primary-btn">المهمة التالية ⏩</button>
+      <button id="mc-return-btn" class="dialog-btn decline">العودة إلى المدينة 🏙️</button>
+    </div>
+  </div>
+
+  <!-- Mission Failed Modal -->
+  <div id="mission-failed-modal" class="modal-overlay">
+    <div class="modal-content" style="text-align: center; border: 2px solid #e74c3c;">
+      <h2 style="color: #e74c3c;">⚠️ تنبيه وفشل في المسار</h2>
+      <p id="mf-desc" style="font-size: 1.1rem; line-height: 1.6; margin: 15px 0;"></p>
+      <button id="mf-retry-btn" class="primary-btn">العودة للمهمة والمحاولة بالمسار الصحيح 🔄</button>
+    </div>
+  </div>
+
+  <!-- 9. Level Up Modal -->
+  <div id="level-up-modal">
+    <h2>⭐ ترقية المستوى! ⭐</h2>
+    <div id="lu-level">المستوى 2</div>
+    <div id="lu-title">صديق البيئة</div>
+    <p>لقد كبر أثرك الإيجابي في مجتمعك ومدينتك!</p>
+  </div>
+
+  <!-- 10. Full Map Modal -->
+  <div id="fullmap-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🗺️ خريطة مدينة «غِراس المواطنة»</h3>
+        <button id="close-map-btn" class="close-btn">✕</button>
+      </div>
+      <canvas id="fullmap-canvas" width="600" height="420"></canvas>
+    </div>
+  </div>
+
+  <!-- 11. Achievements Modal -->
+  <div id="achievements-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🏆 سجل الشارات والأوسمة الوطنية</h3>
+        <button id="close-ach-btn" class="close-btn">✕</button>
+      </div>
+      <div id="achievements-grid"></div>
+    </div>
+  </div>
+
+  <!-- 12. Pause & Settings Menu -->
+  <div id="pause-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="pause-title">⚙️ خيارات اللعبة</div>
+      
+      <div class="pause-menu-list">
+        <div class="setting-row">
+          <label for="sound-toggle">🔊 المؤثرات الصوتية والموسيقى</label>
+          <input type="checkbox" id="sound-toggle" checked style="transform: scale(1.3);">
+        </div>
+
+        <div class="setting-row">
+          <label for="volume-slider">🎚️ مستوى الصوت</label>
+          <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.7">
+        </div>
+
+        <button id="save-game-btn" class="dialog-btn accept" style="width: 100%;">💾 حفظ تقدم اللعبة الآن</button>
+        <button id="resume-btn" class="primary-btn" style="width: 100%;">استئناف اللعب ▶</button>
+        <button type="button" class="dialog-btn decline wladz-exit" style="width: 100%;">✕ حفظ والخروج من اللعبة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Bootstrap -->`;
