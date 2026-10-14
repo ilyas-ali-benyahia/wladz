@@ -1,0 +1,465 @@
+/* Modal overlay base */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 9, 15, 0.72);
+  backdrop-filter: blur(8px);
+  z-index: 80;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+  padding: 20px;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+/* ═══════════════════════════════════════════════
+   1. DIALOGUE MODAL
+═══════════════════════════════════════════════ */
+#dialog-box {
+  background: linear-gradient(145deg, #131d2a, #0b1118);
+  border: 2px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 26px 30px;
+  max-width: 520px;
+  width: 95%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  animation: popUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 12px;
+}
+
+#dialog-npc-avatar {
+  font-size: 36px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--glass-border);
+}
+
+.npc-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+#dialog-npc-name {
+  font-size: 18px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+#dialog-npc-role {
+  font-size: 13px;
+  color: var(--primary-green);
+  font-weight: 700;
+}
+
+#dialog-text {
+  font-size: 17px;
+  color: #ecf0f1;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.dialog-btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-family: var(--font-arabic);
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.dialog-btn.accept {
+  background: linear-gradient(135deg, #2ecc71, #1abc9c);
+  color: #060b13;
+}
+
+.dialog-btn.accept:hover {
+  transform: translateY(-2px);
+}
+
+.dialog-btn.decline {
+  background: rgba(255, 255, 255, 0.08);
+  color: #bdc3c7;
+}
+
+.dialog-btn.decline:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ═══════════════════════════════════════════════
+   2. QUESTION MODAL
+═══════════════════════════════════════════════ */
+#question-box {
+  background: linear-gradient(145deg, #131d2a, #0b1118);
+  border: 2px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  max-width: 520px;
+  width: 95%;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.75);
+  animation: popUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popUp {
+  from { opacity: 0; transform: scale(0.88); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.q-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+#q-category-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid;
+}
+
+#q-npc-source {
+  font-size: 12px;
+  color: #95a5a6;
+}
+
+#q-text {
+  font-size: 20px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.5;
+  margin-bottom: 22px;
+}
+
+#q-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.q-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 13px 18px;
+  color: #ecf0f1;
+  font-family: var(--font-arabic);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: right;
+  transition: all 0.18s ease;
+  direction: rtl;
+}
+
+.q-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateX(-4px);
+}
+
+.q-btn.correct {
+  background: rgba(46, 204, 113, 0.22);
+  border-color: #2ecc71;
+  color: #2ecc71;
+  font-weight: 900;
+}
+
+.q-btn.wrong {
+  background: rgba(231, 76, 60, 0.2);
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+
+#q-feedback {
+  font-size: 15px;
+  font-weight: 800;
+  text-align: center;
+  min-height: 24px;
+  margin-top: 8px;
+}
+
+#q-feedback .explanation {
+  font-size: 13px;
+  font-weight: 500;
+  color: #bdc3c7;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+#q-reward {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+  text-align: center;
+}
+
+#q-next-btn {
+  margin-top: 18px;
+  width: 100%;
+  background: linear-gradient(135deg, #2ecc71, #1abc9c);
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  color: #060b13;
+  font-family: var(--font-arabic);
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  display: none;
+  transition: opacity 0.2s;
+}
+
+#q-next-btn:hover {
+  opacity: 0.92;
+}
+
+/* ═══════════════════════════════════════════════
+   3. MISSION COMPLETE & LEVEL UP CELEBRATIONS
+═══════════════════════════════════════════════ */
+#mission-complete-modal, #level-up-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.7);
+  background: linear-gradient(135deg, #0e2a1b, #09131a);
+  border: 2px solid var(--primary-green);
+  border-radius: var(--radius-lg);
+  padding: 30px 45px;
+  text-align: center;
+  z-index: 85;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 20px 80px rgba(46, 204, 113, 0.4);
+}
+
+#mission-complete-modal.show, #level-up-modal.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: all;
+}
+
+#mission-complete-modal h2, #level-up-modal h2 {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--primary-green);
+  margin-bottom: 8px;
+}
+
+#mission-complete-modal p, #level-up-modal p {
+  font-size: 15px;
+  color: #bdc3c7;
+}
+
+.rewards-tag {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--gold);
+  margin-top: 12px;
+}
+
+/* Level Up specific */
+#level-up-modal {
+  border-color: var(--gold);
+  background: linear-gradient(135deg, #2b2308, #09131a);
+  box-shadow: 0 20px 80px rgba(241, 196, 15, 0.4);
+}
+
+#level-up-modal h2 {
+  color: var(--gold);
+}
+
+#lu-level {
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+  margin-top: 6px;
+}
+
+#lu-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary-green);
+  margin-top: 4px;
+}
+
+/* ═══════════════════════════════════════════════
+   4. FULL MAP MODAL
+═══════════════════════════════════════════════ */
+#fullmap-modal .modal-content {
+  background: #111a24;
+  border: 2px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  max-width: 680px;
+  width: 95%;
+  position: relative;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modal-header h3 {
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+}
+
+.close-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#fullmap-canvas {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+}
+
+/* ═══════════════════════════════════════════════
+   5. ACHIEVEMENTS MODAL
+═══════════════════════════════════════════════ */
+#achievements-modal .modal-content {
+  background: #111a24;
+  border: 2px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  max-width: 640px;
+  width: 95%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+#achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.ach-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+}
+
+.ach-card.unlocked {
+  border-color: rgba(46, 204, 113, 0.4);
+  background: rgba(46, 204, 113, 0.08);
+}
+
+.ach-card.locked {
+  opacity: 0.55;
+}
+
+.ach-icon {
+  font-size: 32px;
+}
+
+.ach-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.ach-desc {
+  font-size: 12px;
+  color: #95a5a6;
+  margin-top: 2px;
+}
+
+.ach-status {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary-green);
+  margin-top: 4px;
+}
+
+/* ═══════════════════════════════════════════════
+   6. PAUSE MODAL & SETTINGS
+═══════════════════════════════════════════════ */
+#pause-modal .modal-content {
+  background: #111a24;
+  border: 2px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  max-width: 440px;
+  width: 95%;
+  text-align: center;
+}
+
+.pause-title {
+  font-size: 26px;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 24px;
+}
+
+.pause-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+}
+
+.setting-row label {
+  font-size: 15px;
+  font-weight: 700;
+}

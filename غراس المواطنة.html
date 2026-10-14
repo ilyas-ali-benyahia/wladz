@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مغامرة المواطن الصغير - غراس المواطنة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+/* ═══════════════════════════════════════════════
+   CSS VARIABLES & RESET
+═══════════════════════════════════════════════ */
+:root {
+  --green:   #2ecc71;
+  --blue:    #3498db;
+  --yellow:  #f1c40f;
+  --white:   #ecf0f1;
+  --red:     #e74c3c;
+  --orange:  #e67e22;
+  --teal:    #1abc9c;
+  --dark:    #0d1117;
+  --panel:   rgba(13,17,23,0.88);
+  --border:  rgba(255,255,255,0.12);
+  --radius:  14px;
+  --font:    'Tajawal', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+
+html, body {
+  width:100%; height:100%;
+  overflow:hidden;
+  background: var(--dark);
+  font-family: var(--font);
+  direction: rtl;
+}
+
+#game-canvas {
+  position:fixed; inset:0;
+  display:block;
+  width:100vw !important;
+  height:100vh !important;
+}
+
+#hud {
+  position:fixed; inset:0;
+  pointer-events:none;
+  z-index:20;
+}
+
+#resource-bar {
+  position:absolute;
+  top:16px; right:16px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  pointer-events:none;
+}
+
+.res-card {
+  background: var(--panel);
+  border:1.5px solid var(--border);
+  border-radius: 14px;
+  padding:8px 14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  backdrop-filter:blur(8px);
+  min-width:150px;
+}
+.res-icon { font-size:20px; }
+.res-info { display:flex; flex-direction:column; }
+.res-label { font-size:10px; letter-spacing:1px; color:#888; text-transform:uppercase; }
+.res-value { font-size:20px; font-weight:800; color:#fff; line-height:1; }
+
+#card-score { border-color: rgba(241,196,15,0.4); }
+#card-score .res-value { color: var(--yellow); }
+#card-water { border-color: rgba(52,152,219,0.4); }
+#card-water .res-value { color: var(--blue); }
+
+#water-bar-wrap {
+  width:80px; height:6px;
+  background:rgba(255,255,255,0.1);
+  border-radius:3px;
+  overflow:hidden;
+}
+#water-bar-fill {
+  height:100%;
+  background: linear-gradient(90deg, #3498db, #1abc9c);
+  border-radius:3px;
+  transition: width 0.4s ease;
+}
+
+#mission-panel {
+  position:absolute;
+  top:16px; left:16px;
+  background: var(--panel);
+  border:1.5px solid rgba(46,204,113,0.3);
+  border-radius: 14px;
+  padding:12px 16px;
+  max-width:270px;
+  backdrop-filter:blur(8px);
+}
+#mission-panel h3 {
+  font-size:10px; letter-spacing:2px;
+  text-transform:uppercase;
+  color: var(--green);
+  margin-bottom:6px;
+}
+#mission-title {
+  font-size:14px; font-weight:700;
+  color:#fff; margin-bottom:4px;
+}
+#mission-desc {
+  font-size:12px; color:#aaa;
+  line-height:1.5;
+}
+#mission-prog {
+  margin-top:8px;
+  font-size:12px; font-weight:700;
+  color: var(--teal);
+}
+#mission-bar-wrap {
+  margin-top:6px;
+  height:4px;
+  background:rgba(255,255,255,0.08);
+  border-radius:2px;
+  overflow:hidden;
+}
+#mission-bar-fill {
+  height:100%;
+  background: linear-gradient(90deg, #2ecc71, #1abc9c);
+  border-radius:2px;
+  transition: width 0.5s ease;
+}
+
+#controls-hint {
+  position:absolute;
+  bottom:16px; left:16px;
+  background: var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:8px 14px;
+  font-size:11px;
+  color:#666;
+  line-height:1.9;
+  backdrop-filter:blur(4px);
+  pointer-events:none;
+}
+#controls-hint b { color:#ccc; }
+
+#interact-hint {
+  position:absolute;
+  bottom:100px; left:50%;
+  transform:translateX(-50%);
+  background:rgba(241,196,15,0.15);
+  border:1px solid var(--yellow);
+  border-radius:20px;
+  padding:6px 18px;
+  color: var(--yellow);
+  font-size:13px; font-weight:700;
+  display:none;
+  pointer-events:none;
+  animation: hintPulse 1.6s infinite;
+  white-space:nowrap;
+}
+@keyframes hintPulse {
+  0%,100%{opacity:1;transform:translateX(-50%) scale(1);}
+  50%{opacity:0.6;transform:translateX(-50%) scale(0.97);}
+}
+
+#question-overlay {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.55);
+  backdrop-filter:blur(4px);
+  z-index:50;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  pointer-events:all;
+}
+#question-overlay.show { display:flex; }
+
+#question-box {
+  background:linear-gradient(145deg,#131b2e,#0d1117);
+  border:2px solid var(--border);
+  border-radius:22px;
+  padding:28px 32px;
+  max-width:480px;
+  width:92%;
+  box-shadow:0 20px 60px rgba(0,0,0,0.7);
+  animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  text-align:right;
+}
+@keyframes popIn {
+  from{opacity:0;transform:scale(0.85);}
+  to{opacity:1;transform:scale(1);}
+}
+
+#q-category-badge {
+  display:inline-block;
+  padding:3px 12px;
+  border-radius:20px;
+  font-size:11px; font-weight:700;
+  letter-spacing:1px;
+  margin-bottom:14px;
+}
+#q-npc-name {
+  font-size:13px; color:#888;
+  margin-bottom:10px;
+}
+#q-text {
+  font-size:20px; font-weight:800;
+  color:#fff;
+  line-height:1.5;
+  margin-bottom:20px;
+}
+#q-choices {
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.q-btn {
+  background:rgba(255,255,255,0.05);
+  border:1.5px solid rgba(255,255,255,0.15);
+  border-radius:12px;
+  padding:12px 18px;
+  color:#ddd;
+  font-family: 'Tajawal', sans-serif;
+  font-size:16px; font-weight:600;
+  cursor:pointer;
+  text-align:right;
+  transition:background 0.15s, border-color 0.15s, transform 0.1s;
+  pointer-events:all;
+  direction:rtl;
+}
+.q-btn:hover:not(:disabled) {
+  background:rgba(255,255,255,0.1);
+  border-color:rgba(255,255,255,0.3);
+  transform:translateX(-3px);
+}
+.q-btn.correct {
+  background:rgba(46,204,113,0.2);
+  border-color: #2ecc71;
+  color: #2ecc71;
+}
+.q-btn.wrong {
+  background:rgba(231,76,60,0.15);
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+#q-feedback {
+  margin-top:16px;
+  font-size:15px; font-weight:700;
+  text-align:center;
+  min-height:22px;
+}
+#q-reward {
+  margin-top:10px;
+  font-size:13px;
+  color: #1abc9c;
+  text-align:center;
+  min-height:18px;
+}
+#q-close-btn {
+  margin-top:18px;
+  width:100%;
+  background: linear-gradient(135deg, #2ecc71, #1abc9c);
+  border:none;
+  border-radius:12px;
+  padding:12px;
+  color:#0d1117;
+  font-family: 'Tajawal', sans-serif;
+  font-size:15px; font-weight:800;
+  cursor:pointer;
+  transition:opacity 0.2s, transform 0.1s;
+  display:none;
+  pointer-events:all;
+}
+#q-close-btn:hover { opacity:0.9; transform:scale(0.99); }
+
+#float-container {
+  position:fixed; inset:0;
+  pointer-events:none;
+  z-index:30;
+}
+.float-text {
+  position:absolute;
+  font-family: 'Tajawal', sans-serif;
+  font-size:18px; font-weight:900;
+  pointer-events:none;
+  white-space:nowrap;
+  text-shadow:0 2px 8px rgba(0,0,0,0.8);
+  animation: floatUp 1.8s ease-out forwards;
+  transform:translateX(-50%);
+}
+@keyframes floatUp {
+  0%   {opacity:1; transform:translateX(-50%) translateY(0) scale(1);}
+  60%  {opacity:1; transform:translateX(-50%) translateY(-40px) scale(1.1);}
+  100% {opacity:0; transform:translateX(-50%) translateY(-80px) scale(0.8);}
+}
+
+#toast {
+  position:fixed;
+  bottom:80px; left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background: var(--panel);
+  border:1.5px solid var(--border);
+  border-radius:14px;
+  padding:12px 24px;
+  font-size:15px; font-weight:700;
+  color:#fff;
+  max-width:400px;
+  text-align:center;
+  z-index:40;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.3s, transform 0.3s;
+  backdrop-filter:blur(8px);
+  direction:rtl;
+}
+#toast.show {
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+#title-screen {
+  position:fixed; inset:0;
+  background:radial-gradient(ellipse at 50% 30%, #0a2340 0%, #0d1117 70%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+  text-align:center;
+  padding:24px;
+  direction:rtl;
+}
+.title-stars {
+  position:absolute; inset:0;
+  overflow:hidden;
+  pointer-events:none;
+}
+.star {
+  position:absolute;
+  width:2px; height:2px;
+  background:#fff;
+  border-radius:50%;
+  animation:twinkle 3s infinite;
+}
+@keyframes twinkle {
+  0%,100%{opacity:0.2;} 50%{opacity:1;}
+}
+.title-badge {
+  font-size:56px;
+  margin-bottom:12px;
+  animation:bounce 2s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);}
+}
+#title-screen h1 {
+  font-size:clamp(26px,5vw,46px);
+  font-weight:900;
+  background:linear-gradient(135deg,#2ecc71,#3498db,#f1c40f);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  margin-bottom:6px;
+  line-height:1.2;
+}
+#title-screen .subtitle {
+  font-size:14px; color:#666;
+  margin-bottom:32px;
+}
+.feature-grid {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  max-width:420px;
+  width:100%;
+  margin-bottom:32px;
+}
+.feat-card {
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px 14px;
+  text-align:right;
+}
+.feat-card .icon { font-size:22px; margin-bottom:4px; }
+.feat-card .name { font-size:13px; font-weight:700; color:#ddd; }
+.feat-card .desc { font-size:11px; color:#666; margin-top:2px; }
+#start-btn {
+  background:linear-gradient(135deg,#2ecc71,#1abc9c);
+  border:none;
+  border-radius:50px;
+  padding:16px 56px;
+  font-family: 'Tajawal', sans-serif;
+  font-size:18px; font-weight:800;
+  color:#0d1117;
+  cursor:pointer;
+  box-shadow:0 6px 30px rgba(46,204,113,0.4);
+  transition:transform 0.2s, box-shadow 0.2s;
+  letter-spacing:1px;
+}
+#start-btn:hover {
+  transform:translateY(-3px);
+  box-shadow:0 10px 40px rgba(46,204,113,0.5);
+}
+
+#mission-complete {
+  position:fixed;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%) scale(0.7);
+  background:linear-gradient(135deg,#0f2d1a,#0d1117);
+  border:2px solid #2ecc71;
+  border-radius:22px;
+  padding:28px 40px;
+  text-align:center;
+  z-index:60;
+  opacity:0;
+  pointer-events:none;
+  transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  direction:rtl;
+}
+#mission-complete.show {
+  opacity:1;
+  transform:translate(-50%,-50%) scale(1);
+}
+#mission-complete h2 {
+  font-size:28px; font-weight:900;
+  color: #2ecc71;
+  margin-bottom:8px;
+}
+#mission-complete p {
+  font-size:15px; color:#aaa;
+}
+#mission-complete .reward {
+  font-size:16px; font-weight:700;
+  color: #f1c40f;
+  margin-top:10px;
+}
+</style>
+</head>
+<body>
+
+<div id="title-screen">
+  <div class="title-stars" id="stars-bg"></div>
+  <div class="title-badge">🏙️</div>
+  <h1>غِراس المواطنة</h1>
+  <p class="subtitle">اقيم ,اخلاق,ترفيه — تعلم وانبع مدينتك!</p>
+  <div class="feature-grid">
+    <div class="feat-card"><div class="icon">🗑️</div><div class="name">تنظيف المدينة</div><div class="desc">اجعل مدينتك نظيفة</div></div>
+    <div class="feat-card"><div class="icon">🌳</div><div class="name">زراعة الأشجار</div><div class="desc">ازرع واسقِ الأشجار</div></div>
+    <div class="feat-card"><div class="icon">📚</div><div class="name">أسئلة تعليمية</div><div class="desc">تاريخ، رياضيات، ثقافة</div></div>
+    <div class="feat-card"><div class="icon">💧</div><div class="name">موارد المياه</div><div class="desc">اجعل مدينتك حيّة</div></div>
+  </div>
+  <button id="start-btn" onclick="startGame()">ابدأ المغامرة !</button>
+</div>
+
+<canvas id="game-canvas"></canvas>
+
+<div id="hud">
+  <div id="resource-bar">
+    <div class="res-card" id="card-score">
+      <div class="res-icon">⭐</div>
+      <div class="res-info">
+        <span class="res-label">النقاط</span>
+        <span class="res-value" id="score-val">0</span>
+      </div>
+    </div>
+    <div class="res-card" id="card-water">
+      <div class="res-icon">💧</div>
+      <div class="res-info">
+        <span class="res-label">الماء</span>
+        <span class="res-value" id="water-val">5</span>
+        <div id="water-bar-wrap">
+          <div id="water-bar-fill" style="width:50%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="mission-panel">
+    <h3>📋 المهمة الحالية</h3>
+    <div id="mission-title">استكشف المدينة</div>
+    <div id="mission-desc">تحدث مع الشخصيات واجمع مواردك</div>
+    <div id="mission-prog"></div>
+    <div id="mission-bar-wrap">
+      <div id="mission-bar-fill" style="width:0%"></div>
+    </div>
+  </div>
+  <div id="interact-hint">اضغط <b>E</b> للتفاعل</div>
+  <div id="controls-hint">
+    <b>W A S D</b> — التحرك<br>
+    <b>الفأرة</b> — النظر حول<br>
+    <b>E</b> — التفاعل مع الشخصيات<br>
+    <b>انقر</b> — قفل الفأرة
+  </div>
+</div>
+
+<div id="float-container"></div>
+<div id="toast"></div>
+
+<div id="question-overlay">
+  <div id="question-box">
+    <div id="q-category-badge">تاريخ</div>
+    <div id="q-npc-name">👤 اسم الشخصية</div>
+    <div id="q-text">السؤال هنا؟</div>
+    <div id="q-choices"></div>
+    <div id="q-feedback"></div>
+    <div id="q-reward"></div>
+    <button id="q-close-btn" onclick="closeQuestion()">متابعة ▶</button>
+  </div>
+</div>
+
+<div id="mission-complete">
+  <h2 id="mc-title">🎉 مهمة مكتملة!</h2>
+  <p id="mc-desc"></p>
+  <div class="reward" id="mc-reward"></div>
+</div>
+
+<script>
+// ============================================================
+// مغامرة المواطن الصغير - مع نظام تصادم كامل (لا تمر عبر المباني أو الشخصيات)
+// ============================================================
+
+// game state
+const GS = {
+  score: 0, water: 5, maxWater: 10,
+  trashCount: 0, trashTarget: 5,
+  treesWatered: 0, treesTarget: 4,
+  treesPlanted: 0, plantsTarget: 3,
+  missionIndex: 0, dialogOpen: false, nearNPC: null, started: false
+};
+
+// questions database
+const QUESTIONS = {
+  history: [
+    { q: "في أي سنة بدأت الثورة الجزائرية؟", choices: ["1954", "1962", "1945", "1830"], correct: 0, reward: { water: 2, score: 30 } },
+    { q: "ما هو عيد الاستقلال الجزائري؟", choices: ["5 جويلية", "1 نوفمبر", "19 مارس", "8 مايو"], correct: 0, reward: { water: 2, score: 30 } },
+    { q: "ما هي عاصمة الجزائر؟", choices: ["وهران", "قسنطينة", "الجزائر العاصمة", "عنابة"], correct: 2, reward: { water: 1, score: 20 } }
+  ],
+  math: [
+    { q: "5 + 3 = ؟", choices: ["7", "8", "9", "6"], correct: 1, reward: { water: 1, score: 15 } },
+    { q: "10 − 4 = ؟", choices: ["4", "5", "6", "7"], correct: 2, reward: { water: 1, score: 15 } },
+    { q: "2 × 6 = ؟", choices: ["10", "11", "12", "14"], correct: 2, reward: { water: 1, score: 15 } }
+  ],
+  environment: [
+    { q: "ما هو أفضل تصرف تجاه القمامة؟", choices: ["رميها في الشارع", "وضعها في سلة المهملات", "حرقها", "دفنها"], correct: 1, reward: { water: 2, score: 25 } },
+    { q: "لماذا نزرع الأشجار؟", choices: ["للزينة فقط", "لتنقية الهواء وتوفير الظل", "لا فائدة منها", "تضر البيئة"], correct: 1, reward: { water: 3, score: 25 } }
+  ],
+  islamic: [
+    { q: "كم عدد الصلوات في اليوم؟", choices: ["3", "4", "5", "6"], correct: 2, reward: { water: 2, score: 25 } },
+    { q: "ما هو أول ركن من أركان الإسلام؟", choices: ["الصلاة", "الصوم", "الشهادتان", "الزكاة"], correct: 2, reward: { water: 2, score: 25 } }
+  ]
+};
+
+const askedQ = { history:[], math:[], environment:[], islamic:[] };
+function getRandomQuestion(category) {
+  const pool = QUESTIONS[category];
+  let asked = askedQ[category];
+  let remaining = pool.map((_,i)=>i).filter(i=>!asked.includes(i));
+  if (remaining.length === 0) { askedQ[category] = []; remaining = pool.map((_,i)=>i); }
+  const idx = remaining[Math.floor(Math.random()*remaining.length)];
+  askedQ[category].push(idx);
+  return pool[idx];
+}
+
+// three.js globals
+let scene, camera, renderer, clock;
+let player;
+let keys = {};
+let yaw = -Math.PI/4, pitch = -0.2;
+let isLocked = false;
+const npcs = [], trashMeshes = [], treeMeshes = [], plantSpots = [];
+// مصفوفة خاصة بالتصادم - تحتوي على حدود المباني والشخصيات
+let collisionBoxes = []; // { box: THREE.Box3, type: 'building' or 'npc' }
+
+// start game
+function startGame() {
+  document.getElementById('title-screen').style.display = 'none';
+  GS.started = true;
+  initThree();
+  buildWorld();
+  spawnPlayer();
+  spawnNPCs();      // شخصيات ظاهرة خارج المباني
+  spawnTrash();
+  spawnTreeSpots();
+  setupInput();
+  setMission(0);
+  gameLoop();
+}
+
+function initThree() {
+  const canvas = document.getElementById('game-canvas');
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x7ec8e3);
+  scene.fog = new THREE.Fog(0x7ec8e3, 45, 95);
+  camera = new THREE.PerspectiveCamera(65, innerWidth/innerHeight, 0.1, 200);
+  clock = new THREE.Clock();
+  const amb = new THREE.AmbientLight(0xfff0dd, 0.55);
+  scene.add(amb);
+  const sun = new THREE.DirectionalLight(0xffe8aa, 1.3);
+  sun.position.set(25, 45, 20);
+  sun.castShadow = true;
+  scene.add(sun);
+  scene.add(new THREE.HemisphereLight(0x7ec8e3, 0x4a7a30, 0.35));
+  window.addEventListener('resize', () => {
+    camera.aspect = innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  });
+}
+
+function addMesh(geo, mat, x, y, z, rx=0, ry=0, receiveShadow=false, castShadow=false) {
+  const m = new THREE.Mesh(geo, mat);
+  m.position.set(x,y,z); m.rotation.set(rx,ry,0);
+  m.receiveShadow = receiveShadow; m.castShadow = castShadow;
+  scene.add(m); return m;
+}
+
+function road(cx, cz, w, d, horizontal) {
+  const geo = new THREE.PlaneGeometry(w, d);
+  const mat = new THREE.MeshLambertMaterial({color:0x4a4a4a});
+  const m = new THREE.Mesh(geo, mat);
+  m.rotation.x = -Math.PI/2;
+  m.position.set(cx, 0.005, cz);
+  scene.add(m);
+  for (let i=-w/2+5;i<w/2;i+=8) {
+    const dg = new THREE.PlaneGeometry(horizontal?4:0.3, horizontal?0.3:4);
+    const dm = new THREE.Mesh(dg, new THREE.MeshBasicMaterial({color:0xdddddd}));
+    dm.rotation.x = -Math.PI/2;
+    dm.position.set(horizontal?cx+i:cx, 0.01, horizontal?cz:cz+i);
+    scene.add(dm);
+  }
+}
+
+function slab(x, y, z, w, h, d, color) {
+  const g = new THREE.BoxGeometry(w,h,d);
+  const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({color}));
+  m.position.set(x, y+h/2, z);
+  m.castShadow = true; m.receiveShadow = true;
+  scene.add(m); return m;
+}
+
+function building(x, y, z, w, h, d, color, windows) {
+  const g = new THREE.BoxGeometry(w,h,d);
+  const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({color}));
+  m.position.set(x, h/2, z);
+  m.castShadow = true; m.receiveShadow = true;
+  scene.add(m);
+  const rg = new THREE.BoxGeometry(w+0.4, 0.5, d+0.4);
+  const rm = new THREE.Mesh(rg, new THREE.MeshLambertMaterial({color: darken(color,0.7)}));
+  rm.position.set(x, h+0.25, z);
+  scene.add(rm);
+  if (windows && w>2 && d>2) {
+    const rows = Math.max(1, Math.floor(h/3.5));
+    const cols = Math.max(1, Math.floor(w/2.2));
+    for (let r=0;r<rows;r++) for (let c=0;c<cols;c++) {
+      const on = Math.random()>0.3;
+      const wg = new THREE.PlaneGeometry(0.65, 0.75);
+      const wm = new THREE.MeshBasicMaterial({color: on?0xfff9cc:0x223344});
+      const ww = new THREE.Mesh(wg, wm);
+      ww.position.set(x - w/2 + 1.1 + c*2.2, 1.8 + r*3.2, z + d/2 + 0.01);
+      scene.add(ww);
+    }
+  }
+  
+  // إضافة حدود التصادم للمبنى
+  const buildingBox = new THREE.Box3().set(
+    new THREE.Vector3(x - w/2 - 0.2, 0, z - d/2 - 0.2),
+    new THREE.Vector3(x + w/2 + 0.2, h, z + d/2 + 0.2)
+  );
+  collisionBoxes.push({ box: buildingBox, type: 'building', obj: m });
+}
+
+function sign(x, y, z, text, color) {
+  const pg = new THREE.CylinderGeometry(0.1,0.12,3,6);
+  const pm = new THREE.Mesh(pg, new THREE.MeshLambertMaterial({color:0x888888}));
+  pm.position.set(x-7, 1.5, z);
+  scene.add(pm);
+  const sg = new THREE.BoxGeometry(4, 1, 0.15);
+  const sm = new THREE.Mesh(sg, new THREE.MeshLambertMaterial({color}));
+  sm.position.set(x-7, 3.5, z);
+  scene.add(sm);
+}
+
+function park(x, z) {
+  const pg = new THREE.PlaneGeometry(22,22);
+  const pMesh = new THREE.Mesh(pg, new THREE.MeshLambertMaterial({color:0x55aa44}));
+  pMesh.rotation.x = -Math.PI/2;
+  pMesh.position.set(x, 0.01, z);
+  pMesh.receiveShadow = true;
+  scene.add(pMesh);
+  const parkTrees = [[-8,-6],[8,-6],[-8,6],[8,6],[-4,0],[4,0],[0,-4],[0,4]];
+  parkTrees.forEach(([tx, tz]) => makeStaticTree(x+tx, 0, z+tz, 0x3a8a30));
+}
+
+function makeStaticTree(x, y, z, color=0x2d8a20) {
+  const tg = new THREE.CylinderGeometry(0.22,0.3,1.6,6);
+  const tm = new THREE.Mesh(tg, new THREE.MeshLambertMaterial({color:0x7d5a3c}));
+  tm.position.set(x,0.8,z); tm.castShadow=true; scene.add(tm);
+  [[1.4,0.6],[1.0,1.4],[0.6,2.0],[0.4,2.8]].forEach(([r,ht]) => {
+    const cg = new THREE.ConeGeometry(r,r*1.6,7);
+    const cm = new THREE.Mesh(cg, new THREE.MeshLambertMaterial({color}));
+    cm.position.set(x,1.6+ht,z); cm.castShadow=true; scene.add(cm);
+  });
+}
+
+function streetLight(x, z) {
+  const pg = new THREE.CylinderGeometry(0.07,0.1,5.5,6);
+  const p = new THREE.Mesh(pg, new THREE.MeshLambertMaterial({color:0x777777}));
+  p.position.set(x,2.75,z); p.castShadow = true; scene.add(p);
+  const lg = new THREE.SphereGeometry(0.22,8,8);
+  const l = new THREE.Mesh(lg, new THREE.MeshBasicMaterial({color:0xffee88}));
+  l.position.set(x,5.6,z); scene.add(l);
+  const pl = new THREE.PointLight(0xffee88, 0.5, 12);
+  pl.position.set(x,5.4,z); scene.add(pl);
+}
+
+function installStreetLights() {
+  const positions = [[-35,-3.2],[-25,-3.2],[-15,-3.2],[-5,-3.2],[5,-3.2],[15,-3.2],[25,-3.2],[35,-3.2],
+    [-35,3.2],[-25,3.2],[-15,3.2],[-5,3.2],[5,3.2],[15,3.2],[25,3.2],[35,3.2],
+    [-3.2,-35],[-3.2,-25],[-3.2,-15],[-3.2,-5],[-3.2,5],[-3.2,15],[-3.2,25],[-3.2,35],
+    [3.2,-35],[3.2,-25],[3.2,-15],[3.2,-5],[3.2,5],[3.2,15],[3.2,25],[3.2,35]];
+  positions.forEach(([x,z]) => streetLight(x,z));
+}
+
+function bench(x, z) { slab(x, 0.2, z, 2.2, 0.15, 0.65, 0x8b6914); [-0.75,0.75].forEach(dx => slab(x+dx, 0.2, z, 0.12, 0.5, 0.65, 0x666666)); }
+function fountain(x, z) { slab(x, 0.1, z, 3.5, 0.5, 3.5, 0xaaaacc); const wg = new THREE.CylinderGeometry(1.4,1.4,0.15,14); const wm = new THREE.Mesh(wg, new THREE.MeshLambertMaterial({color:0x4488ff,transparent:true,opacity:0.7})); wm.position.set(x,0.55,z); scene.add(wm); }
+function darken(hex,f){ return ((Math.round(((hex>>16)&0xff)*f)<<16)|(Math.round(((hex>>8)&0xff)*f)<<8)|Math.round((hex&0xff)*f)); }
+
+function buildWorld() {
+  addMesh(new THREE.PlaneGeometry(140,140), new THREE.MeshLambertMaterial({color:0x5a8f40}), 0,0,0, -Math.PI/2,0, true);
+  road(0,0,140,6,true);
+  road(0,0,6,140,false);
+  slab(-0.5,0.01,0,2,0.05,130,0x999999);
+  slab(0.5,0.01,0,2,0.05,130,0x999999);
+  
+  // مباني
+  building(14,9,-14,6,18,6,0xe8d5b7,true);
+  building(-10,6,-12,5,12,5,0xc8b7a0,true);
+  building(22,7,-9,5,14,5,0xd4c4a8,true);
+  building(-16,8,-18,6,16,6,0xbcaa95,true);
+  building(28,5,-22,4,9,4,0xe0d0bc,true);
+  building(-24,4,-4,5,8,5,0xd8c8b0,true);
+  building(-28,5,-8,9,9,11,0x5dade2,true);
+  sign(-28,10,-8,'🏫 المدرسة',0x5dade2);
+  for(let i=-4;i<=4;i++){ slab(-28+i*2,0.6,-14,0.2,1.2,0.2,0x999999); slab(-28+i*2,0.6,-2,0.2,1.2,0.2,0x999999); }
+  building(30,6,10,11,12,13,0x8e44ad,true);
+  sign(30,13,10,'🏛️ المتحف',0xc39bd3);
+  [-4,-1,2,5].forEach(dx => { slab(30+dx,4,3.5,0.7,8,0.7,0xa569bd); slab(30+dx,4,16.5,0.7,8,0.7,0xa569bd); });
+  building(-28,5,22,10,10,10,0xf5f5f5,true);
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(3.5,12,8,0,Math.PI*2,0,Math.PI/2), new THREE.MeshLambertMaterial({color:0x1abc9c}));
+  dome.position.set(-28,10,22); dome.castShadow=true; scene.add(dome);
+  slab(-22,7,22,1.5,14,1.5,0xf0ede5);
+  slab(-22,14.5,22,2.5,0.5,2.5,0x1abc9c);
+  sign(-28,11,22,'🕌 المسجد',0x1abc9c);
+  park(25,25);
+  building(-22,3,12,5,6,5,0xf0c080,true);
+  building(-30,3,18,5,6,6,0x80c0f0,true);
+  building(-20,3,26,5,6,5,0xf08080,true);
+  building(-12,3,18,5,6,5,0x90e090,true);
+  building(12,3,-22,5,6,5,0xc0a080,true);
+  building(18,3,-18,5,6,5,0xa0c0e0,true);
+  installStreetLights();
+  fountain(25,25);
+  bench(24,28);
+  bench(26,22);
+}
+
+function spawnPlayer() {
+  player = new THREE.Group();
+  player.position.set(0,0,6);
+  scene.add(player);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.65,0.85,0.45), new THREE.MeshLambertMaterial({color:0x2ecc71}));
+  body.position.y=0.65; body.castShadow=true; player.add(body);
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.55,0.55,0.55), new THREE.MeshLambertMaterial({color:0xf5cba7}));
+  head.position.y=1.3; head.castShadow=true; player.add(head);
+  [-0.13,0.13].forEach(ex => { const e = new THREE.Mesh(new THREE.BoxGeometry(0.1,0.1,0.08), new THREE.MeshBasicMaterial({color:0x222222})); e.position.set(ex,1.33,0.28); player.add(e); });
+  const hair = new THREE.Mesh(new THREE.BoxGeometry(0.58,0.18,0.58), new THREE.MeshLambertMaterial({color:0x3d2200}));
+  hair.position.set(0,1.6,0); player.add(hair);
+  const legGeo = new THREE.BoxGeometry(0.22,0.45,0.22);
+  const legMat = new THREE.MeshLambertMaterial({color:0x2c3e50});
+  [-0.16,0.16].forEach((lx,i) => { const leg = new THREE.Mesh(legGeo,legMat); leg.position.set(lx,0.22,0); leg.name='leg'+i; player.add(leg); });
+  const armGeo = new THREE.BoxGeometry(0.17,0.55,0.17);
+  const armMat = new THREE.MeshLambertMaterial({color:0x27ae60});
+  [-0.43,0.43].forEach((ax,i) => { const arm = new THREE.Mesh(armGeo,armMat); arm.position.set(ax,0.72,0); arm.name='arm'+i; player.add(arm); });
+}
+
+// شخصيات في أماكن مفتوحة
+const NPC_DEFS = [
+  { x: -28, z: -20, color: 0x27ae60, name: 'أمينة', category: 'environment', label: '🌿 البيئة', badgeColor: '#27ae60' },
+  { x: 28, z: -4, color: 0x3498db, name: 'الأستاذ كريم', category: 'math', label: '📐 الرياضيات', badgeColor: '#3498db' },
+  { x: 30, z: 30, color: 0xf1c40f, name: 'المؤرخ سعيد', category: 'history', label: '📜 التاريخ', badgeColor: '#b7950b' },
+  { x: -26, z: 28, color: 0xffffff, name: 'الشيخ يوسف', category: 'islamic', label: '☪️ الثقافة الإسلامية', badgeColor: '#1abc9c' },
+  { x: -10, z: -25, color: 0xff6b6b, name: 'الصديق سمير', category: 'environment', label: '🌿 البيئة', badgeColor: '#27ae60' },
+  { x: 8, z: -20, color: 0x9b59b6, name: 'الرفيق خالد', category: 'history', label: '📜 التاريخ', badgeColor: '#8e44ad' },
+  { x: -18, z: 6, color: 0xe67e22, name: 'المواطن رشيد', category: 'environment', label: '🌿 البيئة', badgeColor: '#e67e22' },
+  { x: 15, z: -28, color: 0x1abc9c, name: 'المهندس علي', category: 'math', label: '📐 الرياضيات', badgeColor: '#1abc9c' },
+  { x: 10, z: -30, color: 0xe74c3c, name: 'الطبيبة فاطمة', category: 'environment', label: '🌿 البيئة', badgeColor: '#e74c3c' },
+  { x: -12, z: 30, color: 0xf39c12, name: 'الفنان مروان', category: 'history', label: '📜 التاريخ', badgeColor: '#f39c12' }
+];
+
+function spawnNPCs() {
+  NPC_DEFS.forEach(def => {
+    const g = new THREE.Group();
+    g.position.set(def.x, 0, def.z);
+    g.userData = { ...def };
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.65,0.85,0.45), new THREE.MeshLambertMaterial({color:def.color}));
+    body.position.y=0.65; body.castShadow=true; g.add(body);
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.55,0.55,0.55), new THREE.MeshLambertMaterial({color:0xf5cba7}));
+    head.position.y=1.3; g.add(head);
+    const hat = new THREE.Mesh(new THREE.CylinderGeometry(0.32,0.37,0.35,8), new THREE.MeshLambertMaterial({color:darken(def.color===0xffffff?0xaaaaaa:def.color,0.65)}));
+    hat.position.y=1.68; g.add(hat);
+    const bubble = new THREE.Mesh(new THREE.SphereGeometry(0.22,8,8), new THREE.MeshBasicMaterial({color:0xffdd00}));
+    bubble.position.y=2.3; bubble.name='bubble'; g.add(bubble);
+    const legMat = new THREE.MeshLambertMaterial({color:0x2c3e50});
+    [-0.16,0.16].forEach(lx => { const leg = new THREE.Mesh(new THREE.BoxGeometry(0.22,0.45,0.22),legMat); leg.position.set(lx,0.22,0); g.add(leg); });
+    scene.add(g);
+    npcs.push(g);
+    
+    // إضافة حدود تصادم للشخصية (بحجم مناسب)
+    const npcBox = new THREE.Box3().set(
+      new THREE.Vector3(def.x - 0.5, 0, def.z - 0.5),
+      new THREE.Vector3(def.x + 0.5, 1.5, def.z + 0.5)
+    );
+    collisionBoxes.push({ box: npcBox, type: 'npc', obj: g });
+  });
+}
+
+const TRASH_POS = [[-5,0,8],[8,0,12],[-12,0,-3],[15,0,-5],[-15,0,15]];
+function spawnTrash() {
+  TRASH_POS.forEach(([x,y,z]) => {
+    const g = new THREE.Group();
+    g.position.set(x, 0.18, z);
+    const colors = [0x7dbb55,0xcc9933,0xcc4444,0x6699cc];
+    const box = new THREE.Mesh(new THREE.BoxGeometry(0.38,0.38,0.38), new THREE.MeshLambertMaterial({color:colors[Math.floor(Math.random()*colors.length)]}));
+    box.castShadow=true; g.add(box);
+    const icon = new THREE.Mesh(new THREE.PlaneGeometry(0.28,0.28), new THREE.MeshBasicMaterial({color:0x22ee66,side:THREE.DoubleSide}));
+    icon.rotation.x=-Math.PI/2; icon.position.y=0.2; g.add(icon);
+    g.userData.isTrash=true;
+    scene.add(g);
+    trashMeshes.push(g);
+  });
+}
+
+const TREE_SPOT_POS = [[22,0,28],[26,0,26],[24,0,22],[24,0,30],[28,0,24],[20,0,24],[26,0,20]];
+function spawnTreeSpots() {
+  TREE_SPOT_POS.forEach(([x,y,z]) => {
+    const marker = new THREE.Mesh(new THREE.CylinderGeometry(0.7,0.7,0.05,12), new THREE.MeshBasicMaterial({color:0x886633,transparent:true,opacity:0.7}));
+    marker.position.set(x,0.02,z);
+    scene.add(marker);
+    plantSpots.push({ mesh:marker, activated:false, pos:new THREE.Vector3(x,0,z), tree:null });
+  });
+}
+
+function createInteractiveTree(x, z) {
+  const g = new THREE.Group();
+  g.position.set(x,0,z);
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.3,1.8,6), new THREE.MeshLambertMaterial({color:0x7d5a3c}));
+  trunk.position.y=0.9; trunk.castShadow=true; g.add(trunk);
+  const cones = [];
+  [[1.5,0.5],[1.1,1.3],[0.7,1.9],[0.4,2.5]].forEach(([r,ht]) => {
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(r,r*1.7,7), new THREE.MeshLambertMaterial({color:0x8B4513}));
+    cone.position.y=1.7+ht; cone.castShadow=true; g.add(cone);
+    cones.push(cone);
+  });
+  g.userData = { state:'dry', cones };
+  scene.add(g);
+  treeMeshes.push(g);
+  return g;
+}
+
+function waterTree(tree) {
+  if (tree.userData.state === 'watered') return;
+  tree.userData.state = 'watered';
+  const greenShades = [0x2d8a20,0x3aaa28,0x4cc430,0x5aee50];
+  tree.userData.cones.forEach((cone,i) => {
+    cone.userData = { targetColor: new THREE.Color(greenShades[i]), currentColor: cone.material.color.clone(), lerping: true, lerpT: 0 };
+  });
+  GS.water = Math.max(0, GS.water - 1);
+  GS.treesWatered++;
+  GS.score += 20;
+  updateHUD();
+  spawnFloatText(tree.position, '💧 تمت السقاية!', '#3498db');
+  toast('🌳 شجرة تم سقيها! +20 نقطة');
+  if (GS.missionIndex === 2) checkMission2();
+}
+
+// ==================== نظام التصادم المتكامل ====================
+function checkCollision(newPos, playerRadius = 0.45) {
+  const playerBox = new THREE.Box3().set(
+    new THREE.Vector3(newPos.x - playerRadius, 0, newPos.z - playerRadius),
+    new THREE.Vector3(newPos.x + playerRadius, 1.5, newPos.z + playerRadius)
+  );
+  
+  for (let col of collisionBoxes) {
+    if (playerBox.intersectsBox(col.box)) {
+      return true; // يوجد تصادم
+    }
+  }
+  return false;
+}
+// ============================================================
+
+function setupInput() {
+  document.addEventListener('keydown', e => {
+    keys[e.code] = true;
+    if (e.code==='KeyE' && !GS.dialogOpen) handleInteract();
+    if (e.code==='Escape') closeQuestion();
+  });
+  document.addEventListener('keyup', e => { keys[e.code]=false; });
+  const cv = renderer.domElement;
+  cv.addEventListener('click', () => { if (!GS.dialogOpen) cv.requestPointerLock(); });
+  document.addEventListener('pointerlockchange', () => { isLocked = document.pointerLockElement === cv; });
+  document.addEventListener('mousemove', e => {
+    if (!isLocked) return;
+    yaw -= e.movementX * 0.0022;
+    pitch -= e.movementY * 0.0022;
+    pitch = Math.max(-0.45, Math.min(0.55, pitch));
+  });
+}
+
+const SPEED = 9;
+let animT = 0;
+
+function updatePlayer(dt) {
+  if (GS.dialogOpen) return;
+  const fwd = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
+  const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
+  const dir = new THREE.Vector3();
+  if (keys['KeyW']||keys['ArrowUp']) dir.add(fwd);
+  if (keys['KeyS']||keys['ArrowDown']) dir.sub(fwd);
+  if (keys['KeyA']||keys['ArrowLeft']) dir.sub(right);
+  if (keys['KeyD']||keys['ArrowRight']) dir.add(right);
+  const moving = dir.lengthSq() > 0;
+  if (moving) {
+    dir.normalize();
+    const newPos = player.position.clone().add(dir.clone().multiplyScalar(SPEED * dt));
+    // التحقق من التصادم قبل تطبيق الحركة
+    if (!checkCollision(newPos)) {
+      player.position.copy(newPos);
+    }
+    player.rotation.y = Math.atan2(dir.x, dir.z);
+    animT += dt*8;
+    player.children.forEach(c => {
+      if (c.name==='leg0') c.rotation.x = Math.sin(animT)*0.55;
+      if (c.name==='leg1') c.rotation.x = -Math.sin(animT)*0.55;
+      if (c.name==='arm0') c.rotation.x = -Math.sin(animT)*0.45;
+      if (c.name==='arm1') c.rotation.x = Math.sin(animT)*0.45;
+    });
+  }
+  player.position.y = 0;
+  const camOffset = new THREE.Vector3(Math.sin(yaw)*9, 5.5 + pitch*6, Math.cos(yaw)*9);
+  camera.position.lerp(player.position.clone().add(camOffset), 0.1);
+  camera.lookAt(player.position.clone().add(new THREE.Vector3(0,1.2,0)));
+}
+
+function checkProximity() {
+  if (GS.missionIndex === 0) {
+    trashMeshes.forEach(t => { if (t.visible && player.position.distanceTo(t.position) < 1.6) collectTrash(t); });
+  }
+  if (GS.water > 0) {
+    treeMeshes.forEach(t => { if (t.userData.state!=='watered' && player.position.distanceTo(t.position) < 2.0) waterTree(t); });
+  }
+  if (GS.missionIndex >= 1) {
+    plantSpots.forEach(spot => { if (!spot.activated && player.position.distanceTo(spot.pos) < 2.2) activatePlantSpot(spot); });
+  }
+  GS.nearNPC = null;
+  npcs.forEach(npc => {
+    if (player.position.distanceTo(npc.position) < 3.5) GS.nearNPC = npc;
+    const tp = new THREE.Vector3().subVectors(player.position, npc.position);
+    npc.rotation.y = Math.atan2(tp.x, tp.z);
+    const bub = npc.getObjectByName('bubble');
+    if (bub) bub.position.y = 2.3 + Math.sin(Date.now()*0.003)*0.1;
+  });
+  document.getElementById('interact-hint').style.display = GS.nearNPC ? 'block' : 'none';
+}
+
+function collectTrash(t) {
+  t.visible = false;
+  GS.trashCount++;
+  GS.score += 15;
+  updateHUD();
+  spawnFloatText(t.position, '+15 ♻️', '#2ecc71');
+  toast(`🗑️ تم جمع القمامة! (${GS.trashCount}/${GS.trashTarget})`);
+  if (GS.trashCount >= GS.trashTarget) completeMission0();
+}
+
+function activatePlantSpot(spot) {
+  spot.activated = true;
+  spot.mesh.material.color.setHex(0x2ecc71);
+  const tree = createInteractiveTree(spot.pos.x, spot.pos.z);
+  spot.tree = tree;
+  GS.treesPlanted++;
+  GS.score += 10;
+  updateHUD();
+  spawnFloatText(spot.pos, '🌱 تمت الزراعة!', '#2ecc71');
+  if (GS.missionIndex===1 && GS.treesPlanted >= GS.plantsTarget) completeMission1();
+}
+
+function handleInteract() { if (GS.nearNPC) openQuestion(GS.nearNPC.userData); }
+
+let currentQuestion = null;
+
+function openQuestion(npcData) {
+  GS.dialogOpen = true;
+  if (document.pointerLockElement) document.exitPointerLock();
+  const q = getRandomQuestion(npcData.category);
+  currentQuestion = q;
+  const badge = document.getElementById('q-category-badge');
+  badge.textContent = npcData.label;
+  badge.style.background = npcData.badgeColor+'33';
+  badge.style.color = npcData.badgeColor;
+  badge.style.border = '1px solid '+npcData.badgeColor+'88';
+  document.getElementById('q-npc-name').textContent = '👤 ' + npcData.name;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-feedback').innerHTML = '';
+  document.getElementById('q-reward').innerHTML = '';
+  document.getElementById('q-close-btn').style.display = 'none';
+  const choicesEl = document.getElementById('q-choices');
+  choicesEl.innerHTML = '';
+  q.choices.forEach((choice, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'q-btn';
+    btn.textContent = choice;
+    btn.addEventListener('click', () => answerQuestion(i, btn));
+    choicesEl.appendChild(btn);
+  });
+  document.getElementById('question-overlay').classList.add('show');
+}
+
+function answerQuestion(idx, btn) {
+  const q = currentQuestion;
+  const btns = document.querySelectorAll('.q-btn');
+  btns.forEach(b => b.disabled = true);
+  const correct = idx === q.correct;
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) btns[q.correct].classList.add('correct');
+  const fb = document.getElementById('q-feedback');
+  if (correct) {
+    fb.innerHTML = '✅ إجابة صحيحة!';
+    fb.style.color = '#2ecc71';
+    GS.score += q.reward.score;
+    GS.water = Math.min(GS.maxWater, GS.water + q.reward.water);
+    updateHUD();
+    document.getElementById('q-reward').innerHTML = `🎁 حصلت على: +${q.reward.score} نقطة  +${q.reward.water} 💧`;
+  } else {
+    fb.innerHTML = '❌ إجابة خاطئة';
+    fb.style.color = '#e74c3c';
+  }
+  document.getElementById('q-close-btn').style.display = 'block';
+}
+
+function closeQuestion() {
+  document.getElementById('question-overlay').classList.remove('show');
+  GS.dialogOpen = false;
+}
+
+const MISSIONS = [
+  { title: 'تنظيف المدينة', desc: 'اجمع القمامة المنتشرة', get prog() { return `${GS.trashCount} / ${GS.trashTarget} قطع`; }, get pct() { return GS.trashCount/GS.trashTarget; } },
+  { title: 'زراعة الأشجار', desc: 'اقترب من البقع البنية', get prog() { return `${GS.treesPlanted} / ${GS.plantsTarget} أشجار`; }, get pct() { return GS.treesPlanted/GS.plantsTarget; } },
+  { title: 'سقاية الأشجار', desc: 'احصل على ماء من الشخصيات', get prog() { return `${GS.treesWatered} / ${GS.treesTarget} أشجار`; }, get pct() { return GS.treesWatered/GS.treesTarget; } },
+  { title: '🎉 مكتمل!', desc: 'أنت مواطن رائع!', get prog() { return `نقاط: ${GS.score}`; }, get pct() { return 1; } }
+];
+
+function setMission(idx) { GS.missionIndex = idx; updateMissionUI(); }
+function updateMissionUI() {
+  const m = MISSIONS[GS.missionIndex];
+  document.getElementById('mission-title').innerHTML = m.title;
+  document.getElementById('mission-desc').innerHTML = m.desc;
+  document.getElementById('mission-prog').innerHTML = m.prog;
+  document.getElementById('mission-bar-fill').style.width = (m.pct*100)+'%';
+}
+function completeMission0() { showComplete('مهمة التنظيف مكتملة! 🎉', 'المدينة أصبحت نظيفة', '+50 نقطة + تفعيل الزراعة!'); GS.score += 50; updateHUD(); setTimeout(() => setMission(1), 2500); }
+function completeMission1() { showComplete('مهمة الزراعة مكتملة! 🌱', 'أضفت خضرة للمدينة', '+50 نقطة + تفعيل السقاية!'); GS.score += 50; updateHUD(); setTimeout(() => setMission(2), 2500); }
+function checkMission2() { updateMissionUI(); if (GS.treesWatered >= GS.treesTarget) { showComplete('مهمة السقاية مكتملة! 💧', 'الأشجار خضراء وصحية', '+80 نقطة!'); GS.score += 80; updateHUD(); setTimeout(() => setMission(3), 2500); } }
+function showComplete(title, desc, reward) {
+  const mc = document.getElementById('mission-complete');
+  document.getElementById('mc-title').innerHTML = title;
+  document.getElementById('mc-desc').innerHTML = desc;
+  document.getElementById('mc-reward').innerHTML = reward;
+  mc.classList.add('show');
+  setTimeout(() => mc.classList.remove('show'), 2400);
+}
+
+function updateHUD() {
+  document.getElementById('score-val').innerHTML = GS.score;
+  document.getElementById('water-val').innerHTML = GS.water;
+  document.getElementById('water-bar-fill').style.width = (GS.water/GS.maxWater*100)+'%';
+  updateMissionUI();
+}
+
+function spawnFloatText(worldPos, text, color) {
+  const v = worldPos.clone().project(camera);
+  const x = (v.x * 0.5 + 0.5) * innerWidth;
+  const y = (v.y * -0.5 + 0.5) * innerHeight;
+  const el = document.createElement('div');
+  el.className = 'float-text';
+  el.textContent = text;
+  el.style.color = color;
+  el.style.left = x+'px';
+  el.style.top = y+'px';
+  document.getElementById('float-container').appendChild(el);
+  setTimeout(() => el.remove(), 1900);
+}
+
+let toastTimer;
+function toast(msg, duration=2600) {
+  const el = document.getElementById('toast');
+  el.innerHTML = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), duration);
+}
+
+function initStars() {
+  const container = document.getElementById('stars-bg');
+  for (let i=0;i<80;i++) {
+    const s = document.createElement('div');
+    s.className='star';
+    s.style.left = Math.random()*100+'%';
+    s.style.top = Math.random()*100+'%';
+    s.style.animationDelay = Math.random()*3+'s';
+    s.style.animationDuration = (2+Math.random()*3)+'s';
+    container.appendChild(s);
+  }
+}
+initStars();
+
+function gameLoop() {
+  requestAnimationFrame(gameLoop);
+  if (!GS.started) return;
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const t = clock.getElapsedTime();
+  updatePlayer(dt);
+  checkProximity();
+  
+  trashMeshes.forEach((tr,i) => { if (tr.visible) { tr.rotation.y += dt*1.8; tr.position.y = 0.18 + Math.sin(t*2+i)*0.07; } });
+  treeMeshes.forEach(tree => { if (tree.userData.cones) { tree.userData.cones.forEach(cone => { if (cone.userData && cone.userData.lerping) { cone.userData.lerpT = Math.min(1, cone.userData.lerpT + dt*1.5); cone.material.color.lerpColors(cone.userData.currentColor, cone.userData.targetColor, cone.userData.lerpT); if (cone.userData.lerpT >= 1) cone.userData.lerping = false; } }); } });
+  npcs.forEach((npc,i) => { npc.position.y = Math.sin(t*1.4+i*1.1)*0.035; });
+  
+  if (GS.missionIndex < MISSIONS.length) {
+    const target = MISSIONS[GS.missionIndex].pct*100;
+    const bar = document.getElementById('mission-bar-fill');
+    const cur = parseFloat(bar.style.width)||0;
+    bar.style.width = (cur+(target-cur)*0.08)+'%';
+  }
+  renderer.render(scene, camera);
+}
+</script>
+</body>
+</html>

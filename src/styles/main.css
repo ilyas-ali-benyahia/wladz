@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&display=swap');
+
+:root {
+  --primary-green: #2ecc71;
+  --dark-green: #27ae60;
+  --emerald: #16a085;
+  --algerian-red: #e74c3c;
+  --gold: #f1c40f;
+  --sky-blue: #3498db;
+  --deep-blue: #2980b9;
+  --dark-bg: #0d131a;
+  --glass-panel: rgba(15, 23, 36, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-highlight: rgba(46, 204, 113, 0.35);
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 8px;
+  --font-arabic: 'Tajawal', 'Cairo', sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--dark-bg);
+  font-family: var(--font-arabic);
+  direction: rtl;
+  color: #ecf0f1;
+}
+
+#game-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  z-index: 1;
+  cursor: grab;
+}
+
+#game-canvas:active {
+  cursor: grabbing;
+}

@@ -26,3 +26,6 @@ desktop.ini
 # local agent settings
 .claude/settings.local.json
 CLAUDE.local.md
+
+# Ghiras Al-Muwatana (Vite game at the repository root)
+dist/
