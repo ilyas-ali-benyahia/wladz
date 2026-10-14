@@ -1,0 +1,25 @@
+/*
+ * Embedding overrides for the WLADZ game shell.
+ * The generated salati.css was written for a full browser window. These rules size the game
+ * to its own area inside the hub and keep every overlay inside it.
+ */
+
+.wladz-salati {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 32rem;
+  height: min(100dvh, 56rem);
+  margin: 0;
+  overflow: hidden;
+  border-radius: 1.5rem;
+}
+
+.wladz-salati .screen {
+  min-height: 0;
+}
+
+.wladz-salati .screen.active {
+  height: 100%;
+  min-height: 100%;
+}
