@@ -6,6 +6,7 @@ import { CartoonNatureGenerator } from './visuals/CartoonNatureGenerator.js';
 import { CartoonVehicleGenerator } from './visuals/CartoonVehicleGenerator.js';
 import { CartoonStreetPropsGenerator } from './visuals/CartoonStreetPropsGenerator.js';
 import { CartoonBuildingGenerator } from './visuals/CartoonBuildingGenerator.js';
+import { TerrainGenerator, edgeDistance } from './visuals/TerrainGenerator.js';
 
 export class WorldBuilder {
   constructor(engine, collisionSystem) {
@@ -51,30 +52,9 @@ export class WorldBuilder {
   // 1. Ground & Road Network (Grid & Parcels)
   // ═════════════════════════════════════════════════════
   createGroundAndRoads() {
-    // City base terrain (Lush Algerian Mediterranean grass)
-    // Subdivided terrain with soft, low-frequency grass colour variation (no flat single tone)
-    const groundGeo = new THREE.PlaneGeometry(180, 180, 90, 90);
-    const gPos = groundGeo.attributes.position;
-    const gCol = new Float32Array(gPos.count * 3);
-    const lush = new THREE.Color(0x4f8a3a);
-    const dry = new THREE.Color(0x7d8f45);
-    const deep = new THREE.Color(0x3e7433);
-    const tmp = new THREE.Color();
-    for (let i = 0; i < gPos.count; i++) {
-      const gx = gPos.getX(i);
-      const gy = gPos.getY(i);
-      const n1 = Math.sin(gx * 0.07) * Math.cos(gy * 0.09) * 0.5 + 0.5;
-      const n2 = Math.sin(gx * 0.23 + 1.7) * Math.sin(gy * 0.19 + 0.4) * 0.5 + 0.5;
-      tmp.copy(lush).lerp(dry, n1 * 0.55).lerp(deep, n2 * 0.35);
-      gCol[i * 3] = tmp.r; gCol[i * 3 + 1] = tmp.g; gCol[i * 3 + 2] = tmp.b;
-    }
-    groundGeo.setAttribute('color', new THREE.BufferAttribute(gCol, 3));
-    const groundMat = addSurfaceDetail(new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.95, metalness: 0 }), 0.07);
-    const ground = new THREE.Mesh(groundGeo, groundMat);
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -0.01;
-    ground.receiveShadow = true;
-    this.scene.add(ground);
+    // One continuous terrain: city lawn plus the mountain range that closes the map
+    this.terrain = new TerrainGenerator(this.scene).build();
+    this.collisionSystem.edgeDistance = edgeDistance;
 
     // Road network: main avenue (شارع أول نوفمبر), main boulevard (نهج الشهداء) and the outer ring roads
     this.roadDefs = [
@@ -90,6 +70,8 @@ export class WorldBuilder {
 
     this.roadDefs.forEach(r => this.createRoadSegment(r.cx, r.cz, r.w, r.d, r.h));
     this.buildSidewalks();
+    this.terrain.buildRoadEnds(this.roadMats.road);
+    this.terrain.solids.forEach(b => this.collisionSystem.addBox(b.min.x, b.min.z, b.max.x, b.max.z, b.max.y));
   }
 
   /** True if a lane-marking dash at (x, z) would sit inside a crossing road or the roundabout */

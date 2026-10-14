@@ -75,6 +75,10 @@ export class CollisionSystem {
     if (pos.x - radius < minX || pos.x + radius > maxX || pos.z - radius < minZ || pos.z + radius > maxZ) {
       return true;
     }
+    // Outdoors the mountain foot is the real boundary (rounded corners of the city square)
+    if (!b && this.edgeDistance && this.edgeDistance(pos.x, pos.z) + radius > -0.3) {
+      return true;
+    }
 
     // 2. Obstacles check
     const playerBox = new THREE.Box3(
