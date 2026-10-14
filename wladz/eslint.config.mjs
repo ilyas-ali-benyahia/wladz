@@ -16,6 +16,8 @@ const eslintConfig = defineConfig([
     "games/math/engine/**",
     "games/treasures/engine/**",
     "games/skills/engine.js",
+    "games/salati/engine/**",
+    "games/ghiras/engine/**",
     "games/skills/levels.js",
   ]),
 ]);

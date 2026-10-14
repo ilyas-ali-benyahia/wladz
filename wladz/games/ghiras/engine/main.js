@@ -1,0 +1,325 @@
+// Repris de la branche game/ghiras. Modifications WLADZ : démarrage immédiat (chargé après
+// le rendu de la page), et événements « ghiras:win » (mission terminée, étape d'activité
+// réussie pour la première fois) pour les points du compte de l'enfant.
+import * as THREE from 'three';
+import { Engine } from './core/Engine.js';
+import { InputManager } from './core/InputManager.js';
+import { CollisionSystem } from './systems/CollisionSystem.js';
+import { WorldBuilder } from './systems/WorldBuilder.js';
+import { PlayerController } from './systems/PlayerController.js';
+import { NPCSystem } from './systems/NPCSystem.js';
+import { ProgressionSystem } from './systems/ProgressionSystem.js';
+import { MissionSystem } from './systems/MissionSystem.js';
+import { QuestionSystem } from './systems/QuestionSystem.js';
+import { AchievementSystem } from './systems/AchievementSystem.js';
+import { EnvironmentSystem } from './systems/EnvironmentSystem.js';
+import { MapSystem } from './systems/MapSystem.js';
+import { SaveSystem } from './systems/SaveSystem.js';
+import { UISystem } from './systems/UISystem.js';
+import { DialogueSystem } from './systems/DialogueSystem.js';
+import { TrafficSystem } from './systems/TrafficSystem.js';
+import { PedestrianSystem } from './systems/PedestrianSystem.js';
+import { InteriorSystem } from './systems/InteriorSystem.js';
+import { PlayerVehicleSystem } from './systems/PlayerVehicleSystem.js';
+import { WardrobeSystem } from './systems/WardrobeSystem.js';
+import { ActivitySystem } from './systems/activities/ActivitySystem.js';
+import { CoastSystem } from './systems/coast/CoastSystem.js';
+import { EncyclopediaSystem } from './systems/EncyclopediaSystem.js';
+import { CityFacilities } from './systems/CityFacilities.js';
+import { createFirstAidActivity, createMuseumActivity, createRecyclingActivity, createDrivingSchoolActivity } from './systems/activities/CityActivities.js';
+import { events } from './core/EventBus.js';
+
+class GhirassGameApp {
+  constructor() {
+    this.isGameActive = false;
+
+    // 1. Core Engine & Input
+    this.engine = new Engine('game-canvas');
+    this.input = new InputManager();
+    this.input.setEnabled(false); // Disabled until character is confirmed
+
+    // 2. Systems
+    this.collisionSystem = new CollisionSystem();
+    this.worldBuilder = new WorldBuilder(this.engine, this.collisionSystem);
+    this.collisionSystem.buildWalkables(this.engine.scene);
+    this.player = new PlayerController(this.engine, this.collisionSystem, this.input);
+    this.npcSystem = new NPCSystem(this.engine, this.collisionSystem);
+
+    this.progression = new ProgressionSystem();
+    this.missionSystem = new MissionSystem(this.engine, this.worldBuilder, this.progression, this.player);
+    this.dialogueSystem = new DialogueSystem(this.missionSystem);
+    this.trafficSystem = new TrafficSystem(this.engine, this.collisionSystem, this.worldBuilder);
+    this.pedestrianSystem = new PedestrianSystem(this.engine, this.collisionSystem);
+    this.trafficSystem.setPedestrianSystem(this.pedestrianSystem);
+
+    this.questionSystem = new QuestionSystem(this.progression);
+    this.achievementSystem = new AchievementSystem();
+    this.environment = new EnvironmentSystem(this.engine, this.worldBuilder);
+    this.mapSystem = new MapSystem(this.engine);
+    this.saveSystem = new SaveSystem();
+
+    // 3. UI
+    this.ui = new UISystem(this);
+    this.interiors = new InteriorSystem(this.engine, this.collisionSystem, this.player, this.ui);
+
+    // Mission objectives can point at NPCs and building entrances
+    this.missionSystem.npcLookup = (id) => {
+      const n = this.npcSystem.npcInstances.find(n => n.data.id === id);
+      return n ? n.group.position : null;
+    };
+    this.missionSystem.doorLookup = (id) => {
+      const l = this.interiors.landmarks.find(l => l.id === id);
+      return l ? l.door : null;
+    };
+    this.missionSystem.isInside = () => this.interiors.isInside();
+    this.missionSystem.npcSystem = this.npcSystem;
+    this.missionSystem.lightPhase = () => this.trafficSystem.currentLightPhase;
+    this.missionSystem.setHint = (html) => this.ui.setCustomHint(html, 'mission');
+    this.trafficSystem.extraCrossers = () => this.missionSystem.getEscortPositions();
+    this.missionSystem.emitUpdate();
+
+    // Pedestrians steer around NPCs who stand still on the sidewalks
+    // Appearance and clothing (character selection, clothing shop, home wardrobe)
+    this.wardrobe = new WardrobeSystem(this);
+    this.player.cameraHold = () => this.wardrobe.isOpen;
+    events.on('INTERIOR_ACTION', ({ action }) => {
+      if (action === 'shop') this.wardrobe.open('shop');
+      else if (action === 'wardrobe') this.wardrobe.open('home');
+      else if (action === 'museum_quiz') this.activities.openMenu('museum');
+      else if (action === 'firstaid') this.activities.openMenu('firstaid');
+    });
+
+    // The family car parked in the home driveway (the only drivable vehicle)
+    this.vehicle = new PlayerVehicleSystem(this.engine, this.collisionSystem, this.player, this.input, this.ui, this.worldBuilder.playerHome.carSpot);
+    this.vehicle.canUse = () => !this.interiors.isInside() && !this.interiors.busy && !(this.coast && this.coast.inCoast);
+    this.vehicle.peopleProvider = () => [
+      ...this.pedestrianSystem.pedestrians.map(p => (p.group || p.mesh).position),
+      ...this.npcSystem.npcInstances.map(n => n.group.position),
+      ...this.npcSystem.childNPCs.map(k => k.group.position)
+    ];
+    this.missionSystem.isDriving = () => this.vehicle.driving;
+
+    // Facility activities and the coastal district (beach, swimming school, football ground) through the south tunnel
+    this.activities = new ActivitySystem(this);
+    this.coast = new CoastSystem(this);
+    this.missionSystem.isInside = () => this.interiors.isInside() || this.coast.inCoast;
+
+    // City facilities: museum and first aid (inside their buildings), recycling centre, driving school; encyclopedia
+    this.encyclopedia = new EncyclopediaSystem(this);
+    this.facilities = new CityFacilities(this);
+    this.activities.register(createFirstAidActivity());
+    this.activities.register(createMuseumActivity(this));
+    this.activities.register(createRecyclingActivity(this, this.facilities));
+    this.activities.register(createDrivingSchoolActivity(this, this.facilities));
+    this.trafficSystem.playerIsVehicle = () => this.vehicle.driving;
+    this.trafficSystem.extraVehicles = () => [this.vehicle.footprint];
+
+    this.pedestrianSystem.setObstacleProvider(() => [
+      ...this.npcSystem.npcInstances.map(n => n.group.position),
+      ...this.npcSystem.childNPCs.map(k => k.group.position)
+    ]);
+
+    this.setupInputHandlers();
+
+    // 4. Register updatables
+    this.engine.addUpdatable(this);
+
+    // 5. Start engine loop
+    this.engine.start();
+  }
+
+  setupInputHandlers() {
+    // E to interact
+    this.input.onInteract = () => {
+      // The car first (enter / exit), then doors and exhibits, then people
+      if (this.vehicle.handleInteract()) return;
+      if (this.interiors.tryInteract()) return;
+      if (this.coast.tryInteract()) return;
+      if (this.facilities.tryInteract()) return;
+      const nearNPC = this.npcSystem.getNearNPC();
+      if (nearNPC) {
+        // Mission givers (association) and "talk to" objectives are handled by the mission system
+        if (this.missionSystem.handleNPCInteraction(nearNPC)) return;
+        this.ui.openDialogue(nearNPC);
+      }
+    };
+
+    // H: car horn while driving
+    this.input.onHorn = () => this.vehicle.honk();
+
+    // M to toggle full map
+    this.input.onMapToggle = () => {
+      this.mapSystem.toggleFullMap();
+    };
+
+    // Escape for pause menu
+    this.input.onEscape = () => {
+      if (this.wardrobe && this.wardrobe.isOpen) { this.wardrobe.close(); return; }
+      if (this.activities && this.activities.menuOpen) { this.activities.closeMenu(); return; }
+      if (this.encyclopedia && this.encyclopedia.isOpen) { this.encyclopedia.close(); return; }
+      if (this.activities && this.activities.quizOpen) { this.activities.stop(); return; }
+      if (this.ui.dialogOverlay.classList.contains('show')) {
+        this.ui.closeDialogue();
+      } else if (this.ui.questionOverlay.classList.contains('show')) {
+        this.ui.closeQuestion();
+      } else if (this.mapSystem.isFullMapOpen) {
+        this.mapSystem.toggleFullMap();
+      } else if (this.ui.achievementsModal.classList.contains('show')) {
+        this.ui.achievementsModal.classList.remove('show');
+        this.input.setEnabled(true);
+      } else if (this.isGameActive) {
+        if (this.ui.pauseModal.classList.contains('show')) {
+          this.ui.closePauseModal();
+        } else {
+          this.ui.openPauseModal();
+        }
+      }
+    };
+  }
+
+  update(dt, elapsed) {
+    // Animate city props & water
+    this.worldBuilder.update(dt, elapsed);
+
+    // Update dynamic vehicles and pedestrian crowd
+    this.trafficSystem.update(dt, elapsed, this.player ? this.player.position : null);
+    this.pedestrianSystem.update(dt, this.player ? this.player.position : null);
+
+    if (this.isGameActive) {
+      // Update player
+      // Either the character walks or the car drives (never both)
+      if (this.vehicle.driving) this.vehicle.update(dt);
+      else { this.player.update(dt); this.vehicle.update(dt); }
+
+      // Update NPCs
+      this.npcSystem.update(dt, this.player.position);
+
+      if (!this.vehicle.driving) this.interiors.update();
+      this.coast.update(dt);
+      this.facilities.update(dt);
+      this.activities.update(dt);
+
+      // Clothing panel open: show the character from the front, standing left of the panel
+      if (this.wardrobe.isOpen) this.updateWardrobeCamera(dt);
+
+      // Update Missions
+      this.missionSystem.update(dt, this.player.position);
+
+      // Update Maps
+      this.mapSystem.update(this.player.position, this.player.heading);
+    } else {
+      // In character select / menus: showcase character in center
+      if (this.player && this.player.group) {
+        // Turntable: follows the mouse drag, otherwise a gentle idle sway
+        const ui = this.ui;
+        const sway = ui.isDraggingPreview && ui.isDraggingPreview() ? 0 : Math.sin(elapsed * 0.9) * 0.25;
+        const targetYaw = (ui.previewYaw || 0) + sway;
+        this.player.group.rotation.y += (targetYaw - this.player.group.rotation.y) * Math.min(1, dt * 8);
+        // A newly chosen character grows in with a small overshoot
+        if (ui.previewPop !== undefined && ui.previewPop < 1) {
+          ui.previewPop = Math.min(1, ui.previewPop + dt * 2.8);
+          const t = ui.previewPop;
+          this.player.group.scale.setScalar(0.82 + 0.18 * (1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2)));
+        }
+        this.player.group.position.y = 0.12; // standing on the showcase stage
+        this.player.model.update(dt, { isMoving: false, speedRatio: 0, isJumping: false });
+
+        // Full-body framing, centred between the two character cards
+        const charLookAt = this.player.position.clone().add(new THREE.Vector3(0, 0.85, 0));
+        const previewCamPos = this.player.position.clone().add(new THREE.Vector3(0, 1.2, 2.95));
+        this.engine.camera.position.lerp(previewCamPos, Math.min(1.0, 10.0 * dt));
+        this.engine.camera.lookAt(charLookAt);
+      }
+    }
+  }
+
+  updateWardrobeCamera(dt) {
+    const p = this.player.position;
+    const it = this.interiors.current;
+    // Face the open part of the room (its centre), camera in front of the character
+    let dx = 0, dz = 1;
+    if (it) { dx = it.origin.x - p.x; dz = it.origin.z - p.z; const l = Math.hypot(dx, dz) || 1; dx /= l; dz /= l; }
+    else { dx = Math.sin(this.player.heading); dz = Math.cos(this.player.heading); }
+    this.player.heading = Math.atan2(dx, dz);
+    this.player.group.rotation.y = this.player.heading;
+    const cam = new THREE.Vector3(p.x + dx * 2.6, p.y + 1.25, p.z + dz * 2.6);
+    const b = this.player.cameraBounds;
+    if (b) { cam.x = THREE.MathUtils.clamp(cam.x, b.minX, b.maxX); cam.z = THREE.MathUtils.clamp(cam.z, b.minZ, b.maxZ); }
+    // Look slightly to the character's left so it appears beside the panel on the right
+    const look = new THREE.Vector3(p.x - dz * 0.55, p.y + 0.95, p.z + dx * 0.55);
+    this.engine.camera.position.lerp(cam, Math.min(1, dt * 6));
+    this.engine.camera.lookAt(look);
+  }
+
+  saveCurrentGame() {
+    const data = {
+      gender: this.ui.selectedGender,
+      progression: this.progression.getState(),
+      missionIndex: this.missionSystem.currentMissionIndex,
+      missionProgress: this.missionSystem.currentProgress,
+      achievements: this.achievementSystem.getState(),
+      timeOfDay: this.environment.timeOfDay,
+      vehicle: this.vehicle.getState(),
+      wardrobe: this.wardrobe.getState(),
+      activities: this.activities.getState(),
+      encyclopedia: this.encyclopedia.getState(),
+      world: this.facilities.getState()
+    };
+    this.saveSystem.saveGame(data);
+  }
+
+  loadSavedGame() {
+    const data = this.saveSystem.loadGame();
+    if (!data) return;
+
+    if (data.wardrobe) this.wardrobe.loadState(data.wardrobe);
+    if (data.activities) this.activities.loadState(data.activities);
+    if (data.encyclopedia) this.encyclopedia.loadState(data.encyclopedia);
+    if (data.world) this.facilities.loadState(data.world);
+    if (data.gender) {
+      // Only two characters remain (boy / girl): older saves with another girl map to the girl
+      const type = /^girl|^sara|^rayan/.test(data.gender) ? 'girl_green' : 'boy_purple';
+      this.ui.selectedGender = type;
+      this.ui.selectedCharType = type;
+      this.player.switchGender(type);
+    }
+    if (data.progression) {
+      this.progression.loadState(data.progression);
+    }
+    if (typeof data.missionIndex === 'number') {
+      this.missionSystem.loadState({
+        missionIndex: data.missionIndex,
+        missionProgress: data.missionProgress
+      });
+    }
+    if (data.vehicle) {
+      this.vehicle.loadState(data.vehicle);
+    }
+    if (data.achievements) {
+      this.achievementSystem.loadState(data.achievements);
+    }
+    if (typeof data.timeOfDay === 'number') {
+      this.environment.setTimeOfDay(data.timeOfDay);
+    }
+
+    this.ui.startGameSession();
+    this.ui.showToast('📂 تم استرجاع تقدمك السابق بنجاح!');
+  }
+}
+
+// WLADZ : la page est déjà chargée quand ce module est importé.
+window.gameApp = new GhirassGameApp();
+
+// WLADZ : chaque victoire est signalée à la page, qui l'envoie au serveur (+1 point, une fois).
+events.on('MISSION_COMPLETED', ({ mission }) => {
+  window.dispatchEvent(new CustomEvent('ghiras:win', { detail: { kind: 'mission', id: mission.id } }));
+});
+events.on('ACTIVITY_STAGE_DONE', ({ id, stage, first }) => {
+  if (first) window.dispatchEvent(new CustomEvent('ghiras:win', { detail: { kind: 'stage', id: `${id}.${stage}` } }));
+});
+document.querySelectorAll('.wladz-exit').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    if (window.gameApp?.isGameActive) window.gameApp.saveCurrentGame();
+    window.dispatchEvent(new CustomEvent('ghiras:exit'));
+  });
+});
