@@ -1,22 +1,39 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+
+// Shared GPU resources: every character with the same proportions / colours reuses the same geometry and materials
+const GEO_CACHE = new Map();
+const MAT_CACHE = new Map();
+function cachedGeo(key, build) {
+  if (!GEO_CACHE.has(key)) GEO_CACHE.set(key, build());
+  return GEO_CACHE.get(key);
+}
+function cachedMat(params, build) {
+  const key = JSON.stringify(params);
+  if (!MAT_CACHE.has(key)) MAT_CACHE.set(key, build());
+  return MAT_CACHE.get(key);
+}
 
 // Soft matte fabric / painted surfaces (lit, no plastic sheen)
 function clothMat(params) {
-  return new THREE.MeshStandardMaterial({ roughness: 0.95, metalness: 0, ...params });
+  return cachedMat({ k: 'cloth', ...params }, () => new THREE.MeshStandardMaterial({ roughness: 0.95, metalness: 0, ...params }));
 }
 
-// Small surface details (face, badges, stripes): lit like the body and offset to avoid z-fighting
+// Small surface details (badges, stripes): lit like the body and offset to avoid z-fighting
 function decalMat(params) {
-  return new THREE.MeshStandardMaterial({
+  return cachedMat({ k: 'decal', ...params }, () => new THREE.MeshStandardMaterial({
     roughness: 0.6, metalness: 0, ...params,
     polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2
-  });
+  }));
 }
 
 // Capsule limb segment hanging down from its joint (origin at the top joint)
 function limbGeo(radiusTop, radiusBottom, length) {
-  const geo = new THREE.CapsuleGeometry(1, length, 8, 18);
+  return cachedGeo(`limb:${radiusTop.toFixed(4)}:${radiusBottom.toFixed(4)}:${length.toFixed(4)}`, () => buildLimbGeo(radiusTop, radiusBottom, length));
+}
+function buildLimbGeo(radiusTop, radiusBottom, length) {
+  const geo = new THREE.CapsuleGeometry(1, length, 3, 12);
   const p = geo.attributes.position;
   const half = length / 2;
   for (let i = 0; i < p.count; i++) {
@@ -32,7 +49,7 @@ function limbGeo(radiusTop, radiusBottom, length) {
 }
 
 function jointBall(radius) {
-  return new THREE.SphereGeometry(radius, 16, 12);
+  return cachedGeo(`ball:${radius.toFixed(4)}`, () => new THREE.SphereGeometry(radius, 12, 8));
 }
 
 const smooth = (a, b, x) => {
@@ -46,28 +63,178 @@ const FACE_FLAT = 0.94;
 function jawTaper(ny) {
   return 1 - JAW * smooth(0.1, -1.0, ny);
 }
-function makeHeadGeometry(r) {
-  const geo = new THREE.SphereGeometry(r, 40, 32);
-  const p = geo.attributes.position;
-  for (let i = 0; i < p.count; i++) {
-    const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
-    const t = jawTaper(y / r);
-    p.setXYZ(i, x * t, y, z * t * (z > 0 ? FACE_FLAT : 1));
+/**
+ * Point on the head surface for the unit direction n: tapered jaw, flatter face and restrained features
+ * (soft nose, gentle brow, shallow eye sockets). No drawn eyes or mouth: the INSIDE-like calm face.
+ */
+function headPoint(r, nx, ny, nz, out) {
+  const t = jawTaper(ny);
+  let z = nz * r * t * (nz > 0 ? FACE_FLAT : 1);
+  if (nz > 0) {
+    const g = (cx, cy, sx, sy) => Math.exp(-(((nx - cx) / sx) ** 2 + ((ny - cy) / sy) ** 2));
+    const f = smooth(0.55, 0.95, nz);
+    z += r * f * (0.075 * g(0, -0.12, 0.11, 0.17) + 0.022 * g(0, 0.2, 0.5, 0.07)
+      - 0.014 * (g(-0.3, 0.08, 0.18, 0.11) + g(0.3, 0.08, 0.18, 0.11)));
   }
-  geo.computeVertexNormals();
-  return geo;
+  return out.set(nx * r * t, ny * r, z);
 }
-// Front surface depth of the deformed head at (x, y) in head space (before mesh scale.y)
-function headSurfaceZ(r, x, y, sy = 1) {
-  const yy = y / sy;
-  const t = jawTaper(yy / r);
-  const xx = x / t;
-  return Math.sqrt(Math.max(0, r * r - xx * xx - yy * yy)) * t * FACE_FLAT;
+
+/**
+ * Sphere-topology surface around the head. offsetFn(nx, ny, nz, azimuth) returns how far (in head radii) the
+ * surface sits outside the skin; negative values tuck it under the skin and those triangles are dropped.
+ * Used for the head itself, sculpted hairstyles, hijab hoods and beards: everything follows the same skull.
+ */
+function makeHeadShell(r, key, offsetFn) {
+  return cachedGeo(`shell:${key}:${r}`, () => {
+    let geo = offsetFn ? new THREE.SphereGeometry(r, 72, 54) : new THREE.SphereGeometry(r, 44, 32);
+    geo.deleteAttribute('uv');
+    geo.deleteAttribute('normal');
+    geo = mergeVertices(geo); // weld the UV seam and poles so shading stays smooth
+    const p = geo.attributes.position;
+    const P = new THREE.Vector3();
+    const dirs = [];
+    const offs = new Float32Array(p.count);
+    for (let i = 0; i < p.count; i++) {
+      const d = new THREE.Vector3(p.getX(i), p.getY(i), p.getZ(i)).divideScalar(r);
+      dirs.push(d);
+      offs[i] = offsetFn ? offsetFn(d.x, d.y, d.z, Math.atan2(d.x, d.z)) : 0;
+    }
+    const place = (i, d, off) => {
+      headPoint(r, d.x, d.y, d.z, P);
+      p.setXYZ(i, P.x + d.x * off * r, P.y + d.y * off * r, P.z + d.z * off * r);
+    };
+
+    if (!offsetFn) {
+      dirs.forEach((d, i) => place(i, d, 0));
+    } else {
+      // Clean edges: every outside vertex next to the surface is slid onto the exact contour (offset = 0),
+      // so hairlines, the face opening and beard lines are smooth curves instead of torn intersections.
+      const src = geo.index.array;
+      const nbr = Array.from({ length: p.count }, () => new Set());
+      for (let i = 0; i < src.length; i += 3) {
+        const a = src[i], b = src[i + 1], c = src[i + 2];
+        nbr[a].add(b).add(c); nbr[b].add(a).add(c); nbr[c].add(a).add(b);
+      }
+      const inside = (i) => offs[i] > 0;
+      const keep = new Uint8Array(p.count);
+      const tmp = new THREE.Vector3();
+      for (let i = 0; i < p.count; i++) {
+        if (inside(i)) { keep[i] = 1; place(i, dirs[i], offs[i]); continue; }
+        let best = -1;
+        nbr[i].forEach(j => { if (inside(j) && (best < 0 || offs[j] > offs[best])) best = j; });
+        if (best < 0) { place(i, dirs[i], 0); continue; }
+        // Bisect along the arc towards the inside neighbour to find where the surface leaves the skin
+        let lo = 0, hi = 1;
+        for (let k = 0; k < 14; k++) {
+          const mid = (lo + hi) / 2;
+          tmp.copy(dirs[i]).lerp(dirs[best], mid).normalize();
+          if (offsetFn(tmp.x, tmp.y, tmp.z, Math.atan2(tmp.x, tmp.z)) > 0) hi = mid; else lo = mid;
+        }
+        tmp.copy(dirs[i]).lerp(dirs[best], hi).normalize();
+        dirs[i].copy(tmp);
+        place(i, tmp, 0.004);
+        keep[i] = 2;
+      }
+      const idx = [];
+      for (let i = 0; i < src.length; i += 3) {
+        const a = src[i], b = src[i + 1], c = src[i + 2];
+        if (keep[a] && keep[b] && keep[c] && (keep[a] === 1 || keep[b] === 1 || keep[c] === 1)) idx.push(a, b, c);
+      }
+      geo.setIndex(idx);
+    }
+    geo.computeVertexNormals();
+    return geo;
+  });
+}
+function makeHeadGeometry(r) {
+  return makeHeadShell(r, 'skin', null);
+}
+
+// Hairline height (unit-sphere y) around the head, by |azimuth| from the forehead (0) to the nape (PI)
+const HAIRLINE = [[0, 0.46], [0.8, 0.4], [1.25, 0.22], [1.6, 0.24], [2.0, 0.04], [2.5, -0.38], [Math.PI, -0.5]];
+function hairlineAt(a) {
+  for (let i = 1; i < HAIRLINE.length; i++) {
+    const [a1, y1] = HAIRLINE[i];
+    if (a <= a1) {
+      const [a0, y0] = HAIRLINE[i - 1];
+      const t = (a - a0) / (a1 - a0);
+      return y0 + (y1 - y0) * t * t * (3 - 2 * t);
+    }
+  }
+  return HAIRLINE[HAIRLINE.length - 1][1];
+}
+
+// Modelled hairstyles: volume (head radii) on top of the scalp, with a soft natural hairline
+const HAIR_STYLES = {
+  crop: { base: 0.035, top: 0.04 },      // uniformed staff
+  short: { base: 0.05, top: 0.07 },      // everyday
+  sidepart: { base: 0.055, top: 0.1 },   // swept fringe
+  wavy: { base: 0.065, top: 0.13 },      // fuller, soft waves
+  receding: { base: 0.045, top: 0.03 }   // elders: sides and back only
+};
+function hairOffset(style) {
+  const S = HAIR_STYLES[style] || HAIR_STYLES.short;
+  return (nx, ny, nz, a) => {
+    const A = Math.abs(a);
+    let yh = hairlineAt(A);
+    if (style === 'receding') yh += 0.2 * smooth(1.3, 0, A);
+    let m = smooth(yh - 0.07, yh + 0.07, ny);
+    if (style === 'receding') m *= smooth(0.95, 1.45, A) * (1 - smooth(0.42, 0.66, ny));
+    if (m < 0.02) return -0.04;
+    const top = smooth(0.2, 1, ny);
+    let t = S.base + S.top * top;
+    if (style === 'sidepart') t += 0.085 * smooth(0.25, 0.75, nz) * smooth(0.15, 0.6, ny) * (0.55 + 0.45 * Math.tanh(nx * 3));
+    if (style === 'wavy') t += 0.02 * Math.sin(a * 9) * Math.sin(ny * 7) * top;
+    return t * m - 0.04 * (1 - m);
+  };
+}
+
+// Hijab hood: closed around head, ears, chin and neck; soft oval opening for the face
+function hijabOffset(nx, ny, nz) {
+  const fx = nx / 0.6, fy = (ny + 0.06) / 0.72;
+  const d = Math.sqrt(fx * fx + fy * fy);
+  const open = smooth(0.0, 0.35, nz) * (1 - smooth(0.88, 1.06, d));
+  if (open > 0.98) return -0.05;
+  const t = 0.05 + 0.07 * smooth(1.0, 1.3, d) + 0.04 * smooth(0.3, 1, ny);
+  return t * (1 - open) - 0.05 * open;
+}
+
+// Full beard following the jaw (respected elders)
+const BEARD_LINE = [[0, -0.56], [0.7, -0.52], [1.2, -0.32], [1.5, -0.08], [Math.PI, -0.08]];
+function beardOffset(nx, ny, nz) {
+  const A = Math.abs(Math.atan2(nx, nz));
+  let yb = BEARD_LINE[BEARD_LINE.length - 1][1];
+  for (let i = 1; i < BEARD_LINE.length; i++) {
+    if (A <= BEARD_LINE[i][0]) { const [a0, y0] = BEARD_LINE[i - 1], [a1, y1] = BEARD_LINE[i]; yb = y0 + (y1 - y0) * smooth(a0, a1, A); break; }
+  }
+  const m = smooth(yb + 0.06, yb - 0.06, ny) * smooth(1.75, 1.45, A);
+  if (m < 0.02) return -0.04;
+  const t = 0.025 + 0.025 * smooth(0.2, 0.9, nz) + 0.045 * smooth(-0.65, -0.95, ny) * smooth(0.3, 0.9, nz);
+  return t * m - 0.04 * (1 - m);
+}
+
+/** Sculpted shoe: capsule stretched along the foot, flat sole, slightly narrower toe */
+function shoeGeo(W, H, L) {
+  return cachedGeo(`shoe:${W.toFixed(4)}:${H.toFixed(4)}:${L.toFixed(4)}`, () => {
+    const g = new THREE.CapsuleGeometry(0.5, 1, 4, 12);
+    g.rotateX(Math.PI / 2); // length along z, z in [-1, 1]
+    const p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const z = p.getZ(i);
+      let y = p.getY(i) * H;
+      if (y < -0.32 * H) y = -0.32 * H; // flat sole
+      const toe = 1 - 0.14 * Math.max(0, z) ** 2;
+      p.setXYZ(i, p.getX(i) * W * toe, y, z * L / 2);
+    }
+    g.computeVertexNormals();
+    return g;
+  });
 }
 
 const LONG_SLEEVE_ROLES = ['police_officer', 'police_inspector', 'firefighter', 'imam', 'elderly_citizen', 'historian', 'artisan', 'doctor', 'librarian'];
 const ROBE_ROLES = { imam: 0.95, elderly_citizen: 0.95, doctor: 0.62 };
-const MOUSTACHE_ROLES = ['grocer', 'artisan', 'gardener', 'police_inspector', 'historian', 'cleaner'];
+// Hijab colours for the girl heroes (matched to their outfits)
+const HERO_HIJAB = { girl_yellow: 0xd9667a, sara: 0xd9667a, girl_green: 0x1f7a5a, rayan: 0x1f7a5a };
 
 /**
  * CharacterModel: human-proportioned stylized characters
@@ -149,15 +316,17 @@ export class CharacterModel {
       eyeColor = 0x2d1f14;
     }
 
-    const skinMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.92, metalness: 0 });
-    const hairMat = new THREE.MeshStandardMaterial({ color: hairColor, roughness: 0.85, metalness: 0, flatShading: true });
+    const isFemale = (isNPC && this.options.gender === 'female') || /^girl|^sara|^rayan/.test(type);
+    if (isNPC && !isFemale && (role === 'elderly_citizen' || role === 'imam')) hairColor = role === 'imam' ? 0x8f8f8f : 0xb8b8b8;
+    if (isNPC && !isFemale && role === 'historian') hairColor = 0x5e5a56;
+
+    const skinMat = cachedMat({ k: 'skin', skinColor }, () => new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.78, metalness: 0 }));
+    const hairMat = cachedMat({ k: 'hair', hairColor }, () => new THREE.MeshStandardMaterial({ color: hairColor, roughness: 0.62, metalness: 0 }));
     const shirtMat = clothMat({ color: shirtColor });
     const pantsMat = clothMat({ color: pantsColor });
     const shoeMat = clothMat({ color: shoeColor, roughness: 0.55 });
     const whiteMat = clothMat({ color: 0xffffff });
     const darkMat = clothMat({ color: 0x1a1a1a });
-    const cheekMat = decalMat({ color: 0xff8a80, transparent: true, opacity: 0.18, depthWrite: false });
-    const eyeIrisMat = decalMat({ color: eyeColor, roughness: 0.25 });
 
     // ─────────────────────────────────────────────────────────────
     // 2. Body dimensions (metres)
@@ -315,7 +484,7 @@ export class CharacterModel {
     // ─────────────────────────────────────────────────────────────
     // 5. Neck & head (head detailed at design scale, then scaled to real size)
     // ─────────────────────────────────────────────────────────────
-    const neck = new THREE.Mesh(new THREE.CylinderGeometry(D.neck * 0.62, D.neck * 0.72, D.neck + 0.05, 16), skinMat);
+    const neck = new THREE.Mesh(cachedGeo(`neck:${D.neck}`, () => new THREE.CylinderGeometry(D.neck * 0.62, D.neck * 0.72, D.neck + 0.05, 16)), skinMat);
     neck.position.y = H + D.neck / 2 - 0.01;
     torso.add(neck);
 
@@ -328,38 +497,41 @@ export class CharacterModel {
     this.bones.head = headGroup;
 
     const SY = 1.1; // head is taller than wide
-    const headMesh = new THREE.Mesh(makeHeadGeometry(headRadius), skinMat);
-    headMesh.scale.set(1.0, SY, 1.0);
-    headGroup.add(headMesh);
-    const surf = (x, y) => headSurfaceZ(headRadius, x, y, SY);
+    const shellOnHead = (geo, mat) => {
+      const m = new THREE.Mesh(geo, mat);
+      m.scale.set(1.0, SY, 1.0);
+      headGroup.add(m);
+      return m;
+    };
+    shellOnHead(makeHeadGeometry(headRadius), skinMat);
 
-    // Ears
-    [-1, 1].forEach(s => {
-      const ear = new THREE.Mesh(new THREE.SphereGeometry(0.06, 14, 10), skinMat);
-      ear.scale.set(0.35, 0.85, 0.6);
-      ear.position.set(s * headRadius * 0.95, -0.01, -0.02);
-      headGroup.add(ear);
-    });
+    // Ears (hidden under the hijab for women and girls)
+    if (!isFemale) {
+      const earGeo = cachedGeo('ear', () => new THREE.SphereGeometry(0.06, 14, 10));
+      [-1, 1].forEach(s => {
+        const ear = new THREE.Mesh(earGeo, skinMat);
+        ear.scale.set(0.35, 0.85, 0.6);
+        ear.position.set(s * headRadius * 0.95, -0.01, -0.02);
+        headGroup.add(ear);
+      });
+    }
 
-    // Faceless head (INSIDE style): no eyes, brows, nose or mouth; ears and hair define the silhouette
-
-    // Hair / headwear
-    if (type === 'girl_yellow' || type === 'sara') {
-      this.buildSaraHair(headGroup, headRadius, hairMat);
-    } else if (type === 'girl_green' || type === 'rayan') {
-      this.buildRayanHair(headGroup, headRadius, hairMat);
-    } else if (type === 'boy_purple' || type === 'boy') {
-      this.buildAminHair(headGroup, headRadius, hairMat);
-    } else if (isNPC && this.options.gender === 'female') {
-      this.buildHijab(headGroup, headRadius, clothMat({ color: this.options.hijabColor || 0x7a5c7e, side: THREE.DoubleSide }));
-    } else if (isNPC) {
-      this.buildNPCHeadwear(headGroup, headRadius, whiteMat, shirtMat, hairMat);
+    // Hair, hijab and beards are sculpted shells that follow the same skull (no hats, no loose primitives)
+    if (isFemale) {
+      const hijabColor = this.options.hijabColor ?? HERO_HIJAB[type] ?? 0x7a5c7e;
+      this.buildHijab(headGroup, headRadius, clothMat({ color: hijabColor }), torso, SY);
+    } else {
+      shellOnHead(makeHeadShell(headRadius, `hair-${this.chooseHairStyle(type, role)}`, hairOffset(this.chooseHairStyle(type, role))), hairMat);
+      if (isNPC && (role === 'imam' || role === 'elderly_citizen')) {
+        const beardColor = role === 'imam' ? 0x8f8f8f : 0xaaaaaa;
+        shellOnHead(makeHeadShell(headRadius, 'beard', beardOffset), cachedMat({ k: 'hair', hairColor: beardColor }, () => new THREE.MeshStandardMaterial({ color: beardColor, roughness: 0.7 })));
+      }
     }
 
     // ─────────────────────────────────────────────────────────────
     // 6. Arms & legs
     // ─────────────────────────────────────────────────────────────
-    const longSleeves = type === 'boy_purple' || LONG_SLEEVE_ROLES.includes(role) || isFemaleNPC;
+    const longSleeves = type === 'boy_purple' || LONG_SLEEVE_ROLES.includes(role) || isFemale;
     ['left', 'right'].forEach((name, i) => {
       const side = i === 0 ? -1 : 1;
       const arm = this.createArm(side, skinMat, shirtMat, longSleeves);
@@ -377,6 +549,15 @@ export class CharacterModel {
       this.bones[name + 'Foot'] = leg.userData.foot;
     });
 
+    // Soles exactly on the ground: measure the shoes in the rest pose and lift the hips by the gap
+    this.group.updateMatrixWorld(true);
+    const soleBox = new THREE.Box3();
+    [this.bones.leftFoot, this.bones.rightFoot].forEach(f => soleBox.expandByObject(f, true));
+    if (isFinite(soleBox.min.y)) {
+      this.hipHeight -= soleBox.min.y;
+      hips.position.y = this.hipHeight;
+    }
+
     // Natural build variation so crowds don't look cloned
     if (isNPC) {
       const w = this.options.build ?? (0.94 + Math.random() * 0.14);
@@ -392,315 +573,43 @@ export class CharacterModel {
     });
   }
 
-  /** Hijab: covers hair and neck, leaves the face open, drapes onto the shoulders */
-  buildHijab(headGroup, headRadius, mat) {
-    const r = headRadius;
-    const open = Math.PI * 0.86;
-    const shell = new THREE.Mesh(
-      new THREE.SphereGeometry(r * 1.08, 36, 24, Math.PI / 2 + open / 2, Math.PI * 2 - open, 0, Math.PI * 0.82),
-      mat
-    );
-    shell.scale.y = 1.12;
-    headGroup.add(shell);
+  /**
+   * Hijab: one smooth hood that follows the skull (covers hair, ears, chin and neck, oval face opening),
+   * plus a soft drape that falls from under the chin over the shoulders. The drape belongs to the torso,
+   * so head turns never tear it away from the body.
+   */
+  buildHijab(headGroup, headRadius, mat, torso, SY) {
+    const hood = new THREE.Mesh(makeHeadShell(headRadius, 'hijab', hijabOffset), mat);
+    hood.scale.set(1.0, SY, 1.0);
+    headGroup.add(hood);
 
-    const frame = new THREE.Mesh(new THREE.TorusGeometry(r * 0.86, r * 0.07, 10, 28), mat);
-    frame.scale.set(0.95, 1.22, 1);
-    frame.position.set(0, -0.01, r * 0.42);
-    headGroup.add(frame);
-
-    const drape = new THREE.Mesh(new THREE.LatheGeometry([new THREE.Vector2(r * 0.72, 0.5 * r), new THREE.Vector2(r * 0.8, 0), new THREE.Vector2(r * 1.2, -0.35 * r), new THREE.Vector2(r * 1.5, -0.55 * r)], 28), mat);
-    drape.position.y = -r * 1.05;
-    drape.scale.z = 0.85;
-    headGroup.add(drape);
+    const D = this.dims;
+    const H = D.torso;
+    const headY = H + D.neck * 0.8 + D.headR * 0.95;
+    const edge = D.shoulderX + D.upperR * 1.1;
+    const drapeGeo = cachedGeo(`drape:${D.headR}:${H}:${edge.toFixed(4)}`, () => new THREE.LatheGeometry([
+      new THREE.Vector2(D.headR * 0.55, headY - D.headR * 0.72),
+      new THREE.Vector2(D.headR * 0.7, headY - D.headR * 1.05),
+      new THREE.Vector2(D.headR * 0.86, H + D.neck * 0.3),
+      new THREE.Vector2(edge * 0.66, H * 0.98),
+      new THREE.Vector2(edge * 0.86, H * 0.9),
+      new THREE.Vector2(edge * 0.96, H * 0.8),
+      new THREE.Vector2(edge * 1.0, H * 0.68),
+      new THREE.Vector2(edge * 1.02, H * 0.64)
+    ], 40));
+    const drape = new THREE.Mesh(drapeGeo, clothMat({ color: mat.color.getHex(), side: THREE.DoubleSide }));
+    drape.scale.z = (D.chestD * 1.35) / edge;
+    torso.add(drape);
   }
 
-  /**
-   * SARA'S HAIRSTYLE: Natural, flowing, beautiful shoulder-length hair with cute flower clip
-   */
-  buildSaraHair(headGroup, headRadius, hairMat) {
-    // 1. Hair Cap on top and back of head (Tilted backwards)
-    const hairCap = new THREE.Mesh(
-      new THREE.SphereGeometry(headRadius + 0.025, 36, 24, 0, Math.PI * 2, 0, Math.PI * 0.44),
-      hairMat
-    );
-    hairCap.position.set(0, 0.07, -0.04);
-    hairCap.rotation.x = -0.32;
-    headGroup.add(hairCap);
-
-    // 2. High Wispy Bangs (Positioned HIGH above the eyebrows)
-    for (let i = -2; i <= 2; i++) {
-      const strand = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.032, 0.048, 0.12, 14),
-        hairMat
-      );
-      strand.position.set(i * 0.065, 0.22, headRadius * 0.85);
-      strand.rotation.z = i * 0.15;
-      strand.rotation.x = 0.45;
-      headGroup.add(strand);
-    }
-
-    // 3. Left & Right Curled Side Locks framing cheeks and flaring outwards
-    [-1, 1].forEach(side => {
-      const sideMass = new THREE.Mesh(
-        new THREE.SphereGeometry(0.12, 20, 16),
-        hairMat
-      );
-      sideMass.scale.set(0.7, 1.4, 0.8);
-      sideMass.position.set(side * 0.32, 0.04, -0.02);
-      headGroup.add(sideMass);
-
-      const flipLock = new THREE.Mesh(
-        new THREE.TorusGeometry(0.09, 0.040, 10, 22, Math.PI * 0.8),
-        hairMat
-      );
-      flipLock.position.set(side * 0.35, -0.10, -0.03);
-      flipLock.rotation.y = side * 0.3;
-      flipLock.rotation.z = side > 0 ? -0.6 : 0.6;
-      headGroup.add(flipLock);
-    });
-
-    // 4. Back Hair Volume
-    const backHair = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.24, 0.28, 0.32, 20),
-      hairMat
-    );
-    backHair.position.set(0, -0.12, -0.16);
-    backHair.rotation.x = -0.15;
-    headGroup.add(backHair);
-
-    // Cute decorative flower clip on the right side
-    const clipMat = clothMat({ color: 0xe74c3c });
-    const flower = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 6), clipMat);
-    flower.position.set(0.24, 0.21, headRadius * 0.72);
-    headGroup.add(flower);
-  }
-
-  /**
-   * RAYAN'S HAIRSTYLE: Cute child hairstyle with perky high ponytail & green hair tie (NO HELMET!)
-   */
-  buildRayanHair(headGroup, headRadius, hairMat) {
-    // 1. Soft hair cap covering top and back
-    const hairCap = new THREE.Mesh(
-      new THREE.SphereGeometry(headRadius + 0.025, 36, 24, 0, Math.PI * 2, 0, Math.PI * 0.44),
-      hairMat
-    );
-    hairCap.position.set(0, 0.07, -0.04);
-    hairCap.rotation.x = -0.30;
-    headGroup.add(hairCap);
-
-    // 2. Front fringe high above eyebrows
-    for (let i = -2; i <= 2; i++) {
-      const tuft = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.032, 0.046, 0.11, 14),
-        hairMat
-      );
-      tuft.position.set(i * 0.06, 0.22, headRadius * 0.86);
-      tuft.rotation.x = 0.45;
-      tuft.rotation.z = i * -0.12;
-      headGroup.add(tuft);
-    }
-
-    // 3. Cute high ponytail at the back with a colorful green tie
-    const tieMat = clothMat({ color: 0x27ae60 });
-    const hairTie = new THREE.Mesh(
-      new THREE.TorusGeometry(0.065, 0.022, 10, 24),
-      tieMat
-    );
-    hairTie.rotation.x = Math.PI / 3;
-    hairTie.position.set(0, 0.20, -headRadius * 0.86);
-    headGroup.add(hairTie);
-
-    // Perky ponytail plume
-    const ponytail = new THREE.Mesh(
-      new THREE.SphereGeometry(0.14, 20, 16),
-      hairMat
-    );
-    ponytail.scale.set(0.8, 1.4, 1.1);
-    ponytail.position.set(0, 0.18, -headRadius * 0.96);
-    ponytail.rotation.x = -0.6;
-    headGroup.add(ponytail);
-
-    // Side framing locks
-    [-0.30, 0.30].forEach(hx => {
-      const sideLock = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.06, 0.22, 14), hairMat);
-      sideLock.position.set(hx, -0.05, -0.02);
-      sideLock.rotation.z = hx > 0 ? -0.22 : 0.22;
-      headGroup.add(sideLock);
-    });
-  }
-
-  /**
-   * AMIN'S HAIRSTYLE: Modern stylish textured boy haircut (NO HELMET!)
-   */
-  buildAminHair(headGroup, headRadius, hairMat) {
-    this.buildShardHair(headGroup, headRadius, hairMat, 0);
-  }
-
-  /**
-   * Smooth hair cap plus angular fringe shards over the forehead and by the ears (INSIDE-like silhouette)
-   */
-  buildShardHair(headGroup, r, hairMat, seed = 0) {
-    const wrap = new THREE.Group();
-    wrap.scale.set(1, 1.1, 1);
-    headGroup.add(wrap);
-
-    const cap = new THREE.Mesh(new THREE.SphereGeometry(r * 1.07, 28, 18, 0, Math.PI * 2, 0, Math.PI * 0.6), hairMat);
-    cap.rotation.x = -0.38;
-    wrap.add(cap);
-
-    // Fringe shards hanging over the forehead at uneven lengths
-    const shards = [[-0.62, 0.42], [-0.3, 0.6], [0.02, 0.38], [0.3, 0.55], [0.6, 0.36]];
-    shards.forEach(([ang, len], i) => {
-      const L = r * len * (1 + ((i + seed) % 3) * 0.08);
-      const shard = new THREE.Mesh(new THREE.ConeGeometry(r * 0.26, L, 4), hairMat);
-      shard.rotation.set(Math.PI + 0.25, ang * 0.6, 0);
-      shard.scale.z = 0.35;
-      shard.position.set(Math.sin(ang) * r * 0.9, r * 0.5 - L * 0.32, Math.cos(ang) * r * 0.86);
-      wrap.add(shard);
-    });
-    // Sideburn shards in front of the ears
-    [-1, 1].forEach(sd => {
-      const burn = new THREE.Mesh(new THREE.ConeGeometry(r * 0.16, r * 0.5, 4), hairMat);
-      burn.rotation.set(Math.PI, 0, sd * 0.15);
-      burn.scale.z = 0.5;
-      burn.position.set(sd * r * 0.93, r * 0.12, r * 0.12);
-      wrap.add(burn);
-    });
-  }
-
-  /**
-   * NPC Specific Headwear (Imam turban, Cleaner cap, Gardener hat, Historian fez)
-   */
-  buildNPCHeadwear(headGroup, headRadius, whiteMat, primaryMat, hairMat) {
-    const role = this.options.npcRole || 'cleaner';
-
-    if (role === 'imam') {
-      const turban = new THREE.Mesh(new THREE.TorusGeometry(headRadius * 0.88, 0.09, 10, 24), whiteMat);
-      turban.rotation.x = Math.PI / 2;
-      turban.position.set(0, headRadius * 0.65, 0);
-      headGroup.add(turban);
-
-      const cap = new THREE.Mesh(new THREE.SphereGeometry(headRadius + 0.02, 32, 20, 0, Math.PI * 2, 0, Math.PI * 0.5), whiteMat);
-      cap.position.set(0, headRadius * 0.65, 0);
-      headGroup.add(cap);
-
-      const beard = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.25, 20), whiteMat);
-      beard.position.set(0, -headRadius * 0.82, headRadius * 0.62);
-      beard.rotation.x = 0.28;
-      headGroup.add(beard);
-    } else if (role === 'police_officer') {
-      // Algerian Police Peaked Cap (قبعة ضابط الأمن الوطني مع شارة ذهبية)
-      const policeNavy = clothMat({ color: 0x111c2e });
-      const goldMat = decalMat({ color: 0xf1c40f });
-      const blackPatent = clothMat({ color: 0x111111 });
-
-      const capBand = new THREE.Mesh(new THREE.CylinderGeometry(headRadius * 0.95, headRadius * 0.92, 0.16, 18), policeNavy);
-      capBand.position.set(0, headRadius * 0.62, 0);
-      headGroup.add(capBand);
-
-      const capCrown = new THREE.Mesh(new THREE.CylinderGeometry(headRadius * 1.15, headRadius * 0.95, 0.24, 18), policeNavy);
-      capCrown.position.set(0, headRadius * 0.78, 0.04);
-      headGroup.add(capCrown);
-
-      const visor = new THREE.Mesh(new THREE.CylinderGeometry(headRadius * 1.05, headRadius * 1.05, 0.04, 16, 1, false, 0, Math.PI), blackPatent);
-      visor.position.set(0, headRadius * 0.56, headRadius * 0.65);
-      visor.rotation.x = 0.28;
-      headGroup.add(visor);
-
-      const goldBadge = new THREE.Mesh(new THREE.SphereGeometry(0.065, 8, 8), goldMat);
-      goldBadge.position.set(0, headRadius * 0.82, headRadius * 0.88);
-      headGroup.add(goldBadge);
-    } else if (role === 'firefighter') {
-      // Civil Protection Firefighter Helmet (خوذة الحماية المدنية)
-      const helmetMat = clothMat({ color: 0xf1c40f });
-      const visorMat = clothMat({ color: 0x2d3436, transparent: true, opacity: 0.8 });
-
-      const helmetDome = new THREE.Mesh(new THREE.SphereGeometry(headRadius + 0.05, 18, 14, 0, Math.PI * 2, 0, Math.PI * 0.52), helmetMat);
-      helmetDome.position.set(0, headRadius * 0.55, -0.02);
-      headGroup.add(helmetDome);
-
-      const helmetBrim = new THREE.Mesh(new THREE.CylinderGeometry(headRadius * 1.15, headRadius * 1.15, 0.04, 18), helmetMat);
-      helmetBrim.position.set(0, headRadius * 0.55, 0);
-      headGroup.add(helmetBrim);
-
-      const eyeVisor = new THREE.Mesh(new THREE.CylinderGeometry(headRadius * 1.02, headRadius * 1.02, 0.15, 14, 1, false, 0, Math.PI), visorMat);
-      eyeVisor.position.set(0, headRadius * 0.40, headRadius * 0.65);
-      eyeVisor.rotation.x = 0.15;
-      headGroup.add(eyeVisor);
-    } else if (role === 'artisan') {
-      // Traditional Algerian Chechia / Tarboush (شاشية جزائرية أصيلة)
-      const chechiaMat = clothMat({ color: 0x962d2d });
-      const chechia = new THREE.Mesh(new THREE.CylinderGeometry(headRadius * 0.75, headRadius * 0.82, 0.22, 24), chechiaMat);
-      chechia.position.set(0, headRadius + 0.08, 0);
-      headGroup.add(chechia);
-
-      const tassel = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.03, 0.18, 6), decalMat({ color: 0x111111 }));
-      tassel.position.set(0.12, headRadius + 0.02, -0.08);
-      tassel.rotation.z = 0.4;
-      headGroup.add(tassel);
-    } else if (role === 'elderly_citizen') {
-      // White prayer cap & respected grey beard (شيخ وقور)
-      const cap = new THREE.Mesh(new THREE.SphereGeometry(headRadius + 0.02, 32, 20, 0, Math.PI * 2, 0, Math.PI * 0.46), whiteMat);
-      cap.position.set(0, headRadius * 0.56, -0.02);
-      headGroup.add(cap);
-
-      const greyMat = clothMat({ color: 0xdcdde1 });
-      const beard = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.32, 20), greyMat);
-      beard.position.set(0, -headRadius * 0.85, headRadius * 0.55);
-      beard.rotation.x = 0.25;
-      headGroup.add(beard);
-    } else if (role === 'cleaner') {
-      const capMat = clothMat({ color: 0x27ae60 });
-      const cap = new THREE.Mesh(new THREE.SphereGeometry(headRadius + 0.025, 32, 20, 0, Math.PI * 2, 0, Math.PI * 0.48), capMat);
-      cap.position.set(0, headRadius * 0.48, -0.02);
-      headGroup.add(cap);
-
-      const visor = new THREE.Mesh(new THREE.CylinderGeometry(0.30, 0.30, 0.025, 14, 1, false, 0, Math.PI), capMat);
-      visor.position.set(0, headRadius * 0.52, headRadius * 0.68);
-      visor.rotation.x = 0.22;
-      headGroup.add(visor);
-    } else if (role === 'gardener') {
-      const strawMat = clothMat({ color: 0xe67e22 });
-      const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.52, 0.03, 18), strawMat);
-      brim.position.set(0, headRadius * 0.85, 0);
-      headGroup.add(brim);
-
-      const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.30, 0.20, 14), strawMat);
-      crown.position.set(0, headRadius * 0.85 + 0.10, 0);
-      headGroup.add(crown);
-    } else if (role === 'historian') {
-      const fezMat = clothMat({ color: 0x962d2d });
-      const fez = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.28, 14), fezMat);
-      fez.position.set(0, headRadius + 0.14, 0);
-      headGroup.add(fez);
-
-      const goldMat = decalMat({ color: 0xf1c40f });
-      [-0.11, 0.11].forEach(gx => {
-        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.055, 0.008, 10, 24), goldMat);
-        ring.position.set(gx, 0.04, headRadius * 0.94);
-        headGroup.add(ring);
-      });
-    } else if (role === 'suspect_promoter') {
-      // Discreet dark cap pulled low
-      const darkCap = clothMat({ color: 0x2d3436 });
-      const cap = new THREE.Mesh(new THREE.SphereGeometry(headRadius + 0.025, 32, 20, 0, Math.PI * 2, 0, Math.PI * 0.48), darkCap);
-      cap.position.set(0, headRadius * 0.48, -0.02);
-      headGroup.add(cap);
-
-      const visor = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.025, 14, 1, false, 0, Math.PI), darkCap);
-      visor.position.set(0, headRadius * 0.46, headRadius * 0.70);
-      visor.rotation.x = 0.38;
-      headGroup.add(visor);
-    } else {
-      this.buildCasualHair(headGroup, headRadius, hairMat);
-    }
-  }
-
-  /**
-   * Everyday adult hair: the same angular INSIDE-like style, varied per character
-   */
-  buildCasualHair(headGroup, r, hairMat) {
-    this.buildShardHair(headGroup, r, hairMat, Math.floor(Math.random() * 3));
+  /** Hairstyle per character: uniforms keep it short, elders recede, everyone else varies but stays stable */
+  chooseHairStyle(type, role) {
+    if (type === 'boy_purple' || type === 'boy') return 'sidepart';
+    if (['police_officer', 'police_inspector', 'firefighter', 'imam'].includes(role)) return 'crop';
+    if (role === 'elderly_citizen' || role === 'historian') return 'receding';
+    if (role === 'artisan') return 'wavy';
+    const seed = ((this.options.primaryColor || 0) + (this.options.skinColor || 0)) >>> 0;
+    return ['short', 'sidepart', 'wavy', 'short'][seed % 4];
   }
 
   /**
@@ -710,8 +619,8 @@ export class CharacterModel {
     const D = this.dims;
     const shoulder = new THREE.Group();
 
-    const deltoid = new THREE.Mesh(jointBall(D.upperR * 1.12), shirtMat);
-    deltoid.scale.set(1.0, 0.9, 1.05);
+    const deltoid = new THREE.Mesh(jointBall(D.upperR * 1.0), shirtMat);
+    deltoid.scale.set(0.95, 0.85, 1.0);
     deltoid.position.y = -D.upperR * 0.25;
     shoulder.add(deltoid);
 
@@ -741,11 +650,11 @@ export class CharacterModel {
     hand.scale.setScalar(D.hand);
     elbow.add(hand);
 
-    const mitten = new THREE.Mesh(new THREE.CapsuleGeometry(0.03, 0.07, 6, 12), skinMat);
+    const mitten = new THREE.Mesh(cachedGeo('mitten', () => new THREE.CapsuleGeometry(0.03, 0.07, 3, 10)), skinMat);
     mitten.scale.set(0.75, 1, 1.15);
     mitten.position.y = -0.06;
     hand.add(mitten);
-    const thumb = new THREE.Mesh(new THREE.CapsuleGeometry(0.012, 0.03, 4, 8), skinMat);
+    const thumb = new THREE.Mesh(cachedGeo('thumb', () => new THREE.CapsuleGeometry(0.012, 0.03, 2, 6)), skinMat);
     thumb.position.set(-side * 0.004, -0.04, 0.032);
     thumb.rotation.x = 0.5;
     hand.add(thumb);
@@ -777,10 +686,10 @@ export class CharacterModel {
 
     const L = D.shoeL;
     const W = D.shinR * 1.9;
-    const upper = new THREE.Mesh(new RoundedBoxGeometry(W, D.foot * 0.95, L, 3, Math.min(W, D.foot) * 0.45), shoeMat);
+    const upper = new THREE.Mesh(shoeGeo(W, D.foot * 1.05, L), shoeMat);
     upper.position.set(0, -D.foot * 0.45, L * 0.22);
     foot.add(upper);
-    const sole = new THREE.Mesh(new RoundedBoxGeometry(W * 1.06, D.foot * 0.3, L * 1.03, 2, D.foot * 0.12), whiteMat);
+    const sole = new THREE.Mesh(shoeGeo(W * 1.06, D.foot * 0.36, L * 1.03), whiteMat);
     sole.position.set(0, -D.foot * 0.86, L * 0.22);
     foot.add(sole);
     const ankle = new THREE.Mesh(limbGeo(D.shinR * 0.95, W * 0.5, D.foot * 0.5), shoeMat);

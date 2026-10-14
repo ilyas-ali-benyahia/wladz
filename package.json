@@ -9,7 +9,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "start": "electron .",
-    "audit:world": "node tools/audit-world.mjs"
+    "audit:world": "node tools/audit-world.mjs",
+    "audit:characters": "node tools/audit-characters.mjs"
   },
   "keywords": [
     "game",
