@@ -2,6 +2,9 @@
 // (games/treasures/engine) pilote ces éléments par leurs id et leurs classes.
 // Seuls changent les chemins des images, les couleurs et le bouton « خروج ».
 // Retirés pour WLADZ : pièces et joyaux, roue de la chance, cadeaux quotidiens et coffre.
+import { iconSvg } from "../_shared/svgIcons.js";
+
+// WLADZ : icônes SVG à la place des emojis (games/_shared/svgIcons.js).
 export const treasuresMarkup = `<!-- حاوية التطبيق المركزية -->
   <div id="app">
 
@@ -9,7 +12,7 @@ export const treasuresMarkup = `<!-- حاوية التطبيق المركزية 
     <header class="top-header">
       <div class="player-info">
         <div class="avatar-badge" id="header-avatar-btn" title="الملف الشخصي والإحصائيات">
-          <span>🏺</span>
+          <span>${iconSvg("amphora")}</span>
         </div>
         <div class="player-details">
           <span class="player-title">رحالة الجزائر</span>
@@ -19,15 +22,15 @@ export const treasuresMarkup = `<!-- حاوية التطبيق المركزية 
 
       <div class="economy-bar">
         <div class="eco-pill stars" title="إجمالي النجوم المجمعة">
-          <span class="eco-icon">⭐</span>
+          <span class="eco-icon">${iconSvg("star", { fill: "currentColor" })}</span>
           <span id="header-stars-val">0</span>
         </div>
       </div>
 
       <div class="header-actions">
-        <button class="header-btn" id="header-music-btn" title="تشغيل/إيقاف الموسيقى التراثية">🎼</button>
-        <button class="header-btn" id="header-sound-btn" title="كتم/تشغيل المؤثرات">🔊</button>
-        <button class="header-btn exit-btn" id="header-exit-btn" title="خروج من اللعبة" aria-label="خروج من اللعبة">✕</button>
+        <button class="header-btn" id="header-music-btn" title="تشغيل/إيقاف الموسيقى التراثية">${iconSvg("music")}</button>
+        <button class="header-btn" id="header-sound-btn" title="كتم/تشغيل المؤثرات">${iconSvg("volume-2")}</button>
+        <button class="header-btn exit-btn" id="header-exit-btn" title="خروج من اللعبة" aria-label="خروج من اللعبة">${iconSvg("x")}</button>
       </div>
     </header>
 
@@ -47,7 +50,7 @@ export const treasuresMarkup = `<!-- حاوية التطبيق المركزية 
           <div class="hero-banner-card">
             <img class="hero-banner-img" src="/games/treasures/assets/banner.jpg" alt="كنوز الجزائر التراثية">
             <div class="hero-overlay">
-              <span class="hero-badge-pill">رحلة الـ 58 ولاية 🇩🇿</span>
+              <span class="hero-badge-pill">رحلة الـ 58 ولاية ${iconSvg("flag")}</span>
               <h1 class="hero-title">كنوز الجزائر</h1>
               <p class="hero-desc">اكتشف تاريخ وتراث وأصالة الجزائر ولاية بعد ولاية، وابدأ من واحات أدرار العريقة!</p>
             </div>
@@ -60,7 +63,7 @@ export const treasuresMarkup = `<!-- حاوية التطبيق المركزية 
           <div class="imap-card">
             <div class="imap-header">
               <div class="imap-heading">
-                <h2 class="imap-title">🗺️ خريطة الجزائر التفاعلية</h2>
+                <h2 class="imap-title">${iconSvg("map")} خريطة الجزائر التفاعلية</h2>
                 <span class="imap-sub">المس أي ولاية لاكتشاف تاريخها وتراثها</span>
               </div>
               <div class="imap-mode-toggle" role="group" aria-label="طريقة تلوين الخريطة">
@@ -89,7 +92,7 @@ export const treasuresMarkup = `<!-- حاوية التطبيق المركزية 
           <!-- شريط البحث وتصفية المناطق -->
           <div class="search-filter-section">
             <div class="search-box">
-              <span class="search-icon">🔍</span>
+              <span class="search-icon">${iconSvg("search")}</span>
               <input type="text" class="search-input" id="wilaya-search-input" placeholder="ابحث عن ولاية أو معلم أو تراث...">
             </div>
 
@@ -123,7 +126,7 @@ export const treasuresMarkup = `<!-- حاوية التطبيق المركزية 
           <!-- ترويسة المرحلة -->
           <div class="stage-top-bar">
             <div class="stage-wilaya-info">
-              <button class="back-to-map-btn" id="game-back-btn" title="العودة للخريطة">➔</button>
+              <button class="back-to-map-btn" id="game-back-btn" title="العودة للخريطة">${iconSvg("arrow-right")}</button>
               <div class="stage-title-wrap">
                 <span class="stage-wilaya-name" id="game-wilaya-name">ولاية أدرار</span>
                 <span class="stage-num-badge" id="game-stage-counter">المرحلة 1 من 8</span>
@@ -147,10 +150,10 @@ export const treasuresMarkup = `<!-- حاوية التطبيق المركزية 
             <!-- شريط أدوات المساعدة -->
             <div class="hints-toolbar">
               <button class="hint-tool-btn" id="hint-reveal-btn" title="كشف حرف صحيح في الإجابة">
-                <span>💡 كشف حرف</span>
+                <span>${iconSvg("lightbulb")} كشف حرف</span>
               </button>
               <button class="hint-tool-btn" id="hint-remove-btn" title="حذف أحرف خاطئة مبعثرة">
-                <span>🗑️ حذف أحرف</span>
+                <span>${iconSvg("trash-2")} حذف أحرف</span>
               </button>
             </div>
           </div>
@@ -169,22 +172,22 @@ export const treasuresMarkup = `<!-- حاوية التطبيق المركزية 
     <!-- شريط التنقل السفلي -->
     <nav class="bottom-nav">
       <button class="nav-item active" data-view="map">
-        <span class="nav-icon">🗺️</span>
+        <span class="nav-icon">${iconSvg("map")}</span>
         <span>الخريطة</span>
       </button>
 
       <button class="nav-item play-center" data-view="game">
-        <span class="nav-icon">🎮</span>
+        <span class="nav-icon">${iconSvg("gamepad-2")}</span>
         <span>العب</span>
       </button>
 
       <button class="nav-item" data-view="achievements">
-        <span class="nav-icon">🏆</span>
+        <span class="nav-icon">${iconSvg("trophy")}</span>
         <span>الإنجازات</span>
       </button>
 
       <button class="nav-item" data-view="stats">
-        <span class="nav-icon">📊</span>
+        <span class="nav-icon">${iconSvg("chart-column")}</span>
         <span>إحصائياتي</span>
       </button>
     </nav>
@@ -196,13 +199,13 @@ export const treasuresMarkup = `<!-- حاوية التطبيق المركزية 
     <!-- نافذة "هل تعلم؟" والاحتفال بالنجاح -->
     <div class="modal-backdrop" id="fact-modal-backdrop">
       <div class="modal-card">
-        <button class="modal-close-btn" id="fact-close-btn">✕</button>
-        <span class="fact-header-badge">إجابة صحيحة وممتازة! 🎉</span>
+        <button class="modal-close-btn" id="fact-close-btn">${iconSvg("x")}</button>
+        <span class="fact-header-badge">إجابة صحيحة وممتازة! ${iconSvg("party-popper")}</span>
 
         <div class="stars-earned-row" id="fact-stars-box">
-          <span class="star-icon-anim">⭐</span>
-          <span class="star-icon-anim">⭐</span>
-          <span class="star-icon-anim">⭐</span>
+          <span class="star-icon-anim">${iconSvg("star", { fill: "currentColor" })}</span>
+          <span class="star-icon-anim">${iconSvg("star", { fill: "currentColor" })}</span>
+          <span class="star-icon-anim">${iconSvg("star", { fill: "currentColor" })}</span>
         </div>
 
         <div class="rewards-display-row" id="fact-rewards-box">
@@ -216,7 +219,7 @@ export const treasuresMarkup = `<!-- حاوية التطبيق المركزية 
 
         <button class="btn btn-primary" id="fact-next-btn" style="width:100%;">
           <span>المرحلة التالية</span>
-          <span>←</span>
+          <span>${iconSvg("arrow-left")}</span>
         </button>
       </div>
     </div>
@@ -224,8 +227,8 @@ export const treasuresMarkup = `<!-- حاوية التطبيق المركزية 
     <!-- نافذة الإنجازات -->
     <div class="modal-backdrop" id="achievements-modal-backdrop">
       <div class="modal-card">
-        <button class="modal-close-btn" id="achievements-close-btn">✕</button>
-        <h3 style="font-family:var(--font-display); font-size:1.35rem; color:var(--text-gold);">🏆 سجل الإنجازات والأوسمة</h3>
+        <button class="modal-close-btn" id="achievements-close-btn">${iconSvg("x")}</button>
+        <h3 style="font-family:var(--font-display); font-size:1.35rem; color:var(--text-gold);">${iconSvg("trophy")} سجل الإنجازات والأوسمة</h3>
         <p style="font-size:0.8rem; color:var(--text-muted); text-align:center;">أكمل المهام التراثية واجمع الأوسمة!</p>
 
         <div class="modal-list-container" id="achievements-list"></div>
@@ -235,8 +238,8 @@ export const treasuresMarkup = `<!-- حاوية التطبيق المركزية 
     <!-- نافذة لوحة المتصدرين -->
     <div class="modal-backdrop" id="leaderboard-modal-backdrop">
       <div class="modal-card">
-        <button class="modal-close-btn" id="leaderboard-close-btn">✕</button>
-        <h3 style="font-family:var(--font-display); font-size:1.35rem; color:var(--text-gold);">🥇 لوحة المتصدرين</h3>
+        <button class="modal-close-btn" id="leaderboard-close-btn">${iconSvg("x")}</button>
+        <h3 style="font-family:var(--font-display); font-size:1.35rem; color:var(--text-gold);">${iconSvg("medal")} لوحة المتصدرين</h3>
         <p style="font-size:0.8rem; color:var(--text-muted); text-align:center;">أعظم رحالة ومستكشفي كنوز الجزائر على مر العصور</p>
 
         <div class="modal-list-container" id="leaderboard-list"></div>
@@ -246,8 +249,8 @@ export const treasuresMarkup = `<!-- حاوية التطبيق المركزية 
     <!-- نافذة إحصائيات اللاعب -->
     <div class="modal-backdrop" id="stats-modal-backdrop">
       <div class="modal-card">
-        <button class="modal-close-btn" id="stats-close-btn">✕</button>
-        <h3 style="font-family:var(--font-display); font-size:1.35rem; color:var(--text-gold);">📊 إحصائيات المستكشف</h3>
+        <button class="modal-close-btn" id="stats-close-btn">${iconSvg("x")}</button>
+        <h3 style="font-family:var(--font-display); font-size:1.35rem; color:var(--text-gold);">${iconSvg("chart-column")} إحصائيات المستكشف</h3>
         <p style="font-size:0.8rem; color:var(--text-muted); text-align:center;">سجل إنجازاتك في اكتشاف ربوع الوطن الغالي</p>
 
         <div id="stats-modal-content" style="width:100%;"></div>
@@ -258,7 +261,7 @@ export const treasuresMarkup = `<!-- حاوية التطبيق المركزية 
     <div class="modal-backdrop sheet-backdrop" id="wilaya-sheet-backdrop">
       <div class="wilaya-sheet" id="wilaya-sheet-card" role="dialog" aria-modal="true" aria-labelledby="wilaya-sheet-title">
         <div class="ws-handle" id="wilaya-sheet-handle"><span></span></div>
-        <button class="modal-close-btn ws-close" id="wilaya-sheet-close" aria-label="إغلاق">✕</button>
+        <button class="modal-close-btn ws-close" id="wilaya-sheet-close" aria-label="إغلاق">${iconSvg("x")}</button>
         <div class="ws-body" id="wilaya-sheet-body"></div>
       </div>
     </div>

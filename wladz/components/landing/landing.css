@@ -1431,14 +1431,50 @@ html:has(.landing-page) {
 /* ── WLADZ : section « لماذا ولادز » (remplace « كيف تلعب ») ── */
 .why-section {
   position: relative;
+  isolation: isolate;
+  overflow: clip;
   padding-block: 90px 100px;
   background: linear-gradient(
     180deg,
-    var(--color-dz-white),
-    var(--color-sky-bottom) 30%,
-    var(--color-dz-green-soft)
+    var(--color-dz-white) 0%,
+    #e4f4ff 16%,
+    #cbe9ff 52%,
+    #dff1ff 78%,
+    var(--color-dz-green-soft) 100%
   );
   border-radius: 0 0 64px 64px;
+}
+.why-section > .section-shell {
+  position: relative;
+  z-index: 1;
+}
+/* Nuages en parallax derrière la section (Clouds section). */
+.clouds--section {
+  z-index: 0;
+}
+.cloud-layer--s1 {
+  width: 560px;
+  inset-inline-start: -230px;
+  inset-block-start: 3%;
+  opacity: 0.95;
+}
+.cloud-layer--s2 {
+  width: 480px;
+  inset-inline-end: -190px;
+  inset-block-start: 24%;
+  opacity: 0.85;
+}
+.cloud-layer--s3 {
+  width: 420px;
+  inset-inline-start: 4%;
+  inset-block-start: 55%;
+  opacity: 0.75;
+}
+.cloud-layer--s4 {
+  width: 600px;
+  inset-inline-end: -240px;
+  inset-block-start: 70%;
+  opacity: 0.9;
 }
 .why-heading {
   text-align: center;
@@ -1469,11 +1505,14 @@ html:has(.landing-page) {
   align-items: center;
   gap: 4px;
   padding: 22px 12px;
-  border: 1px solid var(--color-dz-white);
+  border: 1px solid color-mix(in srgb, var(--color-dz-white) 88%, transparent);
   border-radius: 28px;
-  background: color-mix(in srgb, var(--color-dz-white) 85%, transparent);
-  box-shadow: 0 10px 30px
-    color-mix(in srgb, var(--color-dz-green) 6%, transparent);
+  background: color-mix(in srgb, var(--color-dz-white) 62%, transparent);
+  box-shadow:
+    0 14px 36px color-mix(in srgb, var(--color-dz-green) 9%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-dz-white) 95%, transparent);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
 }
 .why-stat dd {
   font-size: clamp(34px, 4vw, 48px);
@@ -1499,18 +1538,28 @@ html:has(.landing-page) {
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
 }
+/* Carte en verre, inclinable (Tilt) avec halo vert sur les côtés au survol (app/ui.css). */
+.why-topic-slot {
+  display: flex;
+}
 .why-topic {
   --tone: var(--color-dz-green);
   position: relative;
+  flex: 1;
   padding: 24px 18px 22px;
   border-radius: 28px;
-  background: var(--color-dz-white);
-  border-block-start: 6px solid var(--tone);
-  box-shadow: 0 12px 34px color-mix(in srgb, var(--tone) 14%, transparent);
-  transition: transform 250ms cubic-bezier(0.2, 1.4, 0.5, 1);
+  border: 1px solid color-mix(in srgb, var(--color-dz-white) 88%, transparent);
+  background:
+    radial-gradient(120% 70% at 100% 0%, color-mix(in srgb, var(--tone) 14%, transparent), transparent 60%),
+    color-mix(in srgb, var(--color-dz-white) 60%, transparent);
+  box-shadow:
+    0 14px 36px color-mix(in srgb, var(--tone) 14%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--color-dz-white) 95%, transparent);
+  backdrop-filter: blur(16px) saturate(1.35);
+  -webkit-backdrop-filter: blur(16px) saturate(1.35);
 }
-.why-topic:hover {
-  transform: translateY(-6px) rotate(-1deg);
+.why-topic .wz-icon-tile {
+  margin-block-end: 16px;
 }
 .why-topic--mint {
   --tone: #2f8f5b;
@@ -1526,17 +1575,6 @@ html:has(.landing-page) {
 }
 .why-topic--violet {
   --tone: #7c5ce6;
-}
-.why-topic-emoji {
-  display: grid;
-  place-items: center;
-  width: 62px;
-  height: 62px;
-  margin-block-end: 14px;
-  border-radius: 20px;
-  font-size: 32px;
-  background: color-mix(in srgb, var(--tone) 14%, var(--color-dz-white));
-  transform: rotate(-6deg);
 }
 .why-topic h4 {
   font-size: 19px;
@@ -1625,13 +1663,12 @@ html:has(.landing-page) {
   border-radius: 100px;
   background: color-mix(in srgb, var(--color-dz-white) 85%, transparent);
 }
-.game-emoji-art {
+.game-icon-art {
+  position: relative;
   display: grid;
   place-items: center;
   width: 100%;
   height: 100%;
-  font-size: clamp(64px, 9vw, 110px);
-  letter-spacing: 6px;
   background:
     radial-gradient(
       circle at 30% 30%,
@@ -1641,7 +1678,7 @@ html:has(.landing-page) {
     linear-gradient(135deg, #9ed8ff, #3a8ee6);
   transition: transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-.game-card--mint .game-emoji-art {
+.game-card--mint .game-icon-art {
   background:
     radial-gradient(
       circle at 30% 30%,
@@ -1650,8 +1687,43 @@ html:has(.landing-page) {
     ),
     linear-gradient(135deg, #b9ecd2, #2f8f5b);
 }
-.game-card:is(:hover, :focus-within) .game-emoji-art {
+.game-card:is(:hover, :focus-within) .game-icon-art {
   transform: scale(1.045);
+}
+.game-icon-art .wz-icon-tile {
+  --tile: clamp(5.5rem, 9vw, 7.5rem);
+}
+/* Petites icônes en verre qui flottent autour de l'icône du jeu. */
+.game-icon-extra {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 22px;
+  color: var(--color-dz-white);
+  background: color-mix(in srgb, var(--color-dz-white) 24%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-dz-white) 60%, transparent);
+  box-shadow: 0 12px 26px color-mix(in srgb, #000 12%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: wz-bob 4.5s ease-in-out infinite;
+}
+.game-icon-extra svg {
+  width: 32px;
+  height: 32px;
+}
+.game-icon-extra--1 {
+  inset-block-start: 16%;
+  inset-inline-start: 14%;
+  rotate: -10deg;
+  animation-delay: -1.2s;
+}
+.game-icon-extra--2 {
+  inset-block-end: 14%;
+  inset-inline-end: 16%;
+  rotate: 8deg;
+  animation-delay: -2.6s;
 }
 @media (max-width: 1100px) {
   .why-topics {
@@ -1687,7 +1759,7 @@ html:has(.landing-page) {
     column-gap: 14px;
     padding: 18px;
   }
-  .why-topic-emoji {
+  .why-topic .wz-icon-tile {
     grid-row: span 2;
     margin: 0;
   }
@@ -1702,8 +1774,7 @@ html:has(.landing-page) {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .why-topic:hover,
-  .game-card:is(:hover, :focus-within) .game-emoji-art {
+  .game-card:is(:hover, :focus-within) .game-icon-art {
     transform: none;
   }
 }

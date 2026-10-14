@@ -2993,3 +2993,9 @@ body {
   box-shadow: 0 0 50px rgba(58, 142, 230, 0.2);
 }
 .header-btn.exit-btn { color: #d21034; }
+
+/* WLADZ : icônes SVG (games/_shared/svgIcons.js) à la place des emojis ; 1em = taille du texte. */
+.wz-i { display: inline-block; flex-shrink: 0; vertical-align: -0.14em; }
+.eco-icon, .star-icon-anim, .w-badge-icon, .ws-badge-icon, .reward-tag.gold { color: var(--c-gold); }
+.w-badge-icon, .ws-badge-icon, .qf-icon, .nav-icon, .avatar-badge span { display: inline-flex; align-items: center; justify-content: center; }
+.header-btn .wz-i { width: 1.15em; height: 1.15em; }

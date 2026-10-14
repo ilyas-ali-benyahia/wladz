@@ -5,19 +5,19 @@ import { amineDailyPoints, amineOrigin } from "@/games/amine/config";
 // dans l'application. Pour les points, le jeu envoie à la page hôte :
 //   window.parent.postMessage({ type: "wladz:ending", endingId }, "*")
 // à chaque fin atteinte, et peut demander la fermeture avec { type: "wladz:game-exit" }.
-export function AmineLauncher() {
+export function AmineLauncher({ title }: { title: string }) {
   return (
     <FullscreenGameLauncher
       src={`${amineOrigin}/`}
       externalOrigin={amineOrigin}
       pointsEndpoint="/api/games/amine/ending"
-      title="أمين: طريق الحياة"
-      emoji="🧒"
+      title={title}
+      slug="amine"
       intro="عِش حياة أمين في حومة جزائرية، من طفولته إلى سنّ الثامنة عشرة. كل قرار تتخذه يغيّر طريقه: 68 فصلاً و72 نهاية مختلفة تنتظرك."
       tips={[
-        `⭐ كل نهاية جديدة تصل إليها تمنحك نقطة (حتى ${amineDailyPoints} نقاط في اليوم).`,
-        "🧭 فكّر قبل كل قرار: لكل اختيار عواقبه.",
-        "🎧 اللعبة ثلاثية الأبعاد وكبيرة، قد تحتاج بضع ثوانٍ لتبدأ.",
+        { icon: "star", text: `كل نهاية جديدة تصل إليها تمنحك نقطة (حتى ${amineDailyPoints} نقاط في اليوم).` },
+        { icon: "compass", text: "فكّر قبل كل قرار: لكل اختيار عواقبه." },
+        { icon: "headphones", text: "اللعبة ثلاثية الأبعاد وكبيرة، قد تحتاج بضع ثوانٍ لتبدأ." },
       ]}
     />
   );

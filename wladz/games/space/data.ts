@@ -8,7 +8,6 @@ export type SpaceQuestion = {
 export type SpaceBody = {
   id: string;
   name: string;
-  emoji: string;
   kind: "star" | "planet" | "moon" | "stars" | "nebula";
   // Les 10 astres de la mission principale ; les autres sont des bonus.
   core: boolean;
@@ -27,7 +26,6 @@ export const spaceBodies: SpaceBody[] = [
   {
     id: "sun",
     name: "الشمس",
-    emoji: "☀️",
     kind: "star",
     core: true,
     size: 92,
@@ -57,7 +55,6 @@ export const spaceBodies: SpaceBody[] = [
   {
     id: "mercury",
     name: "عطارد",
-    emoji: "🪨",
     kind: "planet",
     core: true,
     size: 44,
@@ -86,7 +83,6 @@ export const spaceBodies: SpaceBody[] = [
   {
     id: "venus",
     name: "الزهرة",
-    emoji: "🌕",
     kind: "planet",
     core: true,
     size: 56,
@@ -115,7 +111,6 @@ export const spaceBodies: SpaceBody[] = [
   {
     id: "earth",
     name: "الأرض",
-    emoji: "🌍",
     kind: "planet",
     core: true,
     size: 60,
@@ -146,7 +141,6 @@ export const spaceBodies: SpaceBody[] = [
   {
     id: "moon",
     name: "القمر",
-    emoji: "🌙",
     kind: "moon",
     core: true,
     size: 40,
@@ -177,7 +171,6 @@ export const spaceBodies: SpaceBody[] = [
   {
     id: "mars",
     name: "المريخ",
-    emoji: "🔴",
     kind: "planet",
     core: true,
     size: 50,
@@ -207,7 +200,6 @@ export const spaceBodies: SpaceBody[] = [
   {
     id: "jupiter",
     name: "المشتري",
-    emoji: "🟤",
     kind: "planet",
     core: true,
     size: 84,
@@ -238,7 +230,6 @@ export const spaceBodies: SpaceBody[] = [
   {
     id: "saturn",
     name: "زحل",
-    emoji: "🪐",
     kind: "planet",
     core: true,
     size: 66,
@@ -270,7 +261,6 @@ export const spaceBodies: SpaceBody[] = [
   {
     id: "uranus",
     name: "أورانوس",
-    emoji: "🔵",
     kind: "planet",
     core: true,
     size: 60,
@@ -299,7 +289,6 @@ export const spaceBodies: SpaceBody[] = [
   {
     id: "neptune",
     name: "نبتون",
-    emoji: "🔷",
     kind: "planet",
     core: true,
     size: 58,
@@ -329,7 +318,6 @@ export const spaceBodies: SpaceBody[] = [
   {
     id: "stars",
     name: "النجوم",
-    emoji: "✨",
     kind: "stars",
     core: false,
     size: 72,
@@ -359,7 +347,6 @@ export const spaceBodies: SpaceBody[] = [
   {
     id: "nebula",
     name: "السديم",
-    emoji: "🌌",
     kind: "nebula",
     core: false,
     size: 80,

@@ -2,6 +2,7 @@ import { Suspense, type ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { Footer } from "@/components/navigation/Footer";
 import { Sidebar } from "@/components/navigation/Sidebar";
+import { SkyBackdrop } from "@/components/ui/SkyBackdrop";
 import { getSessionUser } from "@/lib/auth";
 
 async function SignedIn({ children }: { children: ReactNode }) {
@@ -10,8 +11,9 @@ async function SignedIn({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-dvh flex-col">
+      <SkyBackdrop />
       <div className="flex flex-1">
-        <Sidebar points={user.points} />
+        <Sidebar points={user.points} firstName={user.full_name.split(" ")[0]} />
         <div className="min-w-0 flex-1 px-4 pt-24 pb-6 md:px-6 md:pt-8 lg:px-8">
           <main className="mx-auto w-full max-w-5xl">{children}</main>
         </div>

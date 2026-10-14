@@ -17,6 +17,7 @@ import { EnemyManager, createRobotPreview } from './enemies.js';
 import { WeaponFX } from './weapon.js';
 import { AudioFX } from './audio.js';
 import { MobileControls } from './mobile-controls.js';
+import { iconSvg } from '../../_shared/svgIcons.js';
 
 const isMobile = /Mobi|Android|iPad/i.test(navigator.userAgent)
   || (navigator.maxTouchPoints > 0 && window.matchMedia('(pointer: coarse)').matches)
@@ -529,8 +530,8 @@ function onCorrect(hit) {
   hitStopT = REDUCED_MOTION ? 0 : 0.38;
   doFlash('rgba(0,255,120,.26)');
   hitMark(true);
-  scorePop(fast ? `⚡+${points}` : '+' + points, fast);
-  showFeedback(`✓ ${solvedText()}`, true);
+  scorePop(fast ? `${iconSvg('zap', { fill: 'currentColor' })}+${points}` : '+' + points, fast);
+  showFeedback(solvedText(), true);
   updateHUD();
   goTransition();
 }
@@ -547,7 +548,7 @@ function onWrong(hit) {
   addShake(0.032);
   // Educational feedback: show the correct equation. The wave keeps
   // running — the player still has to find the robot carrying it.
-  showFeedback(`✗ ${solvedText()}`, false);
+  showFeedback(solvedText(), false);
   updateHUD();
   if (gd.hp <= 0) goDying();
 }
@@ -586,7 +587,7 @@ function goPlaying() {
   // SURGE rounds every 5th wave: announced, faster, red-lit
   surgeWave = gd.wave % 5 === 0;
   if (surgeWave) {
-    waveAnn.textContent = `⚡ هجوم ${gd.wave} ⚡`;
+    waveAnn.innerHTML = `${iconSvg('zap', { fill: 'currentColor' })} هجوم ${gd.wave} ${iconSvg('zap', { fill: 'currentColor' })}`;
     waveAnn.classList.add('show', 'surge');
     setTimeout(() => waveAnn.classList.remove('show', 'surge'), 1400);
     audio.surge();
@@ -678,7 +679,8 @@ function goGameOver() {
   finalWave.textContent = `الموجة: ${gd.wave}`;
   const acc = gd.shots > 0 ? Math.round((gd.correctCount / gd.shots) * 100) : 0;
   finalStats.textContent = `الدقة ${acc}%  ·  أفضل سلسلة ×${gd.bestCombo}`;
-  finalBest.textContent = newBest ? '★ رقم قياسي جديد ★' : `أفضل نتيجة: ${Math.max(best, gd.score)}`;
+  const bestStar = iconSvg('star', { fill: 'currentColor' });
+  finalBest.innerHTML = newBest ? `${bestStar} رقم قياسي جديد ${bestStar}` : `أفضل نتيجة: ${Math.max(best, gd.score)}`;
 
   overScreen.style.opacity = '0';
   overScreen.style.display = 'flex';
@@ -753,7 +755,7 @@ function tickTimer(rawDt) {
     gd.combo = 0;
     // Time's up: reveal which robot was carrying the answer, hold it
     // briefly so the player actually sees it, then move on
-    showFeedback(`✗ ${solvedText()}`, false);
+    showFeedback(solvedText(), false);
     enemies.revealCorrect();
     revealT = 0.6;
     updateHUD();
@@ -923,8 +925,10 @@ function showDmgVig() {
 
 // Educational feedback line under the equation
 let _fbT;
+// WLADZ : icône (jamais d'emoji) devant la correction ; le texte reste échappé.
 function showFeedback(text, ok) {
-  feedbackEl.textContent = text;
+  const safe = String(text).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  feedbackEl.innerHTML = `${iconSvg(ok ? 'check' : 'x')} ${safe}`;
   feedbackEl.classList.toggle('ok', ok);
   feedbackEl.classList.toggle('bad', !ok);
   feedbackEl.classList.add('show');
@@ -939,8 +943,8 @@ function hideFeedback() {
 }
 
 // Floating "+N" near the crosshair (gold when it carries a ⚡ bonus)
-function scorePop(text, fast) {
-  scorePopEl.textContent = text;
+function scorePop(html, fast) {
+  scorePopEl.innerHTML = html;
   scorePopEl.classList.toggle('fast', !!fast);
   scorePopEl.classList.remove('anim');
   void scorePopEl.offsetWidth;      // restart the CSS animation

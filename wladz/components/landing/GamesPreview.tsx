@@ -11,6 +11,8 @@ import {
   type MouseEvent,
   type PointerEvent,
 } from "react";
+import { Bot, Calculator, CircleHelp, Hand, HeartHandshake, Lightbulb, type LucideIcon } from "lucide-react";
+import { GameIcon } from "@/components/ui/GameIcon";
 import Icon from "./Icon";
 import { useParallax } from "./useParallax";
 
@@ -23,8 +25,8 @@ type Game = {
   color: "sky" | "mint" | "sand" | "rose";
   video?: string;
   image?: string;
-  // Sans image ni vidéo : grande illustration emoji sur un fond coloré.
-  emoji?: string;
+  // Sans image ni vidéo : icône du jeu en grand et deux icônes flottantes sur un fond coloré.
+  art?: [LucideIcon, LucideIcon];
 };
 
 // Les jeux disponibles dans l'application (voir lib/games.ts).
@@ -56,7 +58,7 @@ const games: readonly Game[] = [
     description:
       "مواقف من الحياة اليومية: اختر ما ستفعله، وتعلّم كيف تحمي نفسك وتقول «لا».",
     color: "mint",
-    emoji: "🦸🛡️",
+    art: [Hand, HeartHandshake],
   },
   {
     id: "treasures",
@@ -67,6 +69,24 @@ const games: readonly Game[] = [
       "اكتشف معالم كل ولاية وتراثها وتاريخها، وافتح ولاية جديدة كلما أكملت واحدة.",
     color: "sand",
     image: "/games/treasures/assets/banner.jpg",
+  },
+  {
+    id: "ghiras",
+    title: "غِراس المواطنة",
+    category: "المواطنة والبيئة",
+    type: "مدينة ثلاثية الأبعاد",
+    description: "نظّف حيّك، اغرس الأشجار، ساعد الكبار، وزر المتحف في مدينة جزائرية تستكشفها بحرّية.",
+    color: "mint",
+    image: "/games/ghiras/cover.jpg",
+  },
+  {
+    id: "salati",
+    title: "صلاتي",
+    category: "القيم والعبادات",
+    type: "مسجد ثلاثي الأبعاد",
+    description: "تعلّم حركات الصلاة وترتيبها خطوة بخطوة، مع أسئلة قصيرة عن الأذكار.",
+    color: "mint",
+    image: "/games/salati/thumbnail.webp",
   },
   {
     id: "skills",
@@ -86,7 +106,7 @@ const games: readonly Game[] = [
     description:
       "احسب العملية بسرعة وصوّب نحو الروبوت الذي يحمل الجواب الصحيح.",
     color: "sky",
-    emoji: "🎯🤖",
+    art: [Calculator, Bot],
   },
   {
     id: "myths",
@@ -96,7 +116,7 @@ const games: readonly Game[] = [
     description:
       "اكشف المعلومات الخاطئة عن التدخين والمخدرات، بطاقةً بعد بطاقة.",
     color: "mint",
-    emoji: "🕵️💡",
+    art: [Lightbulb, CircleHelp],
   },
 ];
 
@@ -213,8 +233,13 @@ function GameCard({
               sizes="(max-width: 700px) 82vw, (max-width: 1200px) 46vw, 540px"
             />
           ) : (
-            <span className="game-emoji-art" aria-hidden="true">
-              {game.emoji}
+            <span className="game-icon-art" aria-hidden="true">
+              <GameIcon slug={game.id} size="xl" />
+              {game.art?.map((ArtIcon, artIndex) => (
+                <span key={artIndex} className={`game-icon-extra game-icon-extra--${artIndex + 1}`}>
+                  <ArtIcon strokeWidth={2.2} />
+                </span>
+              ))}
             </span>
           )}
           <span className="game-category">{game.category}</span>
@@ -317,7 +342,7 @@ export default function GamesPreview() {
             عالم صغير، اكتشافات كبيرة
           </p>
           <h2 id="games-title">
-            سبع ألعاب <span className="outlined-word">تنتظرك</span>
+            ألعاب <span className="outlined-word">تنتظرك</span>
           </h2>
         </div>
       </header>

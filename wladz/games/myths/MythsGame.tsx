@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { ArrowLeft, Award, CircleCheck, CircleHelp, CircleX, Lightbulb, PartyPopper, Play, RotateCcw, Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { AgeTier } from "@/games/ageTier";
 import { mythCards, mythsGameSlug } from "@/games/myths/data";
 import { shuffledOrder, submitAnswer } from "@/games/submitAnswer";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { GameIcon, IconTile } from "@/components/ui/GameIcon";
 
 type Round = {
   // Cartes restantes ; une carte ratée revient à la fin de la pile.
@@ -18,9 +20,7 @@ type Round = {
   error: boolean;
 };
 
-const card = "rounded-[2rem] bg-white p-5 shadow-xl shadow-dz-green/10 sm:p-7";
-const primaryButton =
-  "flex min-h-12 cursor-pointer items-center justify-center fun-btn bg-dz-green px-6 text-lg font-extrabold text-white transition-transform hover:-translate-y-0.5 active:translate-y-0.5";
+const card = "wz-glass wz-rise rounded-[2rem] p-5 sm:p-7";
 
 export function MythsGame({
   tier,
@@ -88,51 +88,50 @@ export function MythsGame({
 
   if (!round) {
     return (
-      <section className={`${card} text-center`}>
-        <p aria-hidden="true" className="text-7xl motion-safe:animate-float">
-          🕵️
-        </p>
-        <h1 className="mt-3 text-3xl font-extrabold text-dz-green">حقيقة أم خرافة؟</h1>
+      <section className={`${card} flex flex-col items-center text-center`}>
+        <GameIcon slug="myths" size="xl" className="wz-bob" />
+        <h1 className="mt-4 text-3xl font-extrabold text-dz-green">حقيقة أم خرافة؟</h1>
         <p className="mx-auto mt-3 max-w-md text-lg text-ink-soft">
           ستظهر لك {cards.length} بطاقات. اقرأ كل جملة وقرّر: هل هي حقيقة أم خرافة؟ كل إجابة صحيحة
           تمنحك نقطة!
         </p>
         {knownCount > 0 ? (
-          <p className="mx-auto mt-3 w-fit rounded-full bg-dz-green-soft px-4 py-2 text-base font-bold text-ink">
+          <p className="wz-glass-soft mx-auto mt-3 w-fit rounded-full px-4 py-2 text-base font-bold text-ink">
             عرفت {knownCount} من {cards.length}
           </p>
         ) : null}
-        <button type="button" className={`${primaryButton} mx-auto mt-6`} onClick={start}>
+        <Button size="lg" icon={Play} className="mx-auto mt-6" onClick={start}>
           هيّا نبدأ
-        </button>
+        </Button>
       </section>
     );
   }
 
   if (round.queue.length === 0) {
     return (
-      <section className={`${card} text-center`}>
-        <p aria-hidden="true" className="text-7xl">
-          🏅
-        </p>
-        <h1 className="mt-3 text-3xl font-extrabold text-dz-green">أحسنت أيها المحقّق!</h1>
-        <p className="mt-3 text-lg text-ink-soft">
+      <section className={`${card} flex flex-col items-center text-center`}>
+        <IconTile icon={Award} tone="#e5a400" size="xl" className="wz-bob" />
+        <h1 className="mt-4 text-3xl font-extrabold text-dz-green">أحسنت أيها المحقّق!</h1>
+        <p className="mt-3 flex flex-wrap items-center justify-center gap-1 text-lg text-ink-soft">
           كشفت {round.total} بطاقات
-          {round.gained > 0 ? ` وربحت ${round.gained} نقطة ⭐` : ""}.
+          {round.gained > 0 ? (
+            <>
+              {` وربحت ${round.gained} نقطة`}
+              <Star size={18} className="fill-gold text-gold" aria-hidden="true" />
+            </>
+          ) : null}
+          .
         </p>
         <p className="mx-auto mt-5 max-w-lg rounded-3xl bg-gold/25 px-4 py-3 text-base font-bold text-ink">
           إذا سمعت معلومة ولم تكن متأكداً منها، اسأل والديك أو معلّمك أو الطبيب.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <button type="button" className={primaryButton} onClick={start}>
+          <Button icon={RotateCcw} onClick={start}>
             ألعب من جديد
-          </button>
-          <Link
-            href="/dashboard"
-            className="flex min-h-12 items-center rounded-3xl border-2 border-dz-green px-6 text-lg font-extrabold text-dz-green transition hover:bg-dz-green-soft"
-          >
+          </Button>
+          <ButtonLink href="/dashboard" variant="secondary" icon={ArrowLeft}>
             العودة إلى الرئيسية
-          </Link>
+          </ButtonLink>
         </div>
       </section>
     );
@@ -150,22 +149,17 @@ export function MythsGame({
           aria-valuemin={0}
           aria-valuemax={round.total}
           aria-valuenow={round.total - round.queue.length}
-          className="h-4 flex-1 overflow-hidden rounded-full bg-dz-green-soft"
+          className="wz-progress h-4 flex-1"
         >
-          <div
-            className="h-full rounded-full bg-dz-green transition-all"
-            style={{ width: `${progress}%` }}
-          />
+          <span className="transition-all" style={{ width: `${progress}%` }} />
         </div>
-        <p className="rounded-full bg-dz-green-soft px-3 py-1 text-base font-extrabold text-ink">
+        <p className="wz-glass-soft rounded-full px-3 py-1 text-base font-extrabold text-ink">
           {round.total - round.queue.length}/{round.total}
         </p>
       </div>
 
-      <div className="mt-5 flex min-h-48 flex-col items-center justify-center gap-3 rounded-3xl bg-linear-to-br from-dz-green-light/60 to-dz-green-soft p-6 text-center">
-        <p aria-hidden="true" className="text-5xl">
-          🤔
-        </p>
+      <div className="mt-5 flex min-h-48 flex-col items-center justify-center gap-3 rounded-3xl border border-white/80 bg-linear-to-br from-dz-green-light/50 to-white/60 p-6 text-center shadow-inner">
+        <IconTile icon={CircleHelp} tone="#7c5ce6" size="lg" className="wz-bob" />
         <p className="text-2xl font-extrabold leading-relaxed text-ink">{current.statement}</p>
       </div>
 
@@ -176,38 +170,44 @@ export function MythsGame({
             round.verdict === "correct" ? "bg-green/15" : "bg-dz-red/15"
           }`}
         >
-          <p className="text-lg font-extrabold">
+          <p className="flex items-center gap-2 text-lg font-extrabold">
+            {round.verdict === "correct" ? (
+              <PartyPopper size={22} strokeWidth={2.5} className="shrink-0 text-dz-green" aria-hidden="true" />
+            ) : (
+              <Lightbulb size={22} strokeWidth={2.5} className="shrink-0 text-gold" aria-hidden="true" />
+            )}
             {round.verdict === "correct"
-              ? "🎉 إجابة صحيحة!"
-              : "🤔 ليس تماماً، لا بأس. سنعود إلى هذه البطاقة."}
+              ? "إجابة صحيحة!"
+              : "ليس تماماً، لا بأس. سنعود إلى هذه البطاقة."}
           </p>
-          <p className="mt-2 text-xl font-extrabold">
-            هذه {current.isTrue ? "حقيقة ✅" : "خرافة ❌"}
+          <p className="mt-2 flex items-center gap-2 text-xl font-extrabold">
+            هذه {current.isTrue ? "حقيقة" : "خرافة"}
+            {current.isTrue ? (
+              <CircleCheck size={24} strokeWidth={2.5} className="text-green" aria-hidden="true" />
+            ) : (
+              <CircleX size={24} strokeWidth={2.5} className="text-dz-red" aria-hidden="true" />
+            )}
           </p>
           <p className="mt-1 text-lg">{current.explanation}</p>
-          <button type="button" className={`${primaryButton} mt-4`} onClick={next}>
+          <Button icon={ArrowLeft} className="mt-4" onClick={next}>
             التالي
-          </button>
+          </Button>
         </div>
       ) : (
         <>
           <div className="mt-5 grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              disabled={round.saving}
-              onClick={() => answer(true)}
-              className="min-h-16 cursor-pointer rounded-3xl bg-green text-xl font-extrabold text-white shadow-md transition-transform hover:-translate-y-0.5 active:translate-y-0.5 disabled:opacity-60"
-            >
-              ✅ حقيقة
-            </button>
-            <button
-              type="button"
+            <Button size="lg" icon={CircleCheck} disabled={round.saving} onClick={() => answer(true)}>
+              حقيقة
+            </Button>
+            <Button
+              size="lg"
+              variant="danger"
+              icon={CircleX}
               disabled={round.saving}
               onClick={() => answer(false)}
-              className="min-h-16 cursor-pointer rounded-3xl bg-dz-red text-xl font-extrabold text-ink shadow-md transition-transform hover:-translate-y-0.5 active:translate-y-0.5 disabled:opacity-60"
             >
-              ❌ خرافة
-            </button>
+              خرافة
+            </Button>
           </div>
           {round.error ? (
             <p role="status" className="mt-4 rounded-3xl bg-dz-red/15 px-5 py-4 text-lg font-bold text-ink">

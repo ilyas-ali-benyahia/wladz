@@ -1,49 +1,58 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { Amphora, Compass, Rocket, ShieldCheck, Target, type LucideIcon } from "lucide-react";
+import { IconTile } from "@/components/ui/GameIcon";
+import { Tilt } from "@/components/ui/Tilt";
+import Clouds from "./Clouds";
+import { games } from "@/lib/games";
 import FunButton from "./FunButton";
 import Icon, { type IconName } from "./Icon";
 import { useParallax } from "./useParallax";
 
 const stats = [
-  { value: "7", label: "ألعاب تعليمية" },
+  { value: String(games.length), label: "ألعاب تعليمية" },
   { value: "58", label: "ولاية تكتشفها" },
   { value: "100%", label: "باللغة العربية" },
   { value: "0", label: "إعلانات" },
 ];
 
-const topics: { icon: IconName; emoji: string; title: string; text: string; tone: string }[] = [
+// Couleur de chaque thème : classe .why-topic--<tone> (landing.css) et tuile d'icône.
+const topicTones = {
+  mint: "#2f8f5b",
+  rose: "#e2557a",
+  sand: "#d9822b",
+  sky: "#3a8ee6",
+  violet: "#7c5ce6",
+} as const;
+
+const topics: { icon: LucideIcon; title: string; text: string; tone: keyof typeof topicTones }[] = [
   {
-    icon: "shield",
-    emoji: "🛡️",
+    icon: ShieldCheck,
     title: "الوقاية",
     text: "يتعلّم كيف يقول «لا» للتدخين والمخدرات، ومتى يطلب المساعدة.",
     tone: "mint",
   },
   {
-    icon: "heart",
-    emoji: "🧭",
+    icon: Compass,
     title: "المهارات الحياتية",
     text: "الثقة بالنفس، احترام الآخرين، التفكير قبل المشاركة، والعمل في فريق.",
     tone: "rose",
   },
   {
-    icon: "book",
-    emoji: "🏺",
+    icon: Amphora,
     title: "التاريخ والتراث",
     text: "معالم الولايات الـ 58 وتقاليدها، ليعرف وطنه ويفخر به.",
     tone: "sand",
   },
   {
-    icon: "spark",
-    emoji: "🎯",
+    icon: Target,
     title: "الرياضيات",
     text: "جداول الضرب والقسمة والحساب الذهني في تحدٍّ سريع وممتع.",
     tone: "sky",
   },
   {
-    icon: "rocket",
-    emoji: "🚀",
+    icon: Rocket,
     title: "العلوم والفضاء",
     text: "الشمس والكواكب والنجوم في رحلة ثلاثية الأبعاد.",
     tone: "violet",
@@ -73,6 +82,7 @@ export default function WhyWladz() {
 
   return (
     <section ref={ref} id="about" className="why-section" aria-labelledby="why-title">
+      <Clouds section />
       <div className="section-shell">
         <header className="why-heading" data-reveal>
           <p className="section-kicker">
@@ -87,12 +97,12 @@ export default function WhyWladz() {
 
         <dl className="why-stats" data-reveal>
           {stats.map((stat) => (
-            <div key={stat.label} className="why-stat">
+            <Tilt key={stat.label} className="why-stat">
               <dd>
                 <bdi>{stat.value}</bdi>
               </dd>
               <dt>{stat.label}</dt>
-            </div>
+            </Tilt>
           ))}
         </dl>
 
@@ -103,15 +113,15 @@ export default function WhyWladz() {
           {topics.map((topic, index) => (
             <li
               key={topic.title}
-              className={`why-topic why-topic--${topic.tone}`}
+              className="why-topic-slot"
               data-reveal
               style={{ "--reveal-delay": `${index * 70}ms` } as CSSProperties}
             >
-              <span className="why-topic-emoji" aria-hidden="true">
-                {topic.emoji}
-              </span>
-              <h4>{topic.title}</h4>
-              <p>{topic.text}</p>
+              <Tilt as="article" className={`why-topic why-topic--${topic.tone}`}>
+                <IconTile icon={topic.icon} tone={topicTones[topic.tone]} size="lg" />
+                <h4>{topic.title}</h4>
+                <p>{topic.text}</p>
+              </Tilt>
             </li>
           ))}
         </ul>
