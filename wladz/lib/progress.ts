@@ -3,6 +3,7 @@ import { amineTotalEndings } from "@/games/amine/config";
 import { choiceScenes } from "@/games/choices/data";
 import { ghirasTotalWins } from "@/games/ghiras/config";
 import { mathDailyPoints } from "@/games/math/MathLauncher";
+import { mujahideenTotalWins } from "@/games/mujahideen/config";
 import { mythCards } from "@/games/myths/data";
 import { salatiDailyWins } from "@/games/salati/config";
 import { LEVELS } from "@/games/skills/levels.js";
@@ -43,6 +44,7 @@ export function getGameActivity(userId: string, tier: AgeTier, today: string): G
       amine: { done: count("ending:"), total: amineTotalEndings, unit: "نهاية" },
       ghiras: { done: ids.length, total: ghirasTotalWins, unit: "مهمة ومرحلة" },
       salati: { done: count(`${today}:`), total: salatiDailyWins, unit: "فوز اليوم" },
+      mujahideen: { done: ids.length, total: mujahideenTotalWins, unit: "سؤال ومهمة" },
     };
 
     return {

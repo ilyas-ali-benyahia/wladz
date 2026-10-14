@@ -2,11 +2,14 @@ import type { CSSProperties } from "react";
 import {
   Amphora,
   Compass,
+  Flag,
   Gamepad2,
+  MoonStar,
   Rocket,
   Route,
   SearchCheck,
   ShieldCheck,
+  Sprout,
   Target,
   type LucideIcon,
 } from "lucide-react";
@@ -22,6 +25,9 @@ const gameArt: Record<string, { icon: LucideIcon; tone: string }> = {
   skills: { icon: Compass, tone: "#e2557a" },
   math: { icon: Target, tone: "#12a39a" },
   myths: { icon: SearchCheck, tone: "#d21034" },
+  ghiras: { icon: Sprout, tone: "#4c9a2a" },
+  salati: { icon: MoonStar, tone: "#0b7a43" },
+  mujahideen: { icon: Flag, tone: "#b8892b" },
 };
 
 const fallback = { icon: Gamepad2, tone: "#2f8f5b" };

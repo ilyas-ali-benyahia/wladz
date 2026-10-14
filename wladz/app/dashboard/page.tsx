@@ -10,6 +10,7 @@ import { RankMedal } from "@/components/ui/RankMedal";
 import { Tilt } from "@/components/ui/Tilt";
 import { getSessionUser } from "@/lib/auth";
 import { getGameActivity, type GameActivity } from "@/lib/progress";
+import { gameTitle } from "@/lib/games";
 import { getPlayerRank, getRanking } from "@/lib/ranking";
 
 const card = "wz-glass wz-rise rounded-[2rem] p-5 sm:p-6";
@@ -98,7 +99,10 @@ export default async function DashboardPage() {
   // « Aujourd'hui » et l'âge dépendent de la date du jour : rendu à la requête uniquement.
   await connection();
   const now = new Date();
-  const activity = getGameActivity(user.id, ageTier(user.birth_date, now), now.toISOString().slice(0, 10));
+  const firstName = user.full_name.split(" ")[0];
+  const activity = getGameActivity(user.id, ageTier(user.birth_date, now), now.toISOString().slice(0, 10)).map(
+    (game) => ({ ...game, title: gameTitle(game, firstName) }),
+  );
   const recent = activity
     .filter((game) => game.lastPlayed)
     .sort((a, b) => b.lastPlayed!.localeCompare(a.lastPlayed!))
@@ -106,7 +110,6 @@ export default async function DashboardPage() {
   const notPlayed = activity.filter((game) => !game.lastPlayed);
   const me = getPlayerRank(user.id);
   const leaders = getRanking(3);
-  const firstName = user.full_name.split(" ")[0];
 
   const stats = [
     { label: "نقطة", value: `${user.points}`, icon: Star, tone: "#e5a400" },

@@ -53,6 +53,29 @@ body {
   background-color: #f2faff;
 }
 
+/* Grands écrans : toute l'interface (tailles en rem de Tailwind) grandit avec la fenêtre,
+   au lieu de rester petite au milieu d'un écran vide. Les points de rupture (md, lg…) ne
+   changent pas : les media queries en rem utilisent toujours 16px. */
+@media (min-width: 1600px) {
+  html {
+    font-size: 112.5%;
+  }
+}
+@media (min-width: 1900px) {
+  html {
+    font-size: 125%;
+  }
+}
+@media (min-width: 2400px) {
+  html {
+    font-size: 150%;
+  }
+}
+
+/* Téléphone à l'horizontale (écran bas) : la barre du haut défile avec la page. */
+@custom-variant short (@media (max-height: 30rem) and (orientation: landscape));
+
+
 ::selection {
   background: #006233;
   color: #ffffff;
