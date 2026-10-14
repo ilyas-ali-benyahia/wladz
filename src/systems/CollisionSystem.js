@@ -88,7 +88,59 @@ export class CollisionSystem {
       }
     }
 
+    // 3. Moving vehicles (oriented boxes)
+    if (!b && this.vehicleProvider) {
+      for (const v of this.vehicleProvider()) {
+        if (this.vehiclePenetration(v, pos.x, pos.z, radius)) return true;
+      }
+    }
+
     return false;
+  }
+
+  /** Circle vs vehicle footprint (oriented box). Returns the push-out vector {x, z} or null */
+  vehiclePenetration(v, x, z, radius) {
+    const s = Math.sin(v.heading), c = Math.cos(v.heading);
+    const dx = x - v.x, dz = z - v.z;
+    // Local frame: 'l' along the vehicle, 'w' across it
+    const l = dx * s + dz * c;
+    const w = dx * c - dz * s;
+    const cl = Math.max(-v.hl, Math.min(v.hl, l));
+    const cw = Math.max(-v.hw, Math.min(v.hw, w));
+    let ol = l - cl, ow = w - cw;
+    const d = Math.hypot(ol, ow);
+    if (d >= radius - 1e-3) return null;
+    let push;
+    if (d > 1e-4) {
+      push = radius - d + 2e-3;
+      ol /= d; ow /= d;
+    } else {
+      // Centre inside the box: leave through the nearest side
+      const pl = v.hl - Math.abs(l), pw = v.hw - Math.abs(w);
+      if (pw < pl) { ow = Math.sign(w) || 1; ol = 0; push = pw + radius; }
+      else { ol = Math.sign(l) || 1; ow = 0; push = pl + radius; }
+    }
+    return { x: (ol * s + ow * c) * push, z: (ol * c - ow * s) * push };
+  }
+
+  /** Moves a character out of any vehicle overlapping it (cars nudging people), capped per frame so nobody gets launched */
+  pushOutOfVehicles(pos, radius = 0.42, maxStep = 0.25) {
+    if (this.bounds || !this.vehicleProvider) return false;
+    let moved = false;
+    for (const v of this.vehicleProvider()) {
+      const p = this.vehiclePenetration(v, pos.x, pos.z, radius);
+      if (!p) continue;
+      const len = Math.hypot(p.x, p.z);
+      const k = len > maxStep ? maxStep / len : 1;
+      const nx = pos.x + p.x * k, nz = pos.z + p.z * k;
+      // Never push someone into a wall
+      if (!this.staticBoxes.some(bx => nx + radius > bx.min.x && nx - radius < bx.max.x && nz + radius > bx.min.z && nz - radius < bx.max.z)) {
+        pos.x = nx;
+        pos.z = nz;
+        moved = true;
+      }
+    }
+    return moved;
   }
 
   // Resolve movement with smooth wall-sliding

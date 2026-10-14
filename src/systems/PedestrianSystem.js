@@ -205,6 +205,8 @@ export class PedestrianSystem {
       }
     }
 
+    this.collisionSystem.pushOutOfVehicles(currentPos, 0.35);
+
     // Feet on the sidewalk surface (smoothed when stepping off curbs onto crossings)
     const groundY = this.collisionSystem.getGroundHeight(currentPos.x, currentPos.z);
     currentPos.y += (groundY - currentPos.y) * Math.min(1, dt * 15);

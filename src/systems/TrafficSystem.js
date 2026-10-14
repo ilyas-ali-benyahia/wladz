@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { CartoonVehicleGenerator } from './visuals/CartoonVehicleGenerator.js';
+import { audio } from './AudioSystem.js';
 
 /**
  * TrafficSystem: Living, Organized Open-World Vehicle Traffic
@@ -27,6 +28,39 @@ export class TrafficSystem {
     this.initRoadWaypoints();
     this.initTrafficLights();
     this.spawnFleet();
+    this.measureFleet();
+
+    // Vehicles are solid for the player and pedestrians
+    collisionSystem.vehicleProvider = () => this.footprints;
+  }
+
+  /** Real footprint of each vehicle (half width / half length in its own frame) from its mesh */
+  measureFleet() {
+    const box = new THREE.Box3();
+    const size = new THREE.Vector3();
+    this.vehicles.forEach(v => {
+      const rot = v.mesh.rotation.y;
+      v.mesh.rotation.y = 0;
+      v.mesh.updateMatrixWorld(true);
+      box.setFromObject(v.mesh).getSize(size);
+      v.mesh.rotation.y = rot;
+      v.mesh.updateMatrixWorld(true);
+      v.hw = Math.min(1.6, Math.min(size.x, size.z) / 2) * 0.95;
+      v.hl = Math.min(6, Math.max(size.x, size.z) / 2) * 0.95;
+      v.hornCooldown = 0;
+      v.blockedTime = 0;
+    });
+    this.footprints = this.vehicles.map(v => ({ x: 0, z: 0, heading: 0, hw: v.hw, hl: v.hl }));
+    this.syncFootprints();
+  }
+
+  syncFootprints() {
+    this.vehicles.forEach((v, i) => {
+      const f = this.footprints[i];
+      f.x = v.mesh.position.x;
+      f.z = v.mesh.position.z;
+      f.heading = v.heading;
+    });
   }
 
   setPedestrianSystem(pedestrianSystem) {
@@ -194,6 +228,7 @@ export class TrafficSystem {
     for (let i = 0; i < this.vehicles.length; i++) {
       this.updateVehicle(this.vehicles[i], dt, elapsed, playerPos, i);
     }
+    this.syncFootprints();
   }
 
   updateVehicle(veh, dt, elapsed, playerPos, index) {
@@ -234,31 +269,37 @@ export class TrafficSystem {
       if (d > 1.5 && d < 25) brakeFor(d, 2.6);
     }
 
-    // C. Pedestrians on a crossing in front of the car
+    // C/D. People ahead: anyone on a crossing near our path, or anyone standing in our lane (player,
+    // pedestrians, escorted NPCs). Distances are measured from the bumper, so long vehicles stop in time.
+    const front = veh.hl || 2;
+    let personBlock = false;
+    const checkPerson = (pp, crossing) => {
+      const rx = pp.x - currentPos.x, rz = pp.z - currentPos.z;
+      const ahead = rx * fwd.x + rz * fwd.z;
+      if (ahead <= 0 || ahead > front + 16) return;
+      const lat = lateralOf(rx, rz);
+      if (lat < (crossing ? 3.5 : (veh.hw || 1) + 0.8)) {
+        const before = targetSpeed;
+        brakeFor(ahead, front + 1.6);
+        if (targetSpeed < 0.5 && before >= 0.5 && ahead < front + 6) personBlock = true;
+      }
+    };
     if (this.pedestriansRef && this.pedestriansRef.pedestrians) {
       for (const ped of this.pedestriansRef.pedestrians) {
-        if (!ped.isCrossing) continue;
-        const pp = ped.group ? ped.group.position : ped.mesh.position;
-        const rx = pp.x - currentPos.x, rz = pp.z - currentPos.z;
-        const ahead = rx * fwd.x + rz * fwd.z;
-        if (ahead > 0 && ahead < 18 && lateralOf(rx, rz) < 3.5) brakeFor(ahead, 3.5);
+        checkPerson(ped.group ? ped.group.position : ped.mesh.position, ped.isCrossing);
       }
     }
+    if (this.extraCrossers) for (const pp of this.extraCrossers()) checkPerson(pp, true);
+    if (playerPos) checkPerson(playerPos, false);
 
-    // C2. Escorted NPCs (mission walkers) on the road ahead
-    if (this.extraCrossers) {
-      for (const pp of this.extraCrossers()) {
-        const rx = pp.x - currentPos.x, rz = pp.z - currentPos.z;
-        const ahead = rx * fwd.x + rz * fwd.z;
-        if (ahead > 0 && ahead < 18 && lateralOf(rx, rz) < 3.5) brakeFor(ahead, 3.5);
-      }
-    }
-
-    // D. Player standing in the lane ahead
-    if (playerPos) {
-      const rx = playerPos.x - currentPos.x, rz = playerPos.z - currentPos.z;
-      const ahead = rx * fwd.x + rz * fwd.z;
-      if (ahead > 0 && ahead < 18 && lateralOf(rx, rz) < 2.0) brakeFor(ahead, 3.5);
+    // Short, polite horn if someone keeps blocking the lane (never repeated quickly)
+    veh.hornCooldown = Math.max(0, (veh.hornCooldown || 0) - dt);
+    veh.blockedTime = personBlock && veh.speed < 0.4 ? (veh.blockedTime || 0) + dt : 0;
+    if (veh.blockedTime > 2.5 && veh.hornCooldown <= 0) {
+      veh.hornCooldown = 10;
+      veh.blockedTime = 0;
+      const dist = playerPos ? playerPos.distanceTo(currentPos) : Infinity;
+      if (dist < 40) audio.playHorn(Math.max(0.15, 1 - dist / 40), veh.type === 'bus' || veh.type === 'fire');
     }
 
     // E. Car following: keep a gap to vehicles ahead in our path; ignore oncoming cars in the other lane

@@ -91,6 +91,9 @@ export class PlayerController {
       this.position.z = newPos.z;
     }
 
+    // A car that nudges into the player pushes them aside gently instead of driving through
+    this.collisionSystem.pushOutOfVehicles(this.position, 0.42);
+
     // 2. Jumping & Gravity (feet rest on the surface underneath: sidewalk, lawn, steps...)
     const groundY = this.collisionSystem.getGroundHeight(this.position.x, this.position.z);
     if (this.isGrounded) {

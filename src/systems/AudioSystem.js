@@ -292,6 +292,31 @@ export class AudioSystem {
     });
   }
 
+  /** Short two-tone car horn; volume already attenuated by distance (0..1), heavy = bus / truck */
+  playHorn(vol = 1, heavy = false) {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    const t = this.ctx.currentTime;
+    const out = this.ctx.createGain();
+    out.gain.setValueAtTime(0.0001, t);
+    out.gain.exponentialRampToValueAtTime(this.volume * 0.16 * vol + 0.0001, t + 0.02);
+    out.gain.setValueAtTime(this.volume * 0.16 * vol + 0.0001, t + 0.32);
+    out.gain.exponentialRampToValueAtTime(0.0001, t + 0.42);
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 1800;
+    filter.connect(out);
+    out.connect(this.ctx.destination);
+    (heavy ? [196, 247] : [392, 494]).forEach(f => {
+      const osc = this.ctx.createOscillator();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(f, t);
+      osc.connect(filter);
+      osc.start(t);
+      osc.stop(t + 0.45);
+    });
+  }
+
   playCrosswalkBeep() {
     this.playTone(1200, 0.08, 'sine');
   }
