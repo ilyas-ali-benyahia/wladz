@@ -1,29 +1,37 @@
-import Link from "next/link";
+import type { CSSProperties } from "react";
+import { Play } from "lucide-react";
+import { ButtonLink } from "@/components/ui/Button";
+import { GameIcon, gameArtFor } from "@/components/ui/GameIcon";
+import { Tilt } from "@/components/ui/Tilt";
 import { games, type Game } from "@/lib/games";
 
 export function GameList({ list = games }: { list?: Game[] }) {
   return (
-    <ul className="grid gap-4 sm:grid-cols-2">
-      {list.map((game) => (
-        <li
+    <ul className="grid gap-5 sm:grid-cols-2">
+      {list.map((game, index) => (
+        <Tilt
+          as="li"
           key={game.slug}
-          className="flex flex-col rounded-[2rem] bg-white p-5 shadow-xl shadow-dz-green/10"
+          className="wz-glass wz-rise flex flex-col rounded-[2rem] p-5"
+          style={{ "--i": index } as CSSProperties}
         >
           <div
             aria-hidden="true"
-            className="flex h-28 items-center justify-center rounded-3xl bg-dz-green-soft text-6xl"
+            className="relative flex h-36 items-center justify-center overflow-hidden rounded-3xl"
+            style={{
+              background: `radial-gradient(circle at 25% 20%, rgb(255 255 255 / 0.85), transparent 45%), linear-gradient(135deg, color-mix(in srgb, ${gameArtFor(game.slug).tone} 16%, white), color-mix(in srgb, ${gameArtFor(game.slug).tone} 38%, white))`,
+            }}
           >
-            {game.emoji}
+            <span className="absolute -top-6 -start-6 size-24 rounded-full bg-white/40" />
+            <span className="absolute -bottom-8 end-6 size-20 rounded-full bg-white/30" />
+            <GameIcon slug={game.slug} size="xl" className="wz-bob" />
           </div>
           <h3 className="mt-4 text-xl font-extrabold text-ink">{game.title}</h3>
           <p className="mt-1 flex-1 text-base text-ink-soft">{game.description}</p>
-          <Link
-            href={`/dashboard/games/${game.slug}`}
-            className="mt-4 flex h-12 items-center justify-center fun-btn bg-dz-green text-lg font-extrabold text-white transition-transform hover:-translate-y-0.5 active:translate-y-0.5"
-          >
+          <ButtonLink href={`/dashboard/games/${game.slug}`} icon={Play} block className="mt-4">
             العب الآن
-          </Link>
-        </li>
+          </ButtonLink>
+        </Tilt>
       ))}
     </ul>
   );

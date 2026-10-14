@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import { navLinks } from "@/components/navigation/navLinks";
+import { IconTile } from "@/components/ui/GameIcon";
 
 export function Footer() {
   return (
@@ -27,15 +28,13 @@ export function Footer() {
         <nav aria-label="روابط سريعة">
           <p className="mb-3 text-lg font-extrabold">روابط سريعة</p>
           <ul className="grid grid-cols-2 gap-2">
-            {navLinks.map(({ href, label, icon: Icon, tile }) => (
+            {navLinks.map(({ href, label, icon, tone }) => (
               <li key={href}>
                 <Link
                   href={href}
-                  className="flex min-h-11 items-center gap-2 rounded-2xl bg-white/10 px-2 py-1.5 text-base font-bold transition hover:bg-white/20"
+                  className="wz-footer-link flex min-h-11 items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-2 py-1.5 text-base font-bold backdrop-blur-sm transition duration-300 hover:-translate-y-0.5 hover:bg-white/20"
                 >
-                  <span className={`grid size-8 shrink-0 place-items-center rounded-xl text-white shadow-md ${tile}`}>
-                    <Icon size={18} strokeWidth={2.5} aria-hidden="true" />
-                  </span>
+                  <IconTile icon={icon} tone={tone} size="sm" />
                   {label}
                 </Link>
               </li>
@@ -44,7 +43,7 @@ export function Footer() {
         </nav>
 
         <div className="flex flex-col items-center gap-3 text-center md:items-end md:text-end">
-          <div className="grid size-32 place-items-center rounded-3xl bg-white p-3 shadow-xl">
+          <div className="grid size-32 place-items-center rounded-3xl bg-white p-3 shadow-xl transition-transform duration-300 hover:-rotate-2 hover:scale-105">
             <Image
               src="/landing/ministere-jeunesse-sport.svg"
               alt="شعار وزارة الشباب والرياضة"

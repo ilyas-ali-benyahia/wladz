@@ -1,6 +1,7 @@
 // لوحة المتصدرين (Leaderboard Modal)
 
 import { store } from "../state/store.js";
+import { iconSvg } from "../../../_shared/svgIcons.js";
 
 export class LeaderboardModal {
   constructor() {
@@ -9,9 +10,9 @@ export class LeaderboardModal {
     this.closeBtn = document.getElementById("leaderboard-close-btn");
 
     this.mockLeaders = [
-      { name: "طارق بن زياد", title: "مستكشف نوميدي أسطوري", stars: 174, wilayas: 58, badge: "🥇" },
-      { name: "فاطمة نسومر", title: "سيدة جرجرة الحكيمة", stars: 152, wilayas: 48, badge: "🥈" },
-      { name: "العربي بن مهيدي", title: "فارس الأوراس الباسل", stars: 138, wilayas: 42, badge: "🥉" },
+      { name: "طارق بن زياد", title: "مستكشف نوميدي أسطوري", stars: 174, wilayas: 58, badge: "1" },
+      { name: "فاطمة نسومر", title: "سيدة جرجرة الحكيمة", stars: 152, wilayas: 48, badge: "2" },
+      { name: "العربي بن مهيدي", title: "فارس الأوراس الباسل", stars: 138, wilayas: 42, badge: "3" },
       { name: "مفدي زكريا", title: "شاعر الإلياذة الجزائرية", stars: 110, wilayas: 36, badge: "4" },
       { name: "ابن باديس", title: "علامة صخرة سيرتا", stars: 95, wilayas: 30, badge: "5" }
     ];
@@ -77,7 +78,7 @@ export class LeaderboardModal {
           </div>
         </div>
         <div style="font-weight:800; color:var(--text-gold); font-size:0.9rem;">
-          ⭐ ${entry.stars}
+          ${iconSvg("star", { fill: "currentColor" })} ${entry.stars}
         </div>
       `;
 

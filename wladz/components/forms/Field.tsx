@@ -1,4 +1,6 @@
 import { useId, type ComponentProps } from "react";
+import { LogIn, type LucideIcon } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 export function Field({
   label,
@@ -17,7 +19,7 @@ export function Field({
         id={id}
         aria-describedby={hint ? hintId : undefined}
         required
-        className="h-12 w-full rounded-2xl border-2 border-dz-green-soft bg-dz-white px-4 text-base text-ink placeholder:text-ink-soft focus:border-dz-green focus:outline-none ltr:text-end"
+        className="wz-input ltr:text-end"
         {...inputProps}
       />
       {hint ? (
@@ -33,20 +35,24 @@ export function FormError({ message }: { message: string | null }) {
   if (!message) return null;
 
   return (
-    <p role="alert" className="rounded-2xl bg-dz-red-soft px-4 py-3 text-base font-bold text-dz-red">
+    <p role="alert" className="rounded-2xl border border-white/80 bg-dz-red-soft/90 px-4 py-3 text-base font-bold text-dz-red">
       {message}
     </p>
   );
 }
 
-export function SubmitButton({ pending, label }: { pending: boolean; label: string }) {
+export function SubmitButton({
+  pending,
+  label,
+  icon = LogIn,
+}: {
+  pending: boolean;
+  label: string;
+  icon?: LucideIcon;
+}) {
   return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="h-12 w-full cursor-pointer fun-btn bg-dz-green text-lg font-bold text-dz-white transition hover:bg-dz-green-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dz-green active:translate-y-0.5 disabled:cursor-wait disabled:opacity-60"
-    >
+    <Button type="submit" disabled={pending} size="lg" icon={icon} block>
       {pending ? "لحظة من فضلك…" : label}
-    </button>
+    </Button>
   );
 }

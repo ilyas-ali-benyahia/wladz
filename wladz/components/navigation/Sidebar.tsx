@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { LogOut, Star } from "lucide-react";
 import { LogoutButton } from "@/components/navigation/LogoutButton";
 import { navLinks } from "@/components/navigation/navLinks";
+import { IconTile } from "@/components/ui/GameIcon";
 
 function useIsActive() {
   const pathname = usePathname();
@@ -13,19 +14,23 @@ function useIsActive() {
     href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
 }
 
+// Lien de la barre latérale : soulèvement, balayage blanc et halo vert au survol.
+const navItem =
+  "wz-nav-item flex items-center gap-3 rounded-3xl p-2.5 text-lg font-bold transition-all duration-300";
+
 export function Sidebar({ points }: { points: number }) {
   const isActive = useIsActive();
 
   return (
     <>
       {/* Tablet (md): icon rail · Desktop (lg): full sidebar */}
-      <aside className="sticky top-0 hidden h-dvh shrink-0 flex-col items-center rounded-e-[2rem] bg-white p-3 shadow-xl shadow-dz-green/10 md:flex md:w-24 lg:w-72 lg:items-stretch lg:p-5">
+      <aside className="wz-glass sticky top-0 hidden h-dvh shrink-0 flex-col items-center rounded-e-[2rem] p-3 md:flex md:w-24 lg:w-72 lg:items-stretch lg:p-5">
         <Link href="/dashboard" aria-label="WLADZ" className="mb-6 flex items-center justify-center">
-          <Logo className="h-auto w-full" priority />
+          <Logo className="h-auto w-full drop-shadow-md transition-transform duration-300 hover:-rotate-2 hover:scale-105" priority />
         </Link>
 
         <nav className="flex flex-col gap-2">
-          {navLinks.map(({ href, label, icon: Icon, tile }) => {
+          {navLinks.map(({ href, label, icon, tone }) => {
             const active = isActive(href);
             return (
               <Link
@@ -34,19 +39,13 @@ export function Sidebar({ points }: { points: number }) {
                 title={label}
                 aria-label={label}
                 aria-current={active ? "page" : undefined}
-                className={`flex items-center gap-3 rounded-3xl p-2.5 text-lg font-bold transition-all ${
+                className={`${navItem} ${
                   active
-                    ? "bg-dz-green-soft text-dz-green ring-2 ring-dz-green-light"
-                    : "text-ink-soft hover:bg-paper hover:text-ink"
+                    ? "bg-white/85 text-dz-green shadow-lg ring-2 ring-dz-green-light/70"
+                    : "text-ink-soft hover:bg-white/60 hover:text-ink"
                 }`}
               >
-                <span
-                  className={`grid size-11 shrink-0 place-items-center rounded-2xl text-white shadow-md transition-transform ${tile} ${
-                    active ? "scale-110" : ""
-                  }`}
-                >
-                  <Icon size={22} strokeWidth={2.5} />
-                </span>
+                <IconTile icon={icon} tone={tone} size="sm" className={active ? "scale-110" : ""} />
                 <span className="hidden lg:inline">{label}</span>
               </Link>
             );
@@ -57,27 +56,25 @@ export function Sidebar({ points }: { points: number }) {
           <PointsChip points={points} className="flex-col lg:flex-row" />
           <LogoutButton
             aria-label="خروج"
-            className="flex cursor-pointer items-center justify-center gap-3 rounded-3xl p-2.5 text-lg font-bold text-ink-soft transition-all hover:bg-paper hover:text-ink lg:justify-start"
+            className={`${navItem} cursor-pointer justify-center text-ink-soft hover:bg-white/60 hover:text-dz-red lg:justify-start`}
           >
-            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-red text-white shadow-md">
-              <LogOut size={22} strokeWidth={2.5} />
-            </span>
+            <IconTile icon={LogOut} tone="#d21034" size="sm" />
             <span className="hidden lg:inline">خروج</span>
           </LogoutButton>
         </div>
       </aside>
 
       {/* Phone: top brand bar */}
-      <header className="fixed inset-x-0 top-0 z-30 flex items-center justify-between bg-white/90 px-4 py-3 shadow-sm shadow-dz-green/10 backdrop-blur md:hidden">
+      <header className="wz-glass fixed inset-x-0 top-0 z-30 flex items-center justify-between rounded-b-[1.75rem] px-4 py-3 md:hidden">
         <Link href="/dashboard" aria-label="WLADZ" className="flex items-center">
-          <Logo className="h-11 w-auto" priority />
+          <Logo className="h-11 w-auto drop-shadow-md" priority />
         </Link>
         <PointsChip points={points} />
       </header>
 
       {/* Phone: bottom tab bar */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around rounded-t-[1.75rem] bg-white px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-6px_24px_-8px] shadow-dz-green/10 md:hidden">
-        {navLinks.map(({ href, label, short, icon: Icon, tile }) => {
+      <nav className="wz-glass fixed inset-x-0 bottom-0 z-30 flex justify-around rounded-t-[1.75rem] px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden">
+        {navLinks.map(({ href, label, short, icon, tone }) => {
           const active = isActive(href);
           return (
             <Link
@@ -87,15 +84,12 @@ export function Sidebar({ points }: { points: number }) {
               aria-current={active ? "page" : undefined}
               className="flex min-w-0 flex-1 flex-col items-center gap-1 py-1"
             >
-              <span
-                className={`grid size-11 place-items-center rounded-2xl transition-all ${
-                  active
-                    ? `${tile} -translate-y-1.5 text-white shadow-md`
-                    : "bg-dz-green-soft text-ink-soft"
-                }`}
-              >
-                <Icon size={22} strokeWidth={2.5} />
-              </span>
+              <IconTile
+                icon={icon}
+                tone={active ? tone : "#9db8a9"}
+                size="sm"
+                className={`transition-transform duration-300 ${active ? "-translate-y-1.5" : "opacity-80"}`}
+              />
               <span
                 className={`truncate text-xs font-bold ${
                   active ? "text-dz-green" : "text-ink-soft"
@@ -114,9 +108,9 @@ export function Sidebar({ points }: { points: number }) {
 function PointsChip({ points, className = "" }: { points: number; className?: string }) {
   return (
     <p
-      className={`flex items-center justify-center gap-1.5 rounded-3xl bg-dz-green-soft px-3 py-2 text-base font-extrabold text-ink ${className}`}
+      className={`wz-glass-soft flex items-center justify-center gap-1.5 rounded-3xl px-3 py-2 text-base font-extrabold text-ink ${className}`}
     >
-      <Star size={20} className="fill-gold text-gold" aria-hidden="true" />
+      <Star size={20} className="fill-gold text-gold drop-shadow-sm" aria-hidden="true" />
       <span>{points}</span>
       <span className="sr-only lg:not-sr-only">نقطة</span>
     </p>

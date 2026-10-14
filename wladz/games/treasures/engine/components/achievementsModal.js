@@ -3,6 +3,7 @@
 import { ACHIEVEMENTS_DATA } from "../data/achievements.js";
 import { store } from "../state/store.js";
 import { sounds } from "../audio/audioEngine.js";
+import { iconSvg } from "../../../_shared/svgIcons.js";
 
 export class AchievementsModal {
   constructor(confettiEngine) {
@@ -50,7 +51,7 @@ export class AchievementsModal {
 
       item.innerHTML = `
         <div class="item-left">
-          <span style="font-size:1.6rem;">${ach.icon}</span>
+          <span style="font-size:1.6rem; display:inline-flex; color:var(--text-gold);">${iconSvg(ach.icon)}</span>
           <div class="item-texts">
             <span class="item-title">${ach.title}</span>
             <span class="item-desc">${ach.description}</span>
@@ -59,7 +60,7 @@ export class AchievementsModal {
         <div>
           ${
             isCompleted
-              ? `<span style="font-size:0.75rem; color:#10b981; font-weight:700;">✓ تمّ</span>`
+              ? `<span style="font-size:0.75rem; color:#10b981; font-weight:700;">${iconSvg("check")} تمّ</span>`
               : `<span style="font-size:0.75rem; color:#4a5a85;">قيد الإنجاز</span>`
           }
         </div>

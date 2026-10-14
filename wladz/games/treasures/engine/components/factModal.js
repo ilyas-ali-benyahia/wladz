@@ -1,6 +1,7 @@
 // نافذة "هل تعلم؟" التراثية وبطاقة الاحتفال بالنجاح
 
 import { sounds } from "../audio/audioEngine.js";
+import { iconSvg } from "../../../_shared/svgIcons.js";
 
 export class FactModal {
   constructor(confettiEngine, onNextStage, onBackToMap) {
@@ -65,7 +66,8 @@ export class FactModal {
         const star = document.createElement("span");
         star.className = "star-icon-anim";
         star.style.animationDelay = `${i * 0.15}s`;
-        star.textContent = i <= starsEarned ? "⭐" : "☆";
+        star.innerHTML = iconSvg("star", { fill: i <= starsEarned ? "currentColor" : "none" });
+        star.style.color = i <= starsEarned ? "var(--c-gold)" : "#9fb3c8";
         this.starsBox.appendChild(star);
       }
     }
@@ -74,7 +76,7 @@ export class FactModal {
     if (this.rewardsBox) {
       // WLADZ : plus de pièces ni de joyaux ; une wilaya terminée rapporte 1 point.
       this.rewardsBox.innerHTML = factData.isWilayaCompleted
-        ? `<div class="reward-tag gold">⭐ +1 نقطة في حسابك</div>`
+        ? `<div class="reward-tag gold">${iconSvg("star", { fill: "currentColor" })} +1 نقطة في حسابك</div>`
         : "";
     }
 
@@ -82,9 +84,9 @@ export class FactModal {
     if (this.nextBtn) {
       if (factData.isWilayaCompleted) {
         sounds.playWilayaUnlocked();
-        this.nextBtn.innerHTML = `<span>🏆 الظفر بالوسام والانتقال للولاية التالية</span>`;
+        this.nextBtn.innerHTML = `<span>${iconSvg("trophy")} الظفر بالوسام والانتقال للولاية التالية</span>`;
       } else {
-        this.nextBtn.innerHTML = `<span>المرحلة التالية</span> <span>←</span>`;
+        this.nextBtn.innerHTML = `<span>المرحلة التالية</span> <span>${iconSvg("arrow-left")}</span>`;
       }
     }
 

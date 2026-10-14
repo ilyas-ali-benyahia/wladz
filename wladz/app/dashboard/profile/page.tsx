@@ -1,9 +1,13 @@
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
-import Link from "next/link";
+import { CalendarDays, Hourglass, Cake, House, Phone, Star, type LucideIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { months } from "@/components/forms/BirthDateField";
 import { LogoutButton } from "@/components/navigation/LogoutButton";
+import { ButtonLink } from "@/components/ui/Button";
+import { IconTile } from "@/components/ui/GameIcon";
+import { Tilt } from "@/components/ui/Tilt";
 import { getSessionProfile } from "@/lib/auth";
 
 export const metadata: Metadata = { title: "ملفّي" };
@@ -30,17 +34,15 @@ function formatPhone(phone: string) {
   return phone.replace(/^\+213(\d{3})(\d{2})(\d{2})(\d{2})$/, "0$1 $2 $3 $4");
 }
 
-function InfoRow({ icon, label, value }: { icon: string; label: string; value: string }) {
+function InfoRow({ icon, tone, label, value }: { icon: LucideIcon; tone: string; label: string; value: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-paper px-4 py-3">
-      <span aria-hidden="true" className="text-2xl">
-        {icon}
-      </span>
+    <Tilt maxTilt={5} className="wz-glass-soft flex items-center gap-3 rounded-2xl px-4 py-3">
+      <IconTile icon={icon} tone={tone} size="sm" />
       <div>
         <dt className="text-base text-ink-soft">{label}</dt>
         <dd className="text-lg font-bold text-ink">{value}</dd>
       </div>
-    </div>
+    </Tilt>
   );
 }
 
@@ -51,40 +53,37 @@ export default async function ProfilePage() {
   if (!user) redirect("/login");
 
   return (
-    <section className="mx-auto max-w-md rounded-[2rem] bg-white p-6 shadow-xl shadow-dz-green/10 sm:p-8">
+    <section className="wz-glass wz-rise mx-auto max-w-md rounded-[2rem] p-6 sm:p-8">
       <div
         aria-hidden="true"
-        className="mx-auto flex size-24 items-center justify-center rounded-full bg-dz-green text-5xl font-black text-white"
+        className="wz-icon-tile mx-auto text-5xl font-black"
+        style={{ "--tile": "6rem", "--tone": "#0b7a43", borderRadius: "9999px" } as CSSProperties}
       >
         {user.full_name[0]}
       </div>
       <h1 className="mt-4 text-center text-2xl font-extrabold text-ink">{user.full_name}</h1>
 
-      <p className="mx-auto mt-3 w-fit rounded-full bg-dz-green-soft px-5 py-2 text-xl font-extrabold text-ink">
-        <span className="text-gold" aria-hidden="true">
-          ★
-        </span>{" "}
+      <p className="wz-glass-soft mx-auto mt-3 flex w-fit items-center gap-2 rounded-full px-5 py-2 text-xl font-extrabold text-ink">
+        <Star size={22} className="fill-gold text-gold drop-shadow-sm" aria-hidden="true" />
         {user.points} نقطة
       </p>
 
       <dl className="mt-6 flex flex-col gap-3">
-        <InfoRow icon="🎂" label="تاريخ الميلاد" value={formatDate(user.birth_date)} />
-        <InfoRow icon="🎈" label="العمر" value={formatAge(ageFrom(user.birth_date))} />
+        <InfoRow icon={Cake} tone="#e2557a" label="تاريخ الميلاد" value={formatDate(user.birth_date)} />
+        <InfoRow icon={Hourglass} tone="#7c5ce6" label="العمر" value={formatAge(ageFrom(user.birth_date))} />
         <InfoRow
-          icon="📞"
+          icon={Phone}
+          tone="#12a39a"
           label="رقم هاتف الوليّ"
           value={`⁦${formatPhone(user.parent_phone)}⁩`}
         />
-        <InfoRow icon="📅" label="عضو منذ" value={formatDate(user.created_at)} />
+        <InfoRow icon={CalendarDays} tone="#3a8ee6" label="عضو منذ" value={formatDate(user.created_at)} />
       </dl>
 
-      <div className="mt-6 flex items-center justify-between gap-3">
-        <Link
-          href="/dashboard"
-          className="flex h-11 items-center fun-btn bg-dz-green px-5 text-base font-bold text-white transition hover:bg-dz-green-light"
-        >
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <ButtonLink href="/dashboard" size="sm" icon={House}>
           العودة إلى الرئيسية
-        </Link>
+        </ButtonLink>
         <LogoutButton />
       </div>
     </section>

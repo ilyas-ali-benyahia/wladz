@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { UserPlus } from "lucide-react";
 import { BirthDateField } from "@/components/forms/BirthDateField";
 import { Field, FormError, SubmitButton } from "@/components/forms/Field";
 import { useAuthSubmit } from "@/components/forms/useAuthSubmit";
@@ -40,7 +41,7 @@ export function RegisterForm() {
         maxLength={128}
       />
       <FormError message={error} />
-      <SubmitButton pending={pending} label="إنشاء الحساب" />
+      <SubmitButton pending={pending} label="إنشاء الحساب" icon={UserPlus} />
       <p className="text-center text-base text-ink-soft">
         لديك حساب؟{" "}
         <Link

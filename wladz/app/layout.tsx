@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Baloo_Bhaijaan_2, Cairo } from "next/font/google";
 import "./globals.css";
+import "./ui.css";
 
 // Police de la page d’accueil (components/landing).
 const cairo = Cairo({

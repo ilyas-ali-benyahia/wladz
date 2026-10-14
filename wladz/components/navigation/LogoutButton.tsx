@@ -2,12 +2,11 @@
 
 import type { ComponentProps } from "react";
 import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
-export function LogoutButton({
-  className = "h-11 cursor-pointer rounded-2xl border-2 border-dz-green px-4 text-base font-bold text-dz-green transition hover:bg-dz-green-soft",
-  children = "خروج",
-  ...buttonProps
-}: ComponentProps<"button">) {
+// Sans className : bouton CTA rouge du site. Avec className : apparence fournie (barre latérale).
+export function LogoutButton({ className, children = "خروج", ...buttonProps }: ComponentProps<"button">) {
   const router = useRouter();
 
   async function logout() {
@@ -16,9 +15,17 @@ export function LogoutButton({
     router.refresh();
   }
 
+  if (className) {
+    return (
+      <button type="button" onClick={logout} className={className} {...buttonProps}>
+        {children}
+      </button>
+    );
+  }
+
   return (
-    <button type="button" onClick={logout} className={className} {...buttonProps}>
+    <Button variant="danger" size="sm" icon={LogOut} onClick={logout} {...buttonProps}>
       {children}
-    </button>
+    </Button>
   );
 }
