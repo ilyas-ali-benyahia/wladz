@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500" fill="none" role="img" aria-labelledby="title">
+  <title id="title">مغامرة فضائية بين الكواكب والنجوم</title>
+  <defs>
+    <linearGradient id="sky" x1="400" y1="0" x2="400" y2="500" gradientUnits="userSpaceOnUse"><stop stop-color="#9ED8FF"/><stop offset="1" stop-color="#F2FAFF"/></linearGradient>
+    <linearGradient id="planet" x1="34" y1="293" x2="305" y2="531" gradientUnits="userSpaceOnUse"><stop stop-color="#2F8F5B"/><stop offset="1" stop-color="#006633"/></linearGradient>
+    <linearGradient id="rocket" x1="-56" y1="-142" x2="63" y2="123" gradientUnits="userSpaceOnUse"><stop stop-color="#FFFFFF"/><stop offset="1" stop-color="#E6F4EC"/></linearGradient>
+    <linearGradient id="glass" x1="-27" y1="-73" x2="24" y2="-22" gradientUnits="userSpaceOnUse"><stop stop-color="#F2FAFF"/><stop offset="1" stop-color="#9ED8FF"/></linearGradient>
+    <clipPath id="planet-clip"><circle cx="115" cy="488" r="195"/></clipPath>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h800v500H0z"/>
+  <circle cx="515" cy="191" r="128" fill="#FFFFFF" fill-opacity=".18"/>
+  <circle cx="515" cy="191" r="191" stroke="#FFFFFF" stroke-opacity=".45" stroke-width="2"/>
+  <circle cx="515" cy="191" r="247" stroke="#FFFFFF" stroke-opacity=".3" stroke-width="2"/>
+  <path d="M63 158c76-64 151-53 205-5 80 71 134 52 160-17" stroke="#FFFFFF" stroke-opacity=".8" stroke-width="3" stroke-dasharray="4 12" stroke-linecap="round"/>
+  <g fill="#FFFFFF" fill-opacity=".73"><circle cx="100" cy="82" r="3"/><circle cx="280" cy="67" r="4"/><circle cx="715" cy="229" r="3"/><circle cx="607" cy="66" r="4"/><circle cx="607" cy="365" r="3"/><circle cx="344" cy="335" r="3"/></g>
+  <g stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"><path d="M346 109v18m-9-9h18M693 297v17m-8-8h16M190 212v20m-10-10h20"/></g>
+  <ellipse cx="118" cy="474" rx="244" ry="64" transform="rotate(-22 118 474)" stroke="#FFFFFF" stroke-width="18" stroke-opacity=".52"/>
+  <circle cx="115" cy="488" r="195" fill="url(#planet)"/>
+  <g clip-path="url(#planet-clip)" fill="#E6F4EC" fill-opacity=".3">
+    <path d="M-14 332c50-35 100-5 112 21s-24 26-14 52 45 16 43 42-62 36-72 70l-102 10Z"/>
+    <path d="M196 297c-20 49-12 77 15 91s47 9 60 51 50 29 73 10V297Z"/>
+    <path d="M155 480c35-10 56 8 60 29s-13 50-45 62-46-8-47-23 14-57 32-68Z"/>
+  </g>
+  <path d="M-41 431c88 20 246-11 363-84" stroke="#FFFFFF" stroke-width="14" stroke-opacity=".75" stroke-linecap="round"/>
+  <g transform="translate(474 225) rotate(24)">
+    <path d="M-26 119c-17 49 3 93 26 128 24-35 43-79 25-128Z" fill="#FFFFFF" fill-opacity=".74"/>
+    <path d="M-14 119c-11 25-2 57 14 83 15-26 24-58 14-83Z" fill="#F2B705"/>
+    <path d="M-50 27c-47 17-62 52-62 104l60-30Zm100 0c47 17 62 52 62 104l-60-30Z" fill="#2F8F5B"/>
+    <path d="M-50 56c-30 14-39 32-44 54l42-18Zm100 0c30 14 39 32 44 54L52 92Z" fill="#006633"/>
+    <path d="M0-157C-56-122-70-74-66-9l14 112h104L66-9c4-65-10-113-66-148Z" fill="url(#rocket)"/>
+    <path d="M0-157c-26 16-43 37-54 64H54C43-120 26-141 0-157Z" fill="#006633"/>
+    <path d="M5-137c12 11 22 24 29 39" stroke="#2F8F5B" stroke-width="9" stroke-linecap="round"/>
+    <path d="m-52 103 5 22h94l5-22Z" fill="#006633"/>
+    <circle cy="-35" r="37" fill="#006633"/>
+    <circle cy="-35" r="28" fill="url(#glass)"/>
+    <path d="M-17-38c0-10 6-17 15-19" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
+    <path d="M0 31v76" stroke="#D21034" stroke-width="13" stroke-linecap="round"/>
+    <path d="M-42-65c-6 34-4 62 1 91" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(681 107) rotate(-18)">
+    <circle r="49" fill="#E6F4EC" stroke="#FFFFFF" stroke-width="6"/>
+    <ellipse rx="75" ry="17" stroke="#2F8F5B" stroke-width="10"/>
+    <path d="M-40-24a47 47 0 0 1 86 12" fill="#E6F4EC"/>
+    <circle cx="-12" cy="-20" r="9" fill="#2F8F5B" fill-opacity=".22"/>
+    <circle cx="14" cy="-8" r="5" fill="#2F8F5B" fill-opacity=".22"/>
+  </g>
+  <g transform="translate(245 141) rotate(14)">
+    <circle r="29" fill="#FFFFFF" fill-opacity=".9"/>
+    <path d="m0-17 5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1Z" fill="#F2B705"/>
+  </g>
+  <path d="M610 480a46 46 0 0 1 82-27 66 66 0 0 1 116 40v7H567a34 34 0 0 1 43-20Z" fill="#FFFFFF" fill-opacity=".78"/>
+</svg>

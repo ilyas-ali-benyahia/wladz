@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500" fill="none" role="img" aria-labelledby="title">
+  <title id="title">رحلة بين العمارة الجزائرية والطبيعة</title>
+  <defs>
+    <linearGradient id="sky" x1="400" y1="0" x2="400" y2="500" gradientUnits="userSpaceOnUse"><stop stop-color="#9ED8FF"/><stop offset=".7" stop-color="#F2FAFF"/></linearGradient>
+    <linearGradient id="wall" x1="366" y1="196" x2="455" y2="408" gradientUnits="userSpaceOnUse"><stop stop-color="#FFFFFF"/><stop offset="1" stop-color="#E6F4EC"/></linearGradient>
+    <linearGradient id="hill" x1="400" y1="350" x2="400" y2="500" gradientUnits="userSpaceOnUse"><stop stop-color="#2F8F5B"/><stop offset="1" stop-color="#006633"/></linearGradient>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h800v500H0z"/>
+  <circle cx="605" cy="110" r="52" fill="#FFFFFF" fill-opacity=".8"/>
+  <path d="M45 143c0-19 16-33 34-29 9-29 57-28 64 6 26-6 39 9 36 23H45Zm429-65c0-14 10-23 24-21 9-20 36-15 40 5 19-2 27 6 26 16h-90Z" fill="#FFFFFF" fill-opacity=".7"/>
+  <path d="m0 299 90-110 82 88 100-146 93 155 97-109 96 115 102-94 140 120v182H0Z" fill="#2F8F5B" fill-opacity=".12"/>
+  <path d="M0 364c105-75 192-64 293-7 109-70 243-85 507-12v155H0Z" fill="#2F8F5B" fill-opacity=".2"/>
+  <path d="M100 263h92v121h-92z" fill="#FFFFFF"/>
+  <path d="M192 286h77v110h-77z" fill="#E6F4EC"/>
+  <path d="M89 259h114v13H89z" fill="#2F8F5B"/>
+  <path d="M127 256v-28a19 19 0 0 1 38 0v28" fill="#FFFFFF"/>
+  <path d="M129 209h34v9h-34zM141 189h11v20h-11z" fill="#2F8F5B"/>
+  <g fill="#006633" fill-opacity=".7"><path d="M116 289h17v26h-17zM157 289h17v26h-17zM206 311h17v23h-17zM238 311h17v23h-17z"/><path d="M132 384v-35a18 18 0 0 1 36 0v35Z"/></g>
+  <path d="M556 251h108v156H556z" fill="#FFFFFF"/>
+  <path d="M664 289h58v117h-58z" fill="#E6F4EC"/>
+  <path d="M548 243h124v15H548z" fill="#2F8F5B"/>
+  <path d="M578 243v-32a32 32 0 0 1 64 0v32" fill="#E6F4EC"/>
+  <path d="M569 282h20v25h-20zM603 282h20v25h-20zM638 282h16v25h-16zM680 310h19v25h-19z" fill="#006633" fill-opacity=".55"/>
+  <path d="M595 407v-51a22 22 0 0 1 44 0v51Z" fill="#006633"/>
+  <path d="M259 408V202h35v-30h30v30h34v-30h31v30h34v-30h31v30h34v-30h31v30h35v206Z" fill="url(#wall)"/>
+  <path d="M277 223h259v12H277z" fill="#2F8F5B" fill-opacity=".3"/>
+  <path d="M281 202h30v199h-30zM502 202h31v199h-31z" fill="#FFFFFF" fill-opacity=".75"/>
+  <path d="M330 408v-98c0-49 38-76 76-96 39 20 76 47 76 96v98Z" fill="#2F8F5B" fill-opacity=".25"/>
+  <path d="M350 408v-94c0-35 27-60 56-76 30 16 56 41 56 76v94Z" fill="#006633"/>
+  <path d="M363 408v-89c0-29 21-48 43-62 23 14 43 33 43 62v89Z" fill="#2F8F5B"/>
+  <path d="M378 408v-83c0-21 12-33 28-44 17 11 28 23 28 44v83Z" fill="#9ED8FF"/>
+  <path d="M288 266h17v26h-17zM507 266h17v26h-17z" fill="#006633" fill-opacity=".6"/>
+  <path d="M0 435c104-34 191-37 268-12 83 26 153 26 240-2 86-28 176-20 292 24v55H0Z" fill="url(#hill)"/>
+  <path d="M378 407h56c-4 19-3 31 16 44s46 25 52 49H329c12-31 75-47 49-93Z" fill="#E6F4EC"/>
+  <path d="M389 414h34M395 429h33M394 448h48" stroke="#2F8F5B" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>
+  <g transform="translate(94 364)">
+    <path d="M0 77 8-49" stroke="#006633" stroke-width="14" stroke-linecap="round"/>
+    <path d="M8-47c-17-46-56-45-65-30 28-1 43 18 65 30Z" fill="#2F8F5B"/>
+    <path d="M8-47c-5-61 29-73 46-57-24 9-35 33-46 57Z" fill="#2F8F5B"/>
+    <path d="M8-47c30-50 63-30 64-12-31-5-47 4-64 12Z" fill="#006633"/>
+    <path d="M8-47c-32-12-57 4-57 23 30-18 43-16 57-23Z" fill="#006633"/>
+  </g>
+  <g transform="translate(715 390) scale(.82)">
+    <path d="M0 77 8-49" stroke="#006633" stroke-width="14" stroke-linecap="round"/>
+    <path d="M8-47c-17-46-56-45-65-30 28-1 43 18 65 30Z" fill="#2F8F5B"/>
+    <path d="M8-47c-5-61 29-73 46-57-24 9-35 33-46 57Z" fill="#2F8F5B"/>
+    <path d="M8-47c30-50 63-30 64-12-31-5-47 4-64 12Z" fill="#006633"/>
+  </g>
+  <g transform="translate(228 122) rotate(-10)">
+    <circle r="35" fill="#FFFFFF" fill-opacity=".85"/>
+    <circle r="25" stroke="#2F8F5B" stroke-width="2"/>
+    <path d="m0-21 9 21-9 21-9-21Z" fill="#D21034"/>
+    <path d="m0 0 9 0-9 21-9-21Z" fill="#E6F4EC"/>
+    <circle r="4" fill="#FFFFFF"/>
+  </g>
+  <path d="m670 164 4 9 10 1-7 7 2 10-9-5-9 5 2-10-7-7 10-1Z" fill="#F2B705"/>
+</svg>

@@ -73,3 +73,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# local design references for the landing page (never pushed)
+/references design landing page/

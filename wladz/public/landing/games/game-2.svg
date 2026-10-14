@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500" fill="none" role="img" aria-labelledby="title">
+  <title id="title">درع الثقة والاختيارات الصحية</title>
+  <defs>
+    <linearGradient id="bg" x1="400" y1="0" x2="400" y2="500" gradientUnits="userSpaceOnUse"><stop stop-color="#E6F4EC"/><stop offset="1" stop-color="#F2FAFF"/></linearGradient>
+    <linearGradient id="shield" x1="319" y1="130" x2="494" y2="375" gradientUnits="userSpaceOnUse"><stop stop-color="#2F8F5B"/><stop offset="1" stop-color="#006633"/></linearGradient>
+    <linearGradient id="heart" x1="575" y1="148" x2="667" y2="252" gradientUnits="userSpaceOnUse"><stop stop-color="#D21034"/><stop offset="1" stop-color="#D21034" stop-opacity=".76"/></linearGradient>
+  </defs>
+  <path fill="url(#bg)" d="M0 0h800v500H0z"/>
+  <circle cx="401" cy="251" r="196" fill="#FFFFFF" fill-opacity=".4"/>
+  <circle cx="401" cy="251" r="151" stroke="#FFFFFF" stroke-width="2"/>
+  <circle cx="401" cy="251" r="237" stroke="#2F8F5B" stroke-opacity=".1" stroke-width="2" stroke-dasharray="5 13"/>
+  <path d="M0 426c129-46 191 53 328 30s329-42 472 5v39H0Z" fill="#2F8F5B" fill-opacity=".08"/>
+  <ellipse cx="409" cy="432" rx="127" ry="17" fill="#006633" fill-opacity=".08"/>
+  <g transform="rotate(-7 400 261)">
+    <path d="M399 94c-49 35-99 44-152 49v125c0 79 69 132 152 171 84-39 153-92 153-171V143c-53-5-103-14-153-49Z" fill="#006633" fill-opacity=".12"/>
+    <path d="M399 79c-49 35-99 44-152 49v125c0 79 69 132 152 171 84-39 153-92 153-171V128c-53-5-103-14-153-49Z" fill="#FFFFFF"/>
+    <path d="M399 103c-42 28-84 39-130 44v105c0 64 55 110 130 148 76-38 131-84 131-148V147c-46-5-88-16-131-44Z" fill="url(#shield)"/>
+    <path d="M399 125c-37 24-71 32-111 38v85c0 55 45 96 111 129V125Z" fill="#FFFFFF" fill-opacity=".08"/>
+    <circle cx="399" cy="246" r="74" fill="#FFFFFF" fill-opacity=".15"/>
+    <path d="m355 243 31 33 60-66" stroke="#FFFFFF" stroke-width="21" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M287 174v34" stroke="#FFFFFF" stroke-opacity=".57" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(626 185) rotate(12)">
+    <rect x="-74" y="-73" width="148" height="148" rx="39" fill="#FFFFFF" fill-opacity=".84"/>
+    <rect x="-74" y="-73" width="148" height="148" rx="39" stroke="#FFFFFF" stroke-width="3"/>
+    <path d="M0 44C-14 33-48 8-48-16c0-29 35-39 48-13 13-26 48-16 48 13C48 8 14 33 0 44Z" fill="#D21034"/>
+    <path d="M-33-13c0-9 6-15 14-15" stroke="#FDECEF" stroke-width="7" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(167 297) rotate(-13)">
+    <rect x="-67" y="-73" width="134" height="146" rx="35" fill="#FFFFFF" fill-opacity=".8" stroke="#FFFFFF" stroke-width="3"/>
+    <path d="M-9 39V-13c0-12 17-12 17 0v-26c0-13 18-13 18 0v32-18c0-13 17-13 17 0V6c13-15 28-2 16 12L28 53H-8c-20-2-37-21-45-39-6-13 10-22 18-12l26 23" fill="#E6F4EC" stroke="#2F8F5B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M-6 50h34" stroke="#006633" stroke-width="11" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(166 113)">
+    <circle r="34" fill="#FFFFFF" fill-opacity=".8"/>
+    <path d="M0 15C-31 9-29-13-29-13S-2-19 0 15Zm0 0C0-19 24-27 24-27S37 2 0 15Z" fill="#2F8F5B"/>
+    <path d="M0 21v-9" stroke="#006633" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <g fill="#2F8F5B"><circle cx="600" cy="346" r="5" fill-opacity=".42"/><circle cx="287" cy="66" r="5" fill-opacity=".3"/><circle cx="695" cy="318" r="4" fill-opacity=".3"/></g>
+  <g stroke="#2F8F5B" stroke-width="4" stroke-linecap="round" opacity=".45"><path d="M660 383v16m-8-8h16M99 180v16m-8-8h16"/></g>
+  <path d="m568 85 5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1Z" fill="#F2B705"/>
+  <path d="M605 454c-7-45 16-83 16-83s34 43-16 83Z" fill="#2F8F5B" fill-opacity=".25"/>
+  <path d="M605 454c8-34 42-47 42-47s6 40-42 47Z" fill="#2F8F5B" fill-opacity=".47"/>
+</svg>

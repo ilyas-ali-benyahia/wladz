@@ -339,7 +339,7 @@ Un ciel de jour lumineux (dégradé bleu ciel → blanc), des nuages doux, des c
 
 | Token Tailwind | Valeur | Usage |
 | --- | --- | --- |
-| `dz-green` | `#006233` | couleur primaire : boutons principaux, titres, succès |
+| `dz-green` | `#006633` | couleur primaire : boutons principaux, titres, succès |
 | `dz-green-light` | `#2F8F5B` | survols, éléments secondaires |
 | `dz-green-soft` | `#E6F4EC` | fonds de badges et de sections |
 | `dz-red` | `#D21034` | accent (croissant, étoile, mises en avant, alertes) — **avec parcimonie** |
