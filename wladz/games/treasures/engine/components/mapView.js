@@ -4,6 +4,7 @@ import { WILAYAS_DATA } from "../data/wilayas.js";
 import { store } from "../state/store.js";
 import { sounds } from "../audio/audioEngine.js";
 import { WILAYAS_INFO } from "../data/wilayasInfo.js";
+import { iconSvg } from "../../../_shared/svgIcons.js";
 
 export class MapView {
   constructor(onSelectWilaya, { onFilter, onInfo } = {}) {
@@ -92,25 +93,25 @@ export class MapView {
             <div class="wilaya-titles">
               <span class="wilaya-name">
                 ولاية ${wilaya.name}
-                ${isCompleted ? '<span>🏆</span>' : ''}
+                ${isCompleted ? `<span>${iconSvg('trophy')}</span>` : ''}
               </span>
               <span class="wilaya-region-tag">${wilaya.region}</span>
             </div>
           </div>
           <div style="display:flex; align-items:center; gap:6px;">
-            <button class="wilaya-info-btn" data-info="${wilaya.id}">ℹ️ معلومات</button>
+            <button class="wilaya-info-btn" data-info="${wilaya.id}">${iconSvg("info")} معلومات</button>
             ${
               isCompleted
-                ? `<span class="wilaya-status-pill status-completed">✓ مكتملة</span>`
+                ? `<span class="wilaya-status-pill status-completed">${iconSvg("check")} مكتملة</span>`
                 : isUnlocked
                 ? `<span class="wilaya-status-pill status-current">مفتوحة للعب</span>`
-                : `<span class="wilaya-status-pill status-locked">🔒 مقفلة</span>`
+                : `<span class="wilaya-status-pill status-locked">${iconSvg("lock")} مقفلة</span>`
             }
           </div>
         </div>
 
         <div class="wilaya-badge-preview">
-          <span class="w-badge-icon">${wilaya.badge.icon}</span>
+          <span class="w-badge-icon">${iconSvg(wilaya.badge.icon)}</span>
           <div>
             <div class="w-badge-text">${wilaya.badge.name}</div>
             <div style="font-size:0.72rem; color:#4a5a85;">${wilaya.famousFor.split('،').slice(0, 2).join('، ')}</div>
@@ -132,7 +133,7 @@ export class MapView {
         `
             : `
           <div style="font-size:0.75rem; color:#4a5a85; text-align:center;">
-            🔒 أكمل مراحل ولاية ${wilaya.id > 1 ? WILAYAS_DATA[wilaya.id - 2]?.name : 'السابقة'} لفتح هذه الولاية تلقائياً
+            ${iconSvg("lock")} أكمل مراحل ولاية ${wilaya.id > 1 ? WILAYAS_DATA[wilaya.id - 2]?.name : 'السابقة'} لفتح هذه الولاية تلقائياً
           </div>
         `
         }
@@ -140,8 +141,8 @@ export class MapView {
         <button class="wilaya-action-btn" data-id="${wilaya.id}" ${!isUnlocked ? "disabled" : ""}>
           ${
             isUnlocked
-              ? `<span>${isCompleted ? 'إعادة استكشاف المراحل 🔄' : 'دخول واستكشاف الولاية 🎮'}</span>`
-              : `<span>مرحلة مقفلة 🔒</span>`
+              ? `<span>${isCompleted ? 'إعادة استكشاف المراحل ' + iconSvg('rotate-ccw') : 'دخول واستكشاف الولاية ' + iconSvg('gamepad-2')}</span>`
+              : `<span>مرحلة مقفلة ${iconSvg("lock")}</span>`
           }
         </button>
       `;

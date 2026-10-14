@@ -13,8 +13,7 @@ export const months = [
   "ديسمبر",
 ];
 
-const selectClass =
-  "h-12 w-full rounded-2xl border-2 border-dz-green-soft bg-dz-white px-3 text-base text-ink focus:border-dz-green focus:outline-none";
+const selectClass = "wz-input px-3";
 
 // Champs en arabe : le champ date natif s'affiche dans la langue du navigateur.
 export function BirthDateField() {

@@ -1,14 +1,16 @@
 // Corps de « درب المهارات.html », repris tel quel : engine.js pilote ces éléments
 // par leurs id. Ajouts WLADZ : le bouton « خروج », la carte des stations dans l'accueil
 // (à la place de l'objet 3D) et la boîte d'image des stations.
+import { iconSvg } from "../_shared/svgIcons.js";
+
 export const skillsMarkup = `<div class="bar">
   <div class="wrap">
     <button class="brand" id="homeBtn" aria-label="العودة إلى الخريطة"><i></i>درب المهارات</button>
     <div class="chips">
-      <span class="chip">⭐ <b id="starsChip">0</b>/18</span>
+      <span class="chip">${iconSvg("star", { fill: "currentColor", className: "wz-i chip-star" })} <b id="starsChip">0</b>/18</span>
       <span class="chip">خبرة <b id="xpChip">0</b></span>
     </div>
-    <button class="btn ghost exit" id="exitBtn" aria-label="خروج من اللعبة">✕ خروج</button>
+    <button class="btn ghost exit" id="exitBtn" aria-label="خروج من اللعبة">${iconSvg("x")} خروج</button>
   </div>
 </div>
 
@@ -40,7 +42,7 @@ export const skillsMarkup = `<div class="bar">
 
   <section id="level" class="wrap level" hidden>
     <div class="lvl-head">
-      <button class="btn ghost" id="backBtn">→ الخريطة</button>
+      <button class="btn ghost" id="backBtn">${iconSvg("arrow-right")} الخريطة</button>
       <span class="tag" id="lvlTag"></span>
       <div class="steps" id="steps"><span>تعرّف</span><span>بطاقات</span><span>تحدٍّ</span><span>نتيجة</span></div>
     </div>

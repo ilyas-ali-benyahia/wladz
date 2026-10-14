@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { BookOpen, Check, Dumbbell, Play, Puzzle, RotateCcw, Star, Trophy, type LucideIcon } from "lucide-react";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { GameIcon, IconTile } from "@/components/ui/GameIcon";
 import type { GameResult } from "@/types/game";
 import { manifest } from "@/games/salati/manifest";
 import { salatiDailyWins, salatiWinningScore } from "@/games/salati/config";
@@ -50,7 +52,7 @@ export function SalatiGame({ player }: { player: { firstName: string; age: numbe
   }
 
   const won = result !== null && result.completed && result.score >= salatiWinningScore;
-  const card = "rounded-[2rem] bg-white p-5 shadow-xl shadow-dz-green/10 sm:p-7";
+  const card = "wz-glass wz-rise flex flex-col items-center rounded-[2rem] p-5 text-center sm:p-7";
 
   if (phase === "playing") {
     return (
@@ -65,11 +67,9 @@ export function SalatiGame({ player }: { player: { firstName: string; age: numbe
 
   if (phase === "result" && result) {
     return (
-      <section className={`${card} text-center`}>
-        <p aria-hidden="true" className="text-7xl">
-          {won ? "🏆" : "💪"}
-        </p>
-        <h1 className="mt-3 text-3xl font-extrabold text-dz-green">
+      <section className={card}>
+        <IconTile icon={won ? Trophy : Dumbbell} tone={won ? "#e5a400" : "#3a8ee6"} size="xl" className="wz-bob" />
+        <h1 className="mt-4 text-3xl font-extrabold text-dz-green">
           {won ? `أحسنت يا ${player.firstName}!` : "محاولة جميلة!"}
         </h1>
         <p className="mt-2 text-lg text-ink-soft">
@@ -77,68 +77,61 @@ export function SalatiGame({ player }: { player: { firstName: string; age: numbe
           {won ? "" : ` — تحتاج ${salatiWinningScore}% لتفوز بالجولة.`}
         </p>
         {awarded ? (
-          <p className="mx-auto mt-4 w-fit rounded-full bg-gold/20 px-5 py-2 text-lg font-extrabold text-ink">
-            ⭐ +1 نقطة في حسابك
+          <p className="mx-auto mt-4 flex w-fit items-center gap-2 rounded-full bg-gold/20 px-5 py-2 text-lg font-extrabold text-ink">
+            <Star size={20} className="fill-gold text-gold" aria-hidden="true" /> +1 نقطة في حسابك
           </p>
         ) : null}
         <h2 className="mt-6 text-xl font-extrabold text-ink">ما تعلّمته</h2>
-        <ul className="mx-auto mt-3 flex max-w-lg flex-col gap-2 text-start">
+        <ul className="mx-auto mt-3 flex w-full max-w-lg flex-col gap-2 text-start">
           {manifest.learningGoals.map((goal) => (
             <li
               key={goal.ar}
-              className="flex gap-3 rounded-3xl bg-dz-green-soft px-4 py-3 text-base font-bold text-ink"
+              className="wz-glass-soft flex items-center gap-3 rounded-3xl px-3 py-2.5 text-base font-bold text-ink"
             >
-              <span aria-hidden="true">✅</span>
+              <IconTile icon={Check} tone="#2f8f5b" size="sm" />
               {goal.ar}
             </li>
           ))}
         </ul>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <button
-            type="button"
-            onClick={start}
-            className="fun-btn flex min-h-12 cursor-pointer items-center bg-dz-green px-6 text-lg font-extrabold text-white"
-          >
+          <Button size="lg" icon={RotateCcw} onClick={start}>
             العب مرة أخرى
-          </button>
-          <Link
-            href="/dashboard"
-            className="flex min-h-12 items-center rounded-full border-2 border-dz-green px-6 text-lg font-extrabold text-dz-green transition hover:bg-dz-green-soft"
-          >
+          </Button>
+          <ButtonLink href="/dashboard" variant="secondary" size="lg">
             العودة إلى الرئيسية
-          </Link>
+          </ButtonLink>
         </div>
       </section>
     );
   }
 
+  const tips: { icon: LucideIcon; tone: string; text: string }[] = [
+    { icon: BookOpen, tone: "#2f8f5b", text: "وضع التعلّم: شاهد كل حركة من حركات الصلاة في مسجد ثلاثي الأبعاد." },
+    { icon: Puzzle, tone: "#7c5ce6", text: "وضع التحدّي: رتّب الحركات وأجب عن أسئلة الأذكار." },
+    {
+      icon: Star,
+      tone: "#e5a400",
+      text: `كل جولة تفوز بها (${salatiWinningScore}% أو أكثر) تمنحك نقطة (حتى ${salatiDailyWins} نقاط في اليوم).`,
+    },
+  ];
+
   return (
-    <section className={`${card} text-center`}>
-      <p aria-hidden="true" className="text-7xl motion-safe:animate-float">
-        🕌
-      </p>
-      <h1 className="mt-3 text-3xl font-extrabold text-dz-green">{manifest.title.ar}</h1>
+    <section className={card}>
+      <GameIcon slug="salati" size="xl" className="wz-bob" />
+      <h1 className="mt-4 text-3xl font-extrabold text-dz-green">{manifest.title.ar}</h1>
       <p className="mx-auto mt-3 max-w-md text-lg text-ink-soft">{manifest.description.ar}</p>
-      <ul className="mx-auto mt-4 flex max-w-md flex-col gap-2 text-start text-base font-bold text-ink">
-        <li className="rounded-3xl bg-dz-green-soft px-4 py-3">
-          📖 وضع التعلّم: شاهد كل حركة من حركات الصلاة في مسجد ثلاثي الأبعاد.
-        </li>
-        <li className="rounded-3xl bg-dz-green-soft px-4 py-3">
-          🧩 وضع التحدّي: رتّب الحركات وأجب عن أسئلة الأذكار.
-        </li>
-        <li className="rounded-3xl bg-dz-green-soft px-4 py-3">
-          ⭐ كل جولة تفوز بها ({salatiWinningScore}% أو أكثر) تمنحك نقطة (حتى {salatiDailyWins} نقاط في
-          اليوم).
-        </li>
+      <ul className="mx-auto mt-4 flex w-full max-w-md flex-col gap-2 text-start text-base font-bold text-ink">
+        {tips.map(({ icon, tone, text }) => (
+          <li key={text} className="wz-glass-soft flex items-center gap-3 rounded-3xl px-3 py-2.5">
+            <IconTile icon={icon} tone={tone} size="sm" />
+            <span>{text}</span>
+          </li>
+        ))}
       </ul>
       <p className="mt-3 text-base text-ink-soft">المدة: {manifest.estimatedMinutes} دقائق تقريباً</p>
-      <button
-        type="button"
-        onClick={start}
-        className="fun-btn mx-auto mt-6 flex min-h-12 cursor-pointer items-center justify-center bg-dz-green px-8 text-lg font-extrabold text-white"
-      >
+      <Button size="lg" icon={Play} onClick={start} className="mx-auto mt-6">
         ابدأ
-      </button>
+      </Button>
     </section>
   );
 }

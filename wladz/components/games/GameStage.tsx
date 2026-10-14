@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import Link from "next/link";
+import { ArrowRight, Maximize, X } from "lucide-react";
 import { useFullscreen } from "@/components/games/useFullscreen";
+import { Button, ButtonLink } from "@/components/ui/Button";
 
 // Cadre des jeux affichés dans la page (espace, اختيارات, خرافات, صلاتي) : bouton « العودة »
 // et bouton « ملء الشاشة ». En plein écran le jeu recouvre toute la page (barre latérale
@@ -58,9 +59,6 @@ export function GameStage({
     };
   }, [immersive]);
 
-  const button =
-    "inline-flex h-11 cursor-pointer items-center gap-2 rounded-2xl border-2 border-dz-green bg-white px-4 text-base font-bold text-dz-green transition hover:bg-dz-green-soft";
-
   // Même arbre dans les deux modes : le jeu n'est jamais remonté (sa partie continue).
   return (
     <div
@@ -69,26 +67,26 @@ export function GameStage({
       aria-label={immersive ? title : undefined}
       className={
         immersive
-          ? "wladz-immersive fixed inset-0 z-40 flex flex-col overflow-y-auto overscroll-contain bg-paper"
+          ? "wladz-immersive fixed inset-0 z-40 flex flex-col overflow-y-auto overscroll-contain bg-sky-grad"
           : undefined
       }
     >
       {immersive ? (
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 bg-paper/90 px-3 py-2 backdrop-blur sm:px-5">
+        <div className="wz-glass sticky top-0 z-10 flex items-center justify-between gap-3 px-3 py-2 sm:px-5">
           <p className="truncate text-lg font-extrabold text-dz-green">{title}</p>
-          <button type="button" onClick={close} className={`${button} shrink-0`}>
-            <span aria-hidden="true">✕</span> خروج من ملء الشاشة
-          </button>
+          <Button variant="secondary" size="sm" icon={X} iconPosition="start" onClick={close} className="shrink-0">
+            خروج من ملء الشاشة
+          </Button>
         </div>
       ) : (
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <Link href="/dashboard" className={button}>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <ButtonLink href="/dashboard" variant="secondary" size="sm" icon={ArrowRight} iconPosition="start">
             العودة
-          </Link>
+          </ButtonLink>
           {canGoFullscreen ? (
-            <button type="button" onClick={open} className={button}>
-              <span aria-hidden="true">⛶</span> ملء الشاشة
-            </button>
+            <Button variant="secondary" size="sm" icon={Maximize} iconPosition="start" onClick={open}>
+              ملء الشاشة
+            </Button>
           ) : null}
         </div>
       )}

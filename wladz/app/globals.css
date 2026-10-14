@@ -57,25 +57,24 @@ body {
    au lieu de rester petite au milieu d'un écran vide. Les points de rupture (md, lg…) ne
    changent pas : les media queries en rem utilisent toujours 16px. */
 @media (min-width: 1600px) {
-  html { font-size: 112.5%; }
+  html {
+    font-size: 112.5%;
+  }
 }
 @media (min-width: 1900px) {
-  html { font-size: 125%; }
+  html {
+    font-size: 125%;
+  }
 }
 @media (min-width: 2400px) {
-  html { font-size: 150%; }
+  html {
+    font-size: 150%;
+  }
 }
 
 /* Téléphone à l'horizontale (écran bas) : la barre du haut défile avec la page. */
 @custom-variant short (@media (max-height: 30rem) and (orientation: landscape));
 
-/* Bouton principal « pilule » de la page d'accueil (fun-button), pour toute l'application. */
-@utility fun-btn {
-  border-radius: 9999px;
-  box-shadow:
-    0 5px 0 color-mix(in srgb, var(--color-dz-green) 72%, #000),
-    0 10px 26px color-mix(in srgb, var(--color-dz-green) 18%, transparent);
-}
 
 ::selection {
   background: #006233;

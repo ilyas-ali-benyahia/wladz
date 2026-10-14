@@ -6,13 +6,14 @@ import { WILAYA_PATHS } from "../data/mapPaths.js";
 import { store } from "../state/store.js";
 import { sounds } from "../audio/audioEngine.js";
 import { REGION_STYLES } from "./interactiveMap.js";
+import { iconSvg } from "../../../_shared/svgIcons.js";
 
 const TABS = [
-  { id: "history", label: "التاريخ", icon: "📜" },
-  { id: "people", label: "أعلام", icon: "👤" },
-  { id: "traditions", label: "تقاليد", icon: "🧵" },
-  { id: "culture", label: "ثقافة", icon: "🍲" },
-  { id: "landmarks", label: "معالم", icon: "🏛️" },
+  { id: "history", label: "التاريخ", icon: "scroll" },
+  { id: "people", label: "أعلام", icon: "user" },
+  { id: "traditions", label: "تقاليد", icon: "shirt" },
+  { id: "culture", label: "ثقافة", icon: "soup" },
+  { id: "landmarks", label: "معالم", icon: "landmark" },
 ];
 
 const esc = (s) =>
@@ -191,10 +192,10 @@ export class WilayaInfoSheet {
     this.card.style.setProperty("--ws-hero-bg", game?.colorBg || `linear-gradient(135deg, #e3f3ff, ${region.color})`);
 
     const statusPill = isCompleted
-      ? `<span class="wilaya-status-pill status-completed">✓ مكتملة</span>`
+      ? `<span class="wilaya-status-pill status-completed">${iconSvg("check")} مكتملة</span>`
       : isUnlocked
       ? `<span class="wilaya-status-pill status-current">مفتوحة للعب</span>`
-      : `<span class="wilaya-status-pill status-locked">🔒 مقفلة</span>`;
+      : `<span class="wilaya-status-pill status-locked">${iconSvg("lock")} مقفلة</span>`;
 
     const prevGameName = this.code > 1 ? WILAYAS_INFO[this.code - 2].name_ar : "";
 
@@ -203,19 +204,19 @@ export class WilayaInfoSheet {
         ${this.silhouette(this.code, "rgba(58, 142, 230, 0.26)")}
         <div class="ws-hero-top">
           <span class="ws-code">${pad(info.code)}</span>
-          ${game ? `<span class="ws-badge-icon">${game.badge.icon}</span>` : ""}
+          ${game ? `<span class="ws-badge-icon">${iconSvg(game.badge.icon)}</span>` : ""}
         </div>
         <h2 class="ws-name" id="wilaya-sheet-title">ولاية ${esc(info.name_ar)}</h2>
         <div class="ws-name-latin">${esc(info.name_fr)}${info.name_en !== info.name_fr ? ` · ${esc(info.name_en)}` : ""}</div>
         <div class="ws-meta">
-          <span class="ws-meta-chip">🏙️ ${esc(info.capital)}</span>
+          <span class="ws-meta-chip">${iconSvg("building-2")} ${esc(info.capital)}</span>
           <span class="ws-meta-chip"><i style="background:${region.color}"></i>${esc(info.region_ar)}</span>
-          <span class="ws-meta-chip">🧭 ${esc(info.details.geography_type)}</span>
+          <span class="ws-meta-chip">${iconSvg("compass")} ${esc(info.details.geography_type)}</span>
         </div>
       </div>
 
       <div class="ws-funfact">
-        <span class="ws-funfact-icon">💡</span>
+        <span class="ws-funfact-icon">${iconSvg("lightbulb")}</span>
         <div>
           <div class="ws-funfact-title">هل تعلم؟</div>
           <p>${esc(info.details.fun_fact)}</p>
@@ -226,7 +227,7 @@ export class WilayaInfoSheet {
         ${TABS.map(
           (t) => `
           <button class="ws-tab ${t.id === this.tab ? "active" : ""}" data-tab="${t.id}" role="tab" aria-selected="${t.id === this.tab}">
-            <span>${t.icon}</span>${t.label}
+            <span>${iconSvg(t.icon)}</span>${t.label}
           </button>`
         ).join("")}
       </div>
@@ -235,7 +236,7 @@ export class WilayaInfoSheet {
 
       <div class="ws-game-box">
         <div class="ws-game-head">
-          <span>${game ? `${game.badge.icon} ${esc(game.badge.name)}` : "رحلة الولاية"}</span>
+          <span>${game ? `${iconSvg(game.badge.icon)} ${esc(game.badge.name)}` : "رحلة الولاية"}</span>
           ${statusPill}
         </div>
         ${
@@ -243,20 +244,20 @@ export class WilayaInfoSheet {
             ? `
           <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${progress}%;"></div></div>
           <button class="btn btn-gold ws-play-btn" data-action="play">
-            ${isCompleted ? "إعادة استكشاف المراحل 🔄" : "العب مراحل هذه الولاية 🎮"}
+            ${isCompleted ? `إعادة استكشاف المراحل ${iconSvg("rotate-ccw")}` : `العب مراحل هذه الولاية ${iconSvg("gamepad-2")}`}
           </button>`
-            : `<div class="ws-locked-note">🔒 أكمل مراحل ولاية ${esc(prevGameName || "السابقة")} لفتح مراحل هذه الولاية</div>`
+            : `<div class="ws-locked-note">${iconSvg("lock")} أكمل مراحل ولاية ${esc(prevGameName || "السابقة")} لفتح مراحل هذه الولاية</div>`
         }
       </div>
 
       <div class="ws-nav">
         <button class="ws-nav-btn" data-step="-1" aria-label="الولاية السابقة">
-          <span class="ws-nav-arrow">→</span>
+          <span class="ws-nav-arrow">${iconSvg("arrow-right")}</span>
           <span><small>${pad(prev.code)}</small> ${esc(prev.name_ar)}</span>
         </button>
         <button class="ws-nav-btn" data-step="1" aria-label="الولاية التالية">
           <span><small>${pad(next.code)}</small> ${esc(next.name_ar)}</span>
-          <span class="ws-nav-arrow">←</span>
+          <span class="ws-nav-arrow">${iconSvg("arrow-left")}</span>
         </button>
       </div>
     `;
@@ -269,7 +270,7 @@ export class WilayaInfoSheet {
   }
 
   section(icon, title, content) {
-    return `<div class="ws-section"><h4 class="ws-section-title"><span>${icon}</span>${title}</h4>${content}</div>`;
+    return `<div class="ws-section"><h4 class="ws-section-title"><span>${iconSvg(icon)}</span>${title}</h4>${content}</div>`;
   }
 
   renderPanel(info) {
@@ -278,7 +279,7 @@ export class WilayaInfoSheet {
         return `
           <p class="ws-summary">${esc(info.history.summary)}</p>
           ${this.section(
-            "🕰️",
+            "history",
             "محطات تاريخية",
             `<ol class="ws-timeline">
               ${info.history.key_events
@@ -312,24 +313,24 @@ export class WilayaInfoSheet {
 
       case "traditions":
         return [
-          this.section("👘", "اللباس التقليدي", this.chips(info.traditions.clothing)),
-          this.section("🏺", "الحرف والصناعات", this.chips(info.traditions.crafts)),
-          this.section("🎉", "المهرجانات والمواسم", this.chips(info.traditions.festivals)),
+          this.section("shirt", "اللباس التقليدي", this.chips(info.traditions.clothing)),
+          this.section("amphora", "الحرف والصناعات", this.chips(info.traditions.crafts)),
+          this.section("party-popper", "المهرجانات والمواسم", this.chips(info.traditions.festivals)),
         ].join("");
 
       case "culture":
         return [
-          this.section("🍲", "أطباق ومأكولات", this.chips(info.culture.food_and_dishes, "food")),
-          this.section("🎶", "الموسيقى والفنون", this.chips(info.culture.music_and_arts, "music")),
-          this.section("🗣️", "كلمات ومقولات", this.chips(info.culture.famous_sayings_or_keywords, "saying")),
+          this.section("soup", "أطباق ومأكولات", this.chips(info.culture.food_and_dishes, "food")),
+          this.section("music", "الموسيقى والفنون", this.chips(info.culture.music_and_arts, "music")),
+          this.section("speech", "كلمات ومقولات", this.chips(info.culture.famous_sayings_or_keywords, "saying")),
         ].join("");
 
       case "landmarks":
         return this.section(
-          "📍",
+          "map-pin",
           "أشهر المعالم",
           `<ul class="ws-landmarks">
-            ${info.details.famous_landmarks.map((l) => `<li><span>🏛️</span>${esc(l)}</li>`).join("")}
+            ${info.details.famous_landmarks.map((l) => `<li><span>${iconSvg("landmark")}</span>${esc(l)}</li>`).join("")}
           </ul>`
         );
 

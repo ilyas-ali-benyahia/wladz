@@ -1,4 +1,5 @@
 import { LEVELS } from "./levels.js";
+import { iconRow, iconSvg } from "../_shared/svgIcons.js";
 
 // Script de « درب المهارات », repris tel quel. Modifications WLADZ :
 // objets 3D remplacés par des images liées à chaque carte et question,
@@ -25,27 +26,27 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const starSvg=(on,c)=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.5 1.3 6.6L12 17.2l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z" fill="${on?(c||'#ffc857'):'#cfe4f8'}" stroke="${on?'#fff6':'none'}" stroke-width=".8"/></svg>`;
 
 /* ---------- pictures ---------- */
-// WLADZ : une image (scène d'emojis) pour chaque station, carte et question,
+// WLADZ : une image (suite d'icônes, jamais d'emoji) pour chaque station, carte et question,
 // à la place de l'objet 3D. Même ordre que LEVELS (levels.js).
 const PICS={
- 1:{level:'🧠💭❤️',
-    cards:['😠😨😢😄','🗣️😟🙂','⏱️🌬️😌','🧩🤔✅','😠🕊️'],
-    quiz:['🧍🧍‍♂️🧍‍♀️😤','🏷️💭','1️⃣2️⃣3️⃣🤔','📝😰📚','😡😌']},
- 2:{level:'🛡️💪',
-    cards:['🧱🧱🏆','✋🙅','👥👉😟','🚪🚶','💬🌟'],
-    quiz:['🏫🚸⚽','👥👥❓','🪜⭐','🧍👀✋','🚶🚪']},
- 3:{level:'🤝💚',
-    cards:['👟👟❤️','🚫👊💬📱','👀🫂📢','🛡️👩‍🏫','🗨️🤝🗨️'],
-    quiz:['🧒🗣️🫂','📱📸🚫','🛡️👩‍🏫','🫶💭','🗨️🙂🗨️']},
- 4:{level:'🔍📱',
-    cards:['❓❓❓','📰‼️🎣','🖼️🕵️','📰📰⚖️','🔒🏠🔑'],
-    quiz:['📩⚠️🔁','🔍📰🗓️','🖼️🔎','🌐❓','🎁📍🚫']},
- 5:{level:'🛤️🌱',
-    cards:['🧠🏗️','1️⃣⚠️','🙅⚽','⚽📚😴🎨','🙋👨‍👩‍👦'],
-    quiz:['🚫1️⃣⚠️','🧠🌱','🎉🚫💊','🏃🗣️💙','🧑‍🤝‍🧑💬🫂']},
- 6:{level:'🧱🤝🏗️',
-    cards:['👫👬🎯','👂💬','🙋💬❤️','⚖️🤝','🧹🌳🏘️'],
-    quiz:['📋🧑‍🤝‍🧑❓','🙋💬⏰','👂🙂','⚽🎲⚖️','🧹🌳😊']},
+  1:{level:['brain','message-circle-more','heart'],
+    cards:[['angry','annoyed','frown','laugh'],['speech','frown','smile'],['timer','wind','smile'],['puzzle','circle-help','circle-check'],['angry','bird']],
+    quiz:[['users','annoyed'],['tag','message-circle-more'],['list-ordered','circle-help'],['notebook-pen','frown','book-open'],['angry','smile']]},
+  2:{level:['shield','biceps-flexed'],
+    cards:[['brick-wall','brick-wall','trophy'],['hand','ban'],['users','pointer','frown'],['door-open','footprints'],['message-circle','star']],
+    quiz:[['school','footprints','volleyball'],['users','users','circle-help'],['trending-up','star'],['person-standing','eye','hand'],['footprints','door-open']]},
+  3:{level:['handshake','heart'],
+    cards:[['footprints','footprints','heart'],['ban','hand-fist','message-circle','smartphone'],['eye','heart-handshake','megaphone'],['shield','graduation-cap'],['message-square','handshake','message-square']],
+    quiz:[['person-standing','speech','heart-handshake'],['smartphone','camera','ban'],['shield','graduation-cap'],['hand-heart','message-circle-more'],['message-square','smile','message-square']]},
+  4:{level:['search','smartphone'],
+    cards:[['circle-help','circle-help','circle-help'],['newspaper','circle-alert','fishing-hook'],['image','search-check'],['newspaper','newspaper','scale'],['lock','house','key-round']],
+    quiz:[['mail','triangle-alert','repeat'],['search','newspaper','calendar'],['image','search'],['globe','circle-help'],['gift','map-pin','ban']]},
+  5:{level:['route','sprout'],
+    cards:[['brain','construction'],['repeat-1','triangle-alert'],['ban','volleyball'],['volleyball','book-open','bed','palette'],['hand','users-round']],
+    quiz:[['ban','repeat-1','triangle-alert'],['brain','sprout'],['party-popper','ban','pill'],['footprints','speech','heart'],['users','message-circle','heart-handshake']]},
+  6:{level:['brick-wall','handshake','construction'],
+    cards:[['users','users-round','target'],['ear','message-circle'],['hand','message-circle','heart'],['scale','handshake'],['brush','tree-deciduous','building-2']],
+    quiz:[['clipboard-list','users','circle-help'],['hand','message-circle','alarm-clock'],['ear','smile'],['volleyball','dices','scale'],['brush','tree-deciduous','smile']]},
 };
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 // Affiche une image dans la boîte de la station ; mood = 'good' | 'bad' | 'cheer' anime l'image.
@@ -119,10 +120,10 @@ function openLevel(i){
 function setSteps(){[...$('#steps').children].forEach((s,k)=>s.classList.toggle('on',k===G.phase));}
 function renderPanel(){
   setSteps();const L=G.L,p=$('#panel'),P=PICS[L.id];
-  if(G.phase===0)showPicture(P.level,L.ar);
-  else if(G.phase===1)showPicture(P.cards[G.card],L.cards[G.card].k);
-  else if(G.phase===2)showPicture(P.quiz[G.q],`سؤال ${G.q+1} من ${G.qs.length}`);
-  else showPicture(G.stars>=1?'🏆🎉':'💪📚',G.stars>=1?'المحطة مكتملة':'حاول من جديد',G.stars>=1?'cheer':null);
+  if(G.phase===0)showPicture(iconRow(P.level),L.ar);
+  else if(G.phase===1)showPicture(iconRow(P.cards[G.card]),L.cards[G.card].k);
+  else if(G.phase===2)showPicture(iconRow(P.quiz[G.q]),`سؤال ${G.q+1} من ${G.qs.length}`);
+  else showPicture(iconRow(G.stars>=1?['trophy','party-popper']:['biceps-flexed','book-open']),G.stars>=1?'المحطة مكتملة':'حاول من جديد',G.stars>=1?'cheer':null);
   if(G.phase===0){
     p.innerHTML=`<h2>${esc(L.ar)}</h2>
       <p style="color:var(--muted);font-weight:600">${esc(L.sub)}</p><p>${esc(L.goal)}</p>
@@ -136,11 +137,11 @@ function renderPanel(){
     p.innerHTML=`<div class="fc-count"><span>بطاقة ${G.card+1} من ${n}</span><span class="dots">${L.cards.map((_,k)=>`<i class="${G.seen.has(k)?'seen':''} ${k===G.card?'now':''}"></i>`).join('')}</span></div>
       <button class="flip ${G.flipped?'on':''}" id="flip" aria-label="اقلب البطاقة">
         <div class="flip-in">
-          <div class="face front"><span class="num">${G.card+1}</span><div class="k">${esc(c.k)}</div><small>اضغط لقلب البطاقة ↻</small></div>
+          <div class="face front"><span class="num">${G.card+1}</span><div class="k">${esc(c.k)}</div><small>اضغط لقلب البطاقة ${iconSvg('rotate-cw')}</small></div>
           <div class="face back"><div class="k">${esc(c.k)}</div><div>${esc(c.b)}</div></div>
         </div></button>
-      <div class="row"><button class="btn ghost" id="prev" ${G.card?'':'disabled'}>→ السابقة</button>
-        ${G.card<n-1?'<button class="btn ghost" id="next">التالية ←</button>':''}
+      <div class="row"><button class="btn ghost" id="prev" ${G.card?'':'disabled'}>${iconSvg('arrow-right')} السابقة</button>
+        ${G.card<n-1?`<button class="btn ghost" id="next">التالية ${iconSvg('arrow-left')}</button>`:''}
         <button class="btn" id="toQuiz" ${all?'':'disabled'} style="margin-inline-start:auto">${all?'أنا جاهز للتحدّي!':`اقرأ كل البطاقات (${G.seen.size}/${n})`}</button></div>`;
     $('#flip').onclick=()=>{G.flipped=!G.flipped;$('#flip').classList.toggle('on',G.flipped);if(G.flipped)picMood('good');};
     $('#prev').onclick=()=>{G.card--;G.flipped=false;renderPanel();};
@@ -149,7 +150,7 @@ function renderPanel(){
   }
   else if(G.phase===2){
     const q=G.qs[G.q],n=G.qs.length;
-    p.innerHTML=`<div class="qtop"><span>سؤال ${G.q+1} من ${n}</span><span class="streak">${G.streak>=2?`🔥 سلسلة ${G.streak}`:''}</span><span>+${G.pts} خبرة</span></div>
+    p.innerHTML=`<div class="qtop"><span>سؤال ${G.q+1} من ${n}</span><span class="streak">${G.streak>=2?`${iconSvg('flame')} سلسلة ${G.streak}`:''}</span><span>+${G.pts} خبرة</span></div>
       <div class="qbar"><div style="width:${G.q/n*100}%"></div></div>
       <p class="q">${esc(q.q)}</p>
       <div class="opts" id="opts">${q.order.map((k,j)=>`<button class="opt" data-k="${k}"><span class="l">${'أبجد'[j]}</span><span>${esc(q.o[k])}</span></button>`).join('')}</div>
@@ -163,10 +164,10 @@ function renderPanel(){
       <div class="score">${G.right} / ${G.qs.length}</div>
       <p style="color:var(--muted);margin-top:6px">+${G.pts} خبرة في هذه الجولة${G.newBest?' · رقم قياسي جديد!':''}</p>
       <p style="font-size:19px;font-weight:600">${RESULT_MSG[st]}</p>
-      ${G.firstWin?'<p class="wladz-point">⭐ +1 نقطة في حسابك</p>':''}
+      ${G.firstWin?`<p class="wladz-point">${iconSvg('star',{fill:'currentColor'})} +1 نقطة في حسابك</p>`:''}
       <div class="row">
-        ${pass&&L2?`<button class="btn" id="nxt">المحطة التالية: ${esc(L2.ar)} ←</button>`:''}
-        ${pass&&!L2?'<button class="btn" id="fin">استلم شهادتك 🏆</button>':''}
+        ${pass&&L2?`<button class="btn" id="nxt">المحطة التالية: ${esc(L2.ar)} ${iconSvg('arrow-left')}</button>`:''}
+        ${pass&&!L2?`<button class="btn" id="fin">استلم شهادتك ${iconSvg('trophy')}</button>`:''}
         ${st<3?`<button class="btn ${pass?'ghost':''}" id="again">أعد المحاولة</button>`:''}
         <button class="btn ghost" id="cards">راجع البطاقات</button>
       </div></div>`;
@@ -185,8 +186,8 @@ function answer(k,btn){
   if(ok){G.right++;G.streak++;G.pts+=20+(G.streak>=3?10:0);picMood('good');}else{G.streak=0;picMood('bad');}
   const last=G.q===G.qs.length-1;
   const msg=ok?PRAISE[Math.floor(Math.random()*PRAISE.length)]:NUDGE[Math.floor(Math.random()*NUDGE.length)];
-  $('#fb').innerHTML=`<div class="why ${ok?'':'bad'}"><b>${ok?'✔ '+msg:'✖ '+msg}</b>${esc(q.why)}</div>
-    <div class="row" style="margin-top:14px"><button class="btn" id="nq">${last?'اعرض النتيجة':'السؤال التالي ←'}</button></div>`;
+  $('#fb').innerHTML=`<div class="why ${ok?'':'bad'}"><b>${ok?iconSvg('circle-check')+' '+msg:iconSvg('circle-x')+' '+msg}</b>${esc(q.why)}</div>
+    <div class="row" style="margin-top:14px"><button class="btn" id="nq">${last?'اعرض النتيجة':`السؤال التالي ${iconSvg('arrow-left')}`}</button></div>`;
   $('.qtop span:last-child').textContent=`+${G.pts} خبرة`;
   $('.qbar div').style.width=((G.q+1)/G.qs.length*100)+'%';
   $('#nq').focus({preventScroll:true});
