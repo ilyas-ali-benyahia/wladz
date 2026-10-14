@@ -1,0 +1,53 @@
+/*
+ * Embedding overrides for the WLADZ game shell.
+ * The generated salati.css was written for a full browser window. These rules size the game
+ * to its own area inside the hub and keep every overlay inside it.
+ */
+
+.wladz-salati {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 32rem;
+  height: min(100dvh, 56rem);
+  margin: 0;
+  overflow: hidden;
+  border-radius: 1.5rem;
+}
+
+.wladz-salati .screen {
+  min-height: 0;
+}
+
+.wladz-salati .screen.active {
+  height: 100%;
+  min-height: 100%;
+}
+
+/* ── WLADZ : couleurs et police de l'application (page d'accueil) ── */
+.wladz-salati {
+  --cream: #ffffff;
+  --cream-deep: #e6f4ec;
+  --primary: #006233;
+  --primary-light: #2f8f5b;
+  --primary-dark: #00441f;
+  --primary-glow: rgba(0, 98, 51, 0.22);
+  --accent: #d21034;
+  --accent-light: #e2557a;
+  --accent-glow: rgba(210, 16, 52, 0.22);
+  --gold: #f2b705;
+  --bg: #f5faf6;
+  --bg-gradient-start: #f5faf6;
+  --bg-gradient-end: #e6f4ec;
+  --card: #ffffff;
+  --card-border: rgba(0, 98, 51, 0.12);
+  --glass-shadow: 0 10px 30px rgba(0, 98, 51, 0.1);
+  --glass-shadow-hover: 0 16px 44px rgba(0, 98, 51, 0.16);
+  --text-primary: #13261d;
+  --text-secondary: #4b5d54;
+  --text-muted: #4b5d54;
+  font-family: var(--font-cairo), system-ui, sans-serif;
+}
+.wladz-salati :is(h1, h2, h3, h4, button, input, select, textarea) {
+  font-family: var(--font-cairo), system-ui, sans-serif;
+}

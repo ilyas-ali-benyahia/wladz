@@ -69,6 +69,15 @@ const games: readonly Game[] = [
     image: "/games/treasures/assets/banner.jpg",
   },
   {
+    id: "salati",
+    title: "صلاتي",
+    category: "القيم والعبادات",
+    type: "مسجد ثلاثي الأبعاد",
+    description: "تعلّم حركات الصلاة وترتيبها خطوة بخطوة، مع أسئلة قصيرة عن الأذكار.",
+    color: "mint",
+    image: "/games/salati/thumbnail.webp",
+  },
+  {
     id: "skills",
     title: "درب المهارات",
     category: "المهارات الحياتية",
@@ -317,7 +326,7 @@ export default function GamesPreview() {
             عالم صغير، اكتشافات كبيرة
           </p>
           <h2 id="games-title">
-            سبع ألعاب <span className="outlined-word">تنتظرك</span>
+            ألعاب <span className="outlined-word">تنتظرك</span>
           </h2>
         </div>
       </header>

@@ -1,12 +1,13 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { games } from "@/lib/games";
 import FunButton from "./FunButton";
 import Icon, { type IconName } from "./Icon";
 import { useParallax } from "./useParallax";
 
 const stats = [
-  { value: "7", label: "ألعاب تعليمية" },
+  { value: String(games.length), label: "ألعاب تعليمية" },
   { value: "58", label: "ولاية تكتشفها" },
   { value: "100%", label: "باللغة العربية" },
   { value: "0", label: "إعلانات" },

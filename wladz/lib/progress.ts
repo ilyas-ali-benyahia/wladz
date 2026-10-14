@@ -3,6 +3,7 @@ import { amineTotalEndings } from "@/games/amine/config";
 import { choiceScenes } from "@/games/choices/data";
 import { mathDailyPoints } from "@/games/math/MathLauncher";
 import { mythCards } from "@/games/myths/data";
+import { salatiDailyWins } from "@/games/salati/config";
 import { LEVELS } from "@/games/skills/levels.js";
 import { totalSpaceQuestions } from "@/games/space/data";
 import { WILAYAS_DATA } from "@/games/treasures/engine/data/wilayas.js";
@@ -39,6 +40,7 @@ export function getGameActivity(userId: string, tier: AgeTier, today: string): G
       skills: { done: count("level:"), total: (LEVELS as unknown[]).length, unit: "محطات" },
       math: { done: count(`${today}:`), total: mathDailyPoints, unit: "نقطة اليوم" },
       amine: { done: count("ending:"), total: amineTotalEndings, unit: "نهاية" },
+      salati: { done: count(`${today}:`), total: salatiDailyWins, unit: "فوز اليوم" },
     };
 
     return {

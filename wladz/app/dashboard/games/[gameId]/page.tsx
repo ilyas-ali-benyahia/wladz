@@ -6,6 +6,7 @@ import { AmineLauncher } from "@/games/amine/AmineLauncher";
 import { ChoicesGame } from "@/games/choices/ChoicesGame";
 import { MathLauncher } from "@/games/math/MathLauncher";
 import { MythsGame } from "@/games/myths/MythsGame";
+import { SalatiGame } from "@/games/salati/SalatiGame";
 import { SkillsLauncher } from "@/games/skills/SkillsLauncher";
 import { SpaceGame } from "@/games/space/SpaceGame";
 import { TreasuresLauncher } from "@/games/treasures/TreasuresLauncher";
@@ -39,6 +40,14 @@ export default async function GamePage({ params }: PageProps<"/dashboard/games/[
       {game.slug === "math" ? <MathLauncher /> : null}
       {game.slug === "treasures" ? <TreasuresLauncher /> : null}
       {game.slug === "amine" ? <AmineLauncher /> : null}
+      {game.slug === "salati" ? (
+        <SalatiGame
+          player={{
+            firstName: user.full_name.split(" ")[0],
+            age: Number(new Date().getFullYear()) - Number(user.birth_date.slice(0, 4)),
+          }}
+        />
+      ) : null}
       {game.slug === "skills" ? <SkillsLauncher /> : null}
       {game.slug === "myths" ? <MythsGame tier={tier} initialAnswered={answered} /> : null}
     </>
