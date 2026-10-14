@@ -47,6 +47,10 @@ export class InputManager {
       });
     }
 
+    // Held mouse button doubles as the "action" key (spray / water / plant) while the camera is locked
+    window.addEventListener('mousedown', (e) => { if (e.button === 0 && this.isLocked) this.keys.Mouse0 = true; });
+    window.addEventListener('mouseup', (e) => { if (e.button === 0) this.keys.Mouse0 = false; });
+
     document.addEventListener('pointerlockchange', () => {
       this.isLocked = document.pointerLockElement === document.getElementById('game-canvas');
     });
@@ -80,6 +84,11 @@ export class InputManager {
     const isJumping = !!this.keys['Space'];
 
     return { fwd, right, isRunning, isJumping };
+  }
+
+  /** True while the mission action key (F or left mouse) is held */
+  isActionHeld() {
+    return this.enabled && !!(this.keys.KeyF || this.keys.Mouse0);
   }
 
   unlockPointer() {

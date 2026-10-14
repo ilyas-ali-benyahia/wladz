@@ -7,9 +7,10 @@ export class PlayerController {
     this.collisionSystem = collisionSystem;
     this.input = inputManager;
 
-    this.position = new THREE.Vector3(0, 0, 10);
+    // Start on the stone path of the central park, facing the fountain
+    this.position = new THREE.Vector3(21.25, 0, 27);
     this.velocity = new THREE.Vector3();
-    this.heading = 0; // In radians
+    this.heading = Math.PI; // In radians
     this.gender = 'boy';
 
     // Physics parameters
@@ -90,8 +91,11 @@ export class PlayerController {
       this.position.z = newPos.z;
     }
 
-    // 2. Jumping & Gravity
+    // 2. Jumping & Gravity (feet rest on the surface underneath: sidewalk, lawn, steps...)
+    const groundY = this.collisionSystem.getGroundHeight(this.position.x, this.position.z);
     if (this.isGrounded) {
+      // Step smoothly up/down curbs
+      this.position.y += (groundY - this.position.y) * Math.min(1, dt * 18);
       if (isJumping && this.input.enabled) {
         this.verticalVelocity = this.jumpForce;
         this.isGrounded = false;
@@ -100,8 +104,8 @@ export class PlayerController {
       this.verticalVelocity -= this.gravity * dt;
       this.position.y += this.verticalVelocity * dt;
 
-      if (this.position.y <= 0) {
-        this.position.y = 0;
+      if (this.position.y <= groundY) {
+        this.position.y = groundY;
         this.verticalVelocity = 0;
         this.isGrounded = true;
       }
@@ -124,7 +128,8 @@ export class PlayerController {
   updateCamera(dt) {
     const yaw = this.input.yaw;
     const pitch = this.input.pitch;
-    const dist = this.input.cameraDistance;
+    // Indoors the camera stays close so it never ends up pressed against a wall
+    const dist = this.cameraBounds ? Math.min(3.4, this.input.cameraDistance) : this.input.cameraDistance;
 
     // Target look point (slightly above character head)
     const targetLook = this.position.clone().add(new THREE.Vector3(0, 1.2, 0));
@@ -135,6 +140,14 @@ export class PlayerController {
     const camZ = Math.cos(yaw) * Math.cos(pitch) * dist;
 
     const desiredCamPos = this.position.clone().add(new THREE.Vector3(camX, Math.max(1.2, camY), camZ));
+
+    // Indoors: keep the camera inside the room (no looking through walls)
+    if (this.cameraBounds) {
+      const b = this.cameraBounds;
+      desiredCamPos.x = THREE.MathUtils.clamp(desiredCamPos.x, b.minX, b.maxX);
+      desiredCamPos.z = THREE.MathUtils.clamp(desiredCamPos.z, b.minZ, b.maxZ);
+      desiredCamPos.y = Math.min(desiredCamPos.y, b.maxY);
+    }
 
     // Smooth lerp camera position
     this.engine.camera.position.lerp(desiredCamPos, Math.min(1.0, 14.0 * dt));

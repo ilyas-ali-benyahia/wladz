@@ -280,8 +280,20 @@ export class UISystem {
     }
   }
 
+  /** Context hint from a system (interiors, missions); the first non-empty source wins */
+  setCustomHint(html, source = 'interior') {
+    this.customHints = this.customHints || {};
+    this.customHints[source] = html;
+    this.customHint = this.customHints.interior || this.customHints.mission || null;
+    this.updateInteractHint(this.lastHintNPC);
+  }
+
   updateInteractHint(npc) {
-    if (npc) {
+    this.lastHintNPC = npc;
+    if (this.customHint) {
+      this.interactHint.innerHTML = this.customHint;
+      this.interactHint.style.display = 'block';
+    } else if (npc) {
       this.interactHint.innerHTML = `اضغط <b>E</b> للتحدث مع ${npc.title}`;
       this.interactHint.style.display = 'block';
     } else {

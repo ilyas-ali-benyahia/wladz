@@ -8,18 +8,19 @@ export class MapSystem {
     this.fullCtx = this.fullCanvas ? this.fullCanvas.getContext('2d') : null;
 
     this.landmarks = [
-      { name: 'المسجد الكبير', icon: '🕌', x: -38, z: 22, color: '#16a085' },
-      { name: 'المتحف الوطني', icon: '🏛️', x: 34, z: -22, color: '#8e44ad' },
+      { name: 'المسجد الكبير', icon: '🕌', x: -62, z: 22, color: '#16a085' },
+      { name: 'المتحف الوطني', icon: '🏛️', x: 21, z: -23, color: '#8e44ad' },
       { name: 'المكتبة العامة', icon: '📚', x: -18, z: -22, color: '#00b894' },
-      { name: 'المدرسة', icon: '🏫', x: -36, z: -20, color: '#2980b9' },
-      { name: 'السوق الشعبي', icon: '🛒', x: 20, z: 40, color: '#e67e22' },
-      { name: 'المركز الصحي', icon: '🏥', x: 16, z: -22, color: '#e74c3c' },
-      { name: 'الحديقة المركزية', icon: '🌳', x: 22, z: 16, color: '#27ae60' },
+      { name: 'المدرسة', icon: '🏫', x: -63, z: -21, color: '#2980b9' },
+      { name: 'السوق الشعبي', icon: '🛒', x: 21, z: 63, color: '#e67e22' },
+      { name: 'المركز الصحي', icon: '🏥', x: 63, z: -21, color: '#e74c3c' },
+      { name: 'الحديقة المركزية', icon: '🌳', x: 21, z: 21, color: '#27ae60' },
       { name: 'ساحة الاستقلال', icon: '⭐', x: 0, z: 0, color: '#f1c40f' },
-      { name: 'مقر الأمن الوطني', icon: '👮‍♂️', x: -28, z: 48, color: '#1b3b6f' },
-      { name: 'الحماية المدنية', icon: '🚒', x: -28, z: -46, color: '#c0392b' },
-      { name: 'مقر البلدية', icon: '🏛️', x: 0, z: -52, color: '#16a085' },
-      { name: 'حي القصبة العتيق', icon: '🏺', x: 40, z: 22, color: '#d35400' }
+      { name: 'مقر الأمن الوطني', icon: '👮‍♂️', x: -21, z: 63, color: '#1b3b6f' },
+      { name: 'الحماية المدنية', icon: '🚒', x: -21, z: -63, color: '#c0392b' },
+      { name: 'مقر البلدية', icon: '🏛️', x: 21, z: -69, color: '#16a085' },
+      { name: 'حي القصبة العتيق', icon: '🏺', x: 63, z: 21, color: '#d35400' },
+      { name: 'جمعية شباب التطوع', icon: '🤝', x: -21, z: 15, color: '#1e8449' }
     ];
 
     this.isFullMapOpen = false;

@@ -41,25 +41,49 @@ export class TrafficSystem {
       eastWest: [
         new THREE.Vector3(-62, 0, 2.2),
         new THREE.Vector3(-18, 0, 2.2),
+        // Around the central roundabout (south side)
+        new THREE.Vector3(-7.2, 0, 2.6),
+        new THREE.Vector3(-5, 0, 5.3),
+        new THREE.Vector3(0, 0, 7),
+        new THREE.Vector3(5, 0, 5.3),
+        new THREE.Vector3(7.2, 0, 2.6),
         new THREE.Vector3(18, 0, 2.2),
         new THREE.Vector3(62, 0, 2.2),
         // Turn around loop
         new THREE.Vector3(62, 0, -2.2),
         new THREE.Vector3(18, 0, -2.2),
+        // Around the central roundabout (north side)
+        new THREE.Vector3(7.2, 0, -2.6),
+        new THREE.Vector3(5, 0, -5.3),
+        new THREE.Vector3(0, 0, -7),
+        new THREE.Vector3(-5, 0, -5.3),
+        new THREE.Vector3(-7.2, 0, -2.6),
         new THREE.Vector3(-18, 0, -2.2),
         new THREE.Vector3(-62, 0, -2.2)
       ],
       // Loop 2: North-South Boulevard Circuit
       northSouth: [
-        new THREE.Vector3(2.2, 0, -62),
-        new THREE.Vector3(2.2, 0, -18),
-        new THREE.Vector3(2.2, 0, 18),
-        new THREE.Vector3(2.2, 0, 62),
-        // Turn around loop
-        new THREE.Vector3(-2.2, 0, 62),
-        new THREE.Vector3(-2.2, 0, 18),
+        new THREE.Vector3(-2.2, 0, -62),
         new THREE.Vector3(-2.2, 0, -18),
-        new THREE.Vector3(-2.2, 0, -62)
+        // Around the roundabout (west side)
+        new THREE.Vector3(-2.6, 0, -7.2),
+        new THREE.Vector3(-5.3, 0, -5),
+        new THREE.Vector3(-7, 0, 0),
+        new THREE.Vector3(-5.3, 0, 5),
+        new THREE.Vector3(-2.6, 0, 7.2),
+        new THREE.Vector3(-2.2, 0, 18),
+        new THREE.Vector3(-2.2, 0, 62),
+        // Turn around loop
+        new THREE.Vector3(2.2, 0, 62),
+        new THREE.Vector3(2.2, 0, 18),
+        // Around the roundabout (east side)
+        new THREE.Vector3(2.6, 0, 7.2),
+        new THREE.Vector3(5.3, 0, 5),
+        new THREE.Vector3(7, 0, 0),
+        new THREE.Vector3(5.3, 0, -5),
+        new THREE.Vector3(2.6, 0, -7.2),
+        new THREE.Vector3(2.2, 0, -18),
+        new THREE.Vector3(2.2, 0, -62)
       ],
       // Loop 3: Secondary Outer Perimeter Loop
       perimeter: [
@@ -89,7 +113,7 @@ export class TrafficSystem {
       type: 'police',
       mesh: policeMesh,
       circuit: this.circuits.eastWest,
-      waypointIdx: 0,
+      waypointIdx: 1,
       speed: 4.8,
       baseSpeed: 4.8,
       heading: Math.PI / 2,
@@ -98,13 +122,13 @@ export class TrafficSystem {
     });
 
     // 2. Civil Protection Fire Truck (drives on Perimeter / NS)
-    const fireMesh = this.vehicleGen.createFireTruck(2.2, -40, 0);
+    const fireMesh = this.vehicleGen.createFireTruck(-2.2, -40, 0);
     this.vehicles.push({
       id: 'fire_truck',
       type: 'fire',
       mesh: fireMesh,
       circuit: this.circuits.northSouth,
-      waypointIdx: 0,
+      waypointIdx: 1,
       speed: 4.2,
       baseSpeed: 4.2,
       heading: 0,
@@ -119,7 +143,7 @@ export class TrafficSystem {
       type: 'taxi',
       mesh: taxiMesh,
       circuit: this.circuits.eastWest,
-      waypointIdx: 5,
+      waypointIdx: 10,
       speed: 4.5,
       baseSpeed: 4.5,
       heading: -Math.PI / 2,
@@ -128,13 +152,13 @@ export class TrafficSystem {
     });
 
     // 4. City Bus
-    const busMesh = this.vehicleGen.createCartoonBus(-2.2, 35, Math.PI);
+    const busMesh = this.vehicleGen.createCartoonBus(2.2, 35, Math.PI);
     this.vehicles.push({
       id: 'bus_1',
       type: 'bus',
       mesh: busMesh,
       circuit: this.circuits.northSouth,
-      waypointIdx: 5,
+      waypointIdx: 10,
       speed: 3.8,
       baseSpeed: 3.8,
       heading: Math.PI,
@@ -188,96 +212,102 @@ export class TrafficSystem {
       mesh.userData.sirenR.material.color.setHex(!flash ? 0xffcc00 : 0x443300);
     }
 
-    // B. Check Traffic Light Obstacle
-    let shouldStopForLight = false;
+    const fwd = new THREE.Vector3(Math.sin(veh.heading), 0, Math.cos(veh.heading));
+    const lateralOf = (rx, rz) => Math.abs(rx * fwd.z - rz * fwd.x);
+    let targetSpeed = veh.baseSpeed;
+    // Highest speed that still stops 'gap' metres before something 'd' metres ahead (comfortable braking)
+    const brakeFor = (d, gap) => { targetSpeed = Math.min(targetSpeed, Math.sqrt(Math.max(0, 2 * 4.5 * (d - gap)))); };
+
+    // B. Red lights: stop before the crosswalk that the light protects (approaching or leaving the roundabout)
     for (const tl of this.trafficLights) {
       const isRed = (tl.orientation === 'NS' && this.currentLightPhase !== 'NS_GREEN') ||
                     (tl.orientation === 'EW' && this.currentLightPhase !== 'EW_GREEN');
-
-      if (isRed) {
-        const distToLight = currentPos.distanceTo(tl.pos);
-        if (distToLight < 8.5) {
-          // If approaching stop line
-          const toLightVec = tl.pos.clone().sub(currentPos);
-          const fwdVec = new THREE.Vector3(Math.sin(veh.heading), 0, Math.cos(veh.heading));
-          if (toLightVec.dot(fwdVec) > 0) {
-            shouldStopForLight = true;
-            break;
-          }
-        }
-      }
+      if (!isRed) continue;
+      const ns = tl.orientation === 'NS';
+      const along = ns ? fwd.z : fwd.x;
+      if (Math.abs(along) < 0.7) continue;
+      if ((ns ? Math.abs(currentPos.x) : Math.abs(currentPos.z)) > 5) continue;
+      const s = Math.sign(along);
+      const crossing = 16 * Math.sign(ns ? tl.stopLineZ : tl.stopLineX);
+      const nearEdge = crossing - s * 1.5;
+      const d = (nearEdge - (ns ? currentPos.z : currentPos.x)) * s;
+      if (d > 1.5 && d < 25) brakeFor(d, 2.6);
     }
 
-    // C. Check Pedestrians Crossing
-    let shouldStopForPedestrian = false;
+    // C. Pedestrians on a crossing in front of the car
     if (this.pedestriansRef && this.pedestriansRef.pedestrians) {
       for (const ped of this.pedestriansRef.pedestrians) {
-        if (ped.isCrossing) {
-          const pedPos = ped.group ? ped.group.position : (ped.mesh ? ped.mesh.position : null);
-          if (pedPos) {
-            const distToPed = currentPos.distanceTo(pedPos);
-            if (distToPed < 6.5) {
-              shouldStopForPedestrian = true;
-              break;
-            }
-          }
-        }
+        if (!ped.isCrossing) continue;
+        const pp = ped.group ? ped.group.position : ped.mesh.position;
+        const rx = pp.x - currentPos.x, rz = pp.z - currentPos.z;
+        const ahead = rx * fwd.x + rz * fwd.z;
+        if (ahead > 0 && ahead < 18 && lateralOf(rx, rz) < 3.5) brakeFor(ahead, 3.5);
       }
     }
 
-    // D. Check Player in Road Path
-    let shouldStopForPlayer = false;
+    // C2. Escorted NPCs (mission walkers) on the road ahead
+    if (this.extraCrossers) {
+      for (const pp of this.extraCrossers()) {
+        const rx = pp.x - currentPos.x, rz = pp.z - currentPos.z;
+        const ahead = rx * fwd.x + rz * fwd.z;
+        if (ahead > 0 && ahead < 18 && lateralOf(rx, rz) < 3.5) brakeFor(ahead, 3.5);
+      }
+    }
+
+    // D. Player standing in the lane ahead
     if (playerPos) {
-      const distToPlayer = currentPos.distanceTo(playerPos);
-      if (distToPlayer < 4.5) {
-        const toPlayerVec = playerPos.clone().sub(currentPos);
-        const fwdVec = new THREE.Vector3(Math.sin(veh.heading), 0, Math.cos(veh.heading));
-        if (toPlayerVec.dot(fwdVec) > 0.5) {
-          shouldStopForPlayer = true;
-        }
-      }
+      const rx = playerPos.x - currentPos.x, rz = playerPos.z - currentPos.z;
+      const ahead = rx * fwd.x + rz * fwd.z;
+      if (ahead > 0 && ahead < 18 && lateralOf(rx, rz) < 2.0) brakeFor(ahead, 3.5);
     }
 
-    // E. Check Safe Distance to Leading Vehicle
-    let shouldStopForLeadingCar = false;
+    // E. Car following: keep a gap to vehicles ahead in our path; ignore oncoming cars in the other lane
     for (let j = 0; j < this.vehicles.length; j++) {
       if (j === index) continue;
       const other = this.vehicles[j];
-      const distToOther = currentPos.distanceTo(other.mesh.position);
-      if (distToOther < 6.0) {
-        const toOtherVec = other.mesh.position.clone().sub(currentPos);
-        const fwdVec = new THREE.Vector3(Math.sin(veh.heading), 0, Math.cos(veh.heading));
-        if (toOtherVec.dot(fwdVec) > 0.6) {
-          shouldStopForLeadingCar = true;
-          break;
+      const op = other.mesh.position;
+      const rx = op.x - currentPos.x, rz = op.z - currentPos.z;
+      const ahead = rx * fwd.x + rz * fwd.z;
+      if (ahead <= 0 || ahead > 22) continue;
+      const lat = lateralOf(rx, rz);
+      const sameDir = fwd.x * Math.sin(other.heading) + fwd.z * Math.cos(other.heading);
+      if ((sameDir > -0.3 && lat < 1.9) || lat < 1.1) brakeFor(ahead, 5.5);
+    }
+
+    // F. Roundabout: give way to vehicles already circulating before entering
+    const r = Math.hypot(currentPos.x, currentPos.z);
+    if (r > 9.5 && r < 16) {
+      const inward = -(currentPos.x * fwd.x + currentPos.z * fwd.z) / r;
+      if (inward > 0.5) {
+        for (let j = 0; j < this.vehicles.length; j++) {
+          if (j === index) continue;
+          const op = this.vehicles[j].mesh.position;
+          if (Math.hypot(op.x, op.z) < 9.8 && op.distanceTo(currentPos) < 11) { brakeFor(r - 10.5, 0); break; }
         }
       }
     }
 
-    // Determine target speed
-    let targetSpeed = veh.baseSpeed;
-    if (shouldStopForLight || shouldStopForPedestrian || shouldStopForPlayer || shouldStopForLeadingCar) {
-      targetSpeed = 0;
-    }
-
-    // Smooth acceleration / deceleration
-    veh.speed = THREE.MathUtils.lerp(veh.speed, targetSpeed, Math.min(1.0, dt * 5.0));
-
-    // F. Navigation along waypoints
-    const distToWp = currentPos.distanceTo(targetWp);
-    if (distToWp < 2.5) {
-      // Advance to next waypoint in circuit
+    // G0. Steering target and curve speed (slow down for bends and U-turns)
+    if (currentPos.distanceTo(targetWp) < 2.5) {
       veh.waypointIdx = (veh.waypointIdx + 1) % veh.circuit.length;
     }
-
-    // Steer towards target waypoint
-    const dir = targetWp.clone().sub(currentPos).normalize();
+    const wp = veh.circuit[veh.waypointIdx];
+    const dir = wp.clone().sub(currentPos);
+    dir.y = 0;
+    dir.normalize();
     const targetHeading = Math.atan2(dir.x, dir.z);
-
     let angleDiff = targetHeading - veh.heading;
     while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
     while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
-    veh.heading += angleDiff * Math.min(1.0, dt * 4.0);
+    targetSpeed = Math.min(targetSpeed, veh.baseSpeed * (1 - Math.min(0.7, Math.abs(angleDiff) * 0.9)));
+
+    // Physical acceleration / braking
+    const rate = targetSpeed > veh.speed ? 2.4 : 7.5;
+    veh.speed += THREE.MathUtils.clamp(targetSpeed - veh.speed, -rate * dt, rate * dt);
+
+    // Turn rate limited like a real car (can still turn slowly when nearly stopped)
+    const maxTurn = (0.7 + veh.speed * 0.3) * dt;
+    veh.heading += THREE.MathUtils.clamp(angleDiff, -maxTurn, maxTurn);
     mesh.rotation.y = veh.heading;
 
     // Move forward

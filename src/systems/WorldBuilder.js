@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+import { addSurfaceDetail } from '../core/MaterialUpgrader.js';
 import { CartoonSkySystem } from './visuals/CartoonSkySystem.js';
 import { CartoonNatureGenerator } from './visuals/CartoonNatureGenerator.js';
 import { CartoonVehicleGenerator } from './visuals/CartoonVehicleGenerator.js';
@@ -68,30 +69,110 @@ export class WorldBuilder {
       gCol[i * 3] = tmp.r; gCol[i * 3 + 1] = tmp.g; gCol[i * 3 + 2] = tmp.b;
     }
     groundGeo.setAttribute('color', new THREE.BufferAttribute(gCol, 3));
-    const groundMat = new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.95, metalness: 0 });
+    const groundMat = addSurfaceDetail(new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.95, metalness: 0 }), 0.07);
     const ground = new THREE.Mesh(groundGeo, groundMat);
     ground.rotation.x = -Math.PI / 2;
     ground.position.y = -0.01;
     ground.receiveShadow = true;
     this.scene.add(ground);
 
-    // Main Avenue East-West (شارع أول نوفمبر) - Corridor z: [-6.5, 6.5]
-    this.createRoadSegment(0, 0, 160, 8, true);
+    // Road network: main avenue (شارع أول نوفمبر), main boulevard (نهج الشهداء) and the outer ring roads
+    this.roadDefs = [
+      { cx: 0, cz: 0, w: 160, d: 8, h: true },
+      { cx: 0, cz: 0, w: 8, d: 160, h: false },
+      { cx: 0, cz: -42, w: 150, d: 7, h: true },
+      { cx: 0, cz: 42, w: 150, d: 7, h: true },
+      { cx: -42, cz: 0, w: 7, d: 150, h: false },
+      { cx: 42, cz: 0, w: 7, d: 150, h: false }
+    ];
+    this.roundaboutRadius = 9.5; // outer edge of the central roundabout lane
+    this.roundaboutIsland = 4.6; // central island with the monument
 
-    // Main Boulevard North-South (نهج الشهداء) - Corridor x: [-6.5, 6.5]
-    this.createRoadSegment(0, 0, 8, 160, false);
+    this.roadDefs.forEach(r => this.createRoadSegment(r.cx, r.cz, r.w, r.d, r.h));
+    this.buildSidewalks();
+  }
 
-    // Secondary Northern East-West Road (z = -42)
-    this.createRoadSegment(0, -42, 150, 7, true);
+  /** True if a lane-marking dash at (x, z) would sit inside a crossing road or the roundabout */
+  isInsideJunction(x, z, isHorizontal) {
+    if (Math.hypot(x, z) < this.roundaboutRadius + 3) return true;
+    return this.roadDefs.some(r => {
+      if (r.h === isHorizontal) return false;
+      return isHorizontal
+        ? Math.abs(x - r.cx) < r.w / 2 + 2.2 && Math.abs(z - r.cz) <= r.d / 2
+        : Math.abs(z - r.cz) < r.d / 2 + 2.2 && Math.abs(x - r.cx) <= r.w / 2;
+    });
+  }
 
-    // Secondary Southern East-West Road (z = 42)
-    this.createRoadSegment(0, 42, 150, 7, true);
+  /** Sidewalks run along every road but stop at crossing roads, so junctions are clean asphalt */
+  buildSidewalks() {
+    const SW = 5.5;
+    const R = this.roundaboutRadius;
+    const mat = this.roadMats.curb;
 
-    // Secondary Western North-South Road (x = -42)
-    this.createRoadSegment(-42, 0, 7, 150, false);
+    this.roadDefs.forEach(road => {
+      const isH = road.h;
+      const half = (isH ? road.d : road.w) / 2;
+      const runMin = isH ? road.cx - road.w / 2 : road.cz - road.d / 2;
+      const runMax = isH ? road.cx + road.w / 2 : road.cz + road.d / 2;
+      [-1, 1].forEach(side => {
+        const fixed = (isH ? road.cz : road.cx) + side * (half + SW / 2);
+        const cuts = [];
+        this.roadDefs.forEach(o => {
+          if (o.h === isH) return;
+          const along = isH ? o.cx : o.cz;
+          const oHalf = (isH ? o.w : o.d) / 2;
+          const sMin = isH ? o.cz - o.d / 2 : o.cx - o.w / 2;
+          const sMax = isH ? o.cz + o.d / 2 : o.cx + o.w / 2;
+          if (fixed >= sMin && fixed <= sMax) cuts.push([along - oHalf, along + oHalf]);
+        });
+        if (Math.abs(fixed) < R) cuts.push([-R, R]); // roundabout gets curved corners instead
+        cuts.sort((a, b) => a[0] - b[0]);
 
-    // Secondary Eastern North-South Road (x = 42)
-    this.createRoadSegment(42, 0, 7, 150, false);
+        let start = runMin;
+        const pieces = [];
+        cuts.forEach(([a, b]) => {
+          if (a > start) pieces.push([start, Math.min(a, runMax)]);
+          start = Math.max(start, b);
+        });
+        if (start < runMax) pieces.push([start, runMax]);
+        pieces.forEach(([a, b]) => {
+          if (b - a < 0.3) return;
+          const mid = (a + b) / 2;
+          if (isH) this.createSidewalk(mid, fixed, b - a, SW, mat);
+          else this.createSidewalk(fixed, mid, SW, b - a, mat);
+        });
+      });
+    });
+
+    // Curved sidewalk corners around the roundabout (square corner minus the circular lane)
+    const inner = 4;
+    const outer = inner + SW;
+    const cut = Math.sqrt(R * R - inner * inner);
+    const shape = new THREE.Shape();
+    shape.moveTo(cut, inner);
+    shape.lineTo(outer, inner);
+    shape.lineTo(outer, outer);
+    shape.lineTo(inner, outer);
+    shape.lineTo(inner, cut);
+    shape.absarc(0, 0, R, Math.atan2(cut, inner), Math.atan2(inner, cut), true);
+    const cornerGeo = new THREE.ExtrudeGeometry(shape, { depth: 0.2, bevelEnabled: false, curveSegments: 24 });
+    cornerGeo.rotateX(Math.PI / 2);
+    cornerGeo.translate(0, 0.2, 0);
+    const cornerMat = mat.clone();
+    cornerMat.side = THREE.DoubleSide; // mirrored corners flip triangle winding
+    [[1, 1], [-1, 1], [1, -1], [-1, -1]].forEach(([sx, sz]) => {
+      const corner = new THREE.Mesh(cornerGeo, cornerMat);
+      corner.scale.set(sx, 1, sz);
+      corner.receiveShadow = true;
+      this.scene.add(corner);
+    });
+
+    // Roundabout lane asphalt
+    const lane = new THREE.Mesh(new THREE.CircleGeometry(R, 64), this.roadMats.road);
+    lane.rotation.x = -Math.PI / 2;
+    lane.position.y = 0.01;
+    lane.receiveShadow = true;
+    this.scene.add(lane);
   }
 
   createRoadSegment(cx, cz, w, d, isHorizontal) {
@@ -101,10 +182,10 @@ export class WorldBuilder {
       polygonOffset: true, polygonOffsetFactor: -layer, polygonOffsetUnits: -layer * 2
     });
     this.roadMats = this.roadMats || {
-      road: new THREE.MeshStandardMaterial({ color: 0x3b3d42, roughness: 0.92, metalness: 0, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 }),
+      road: addSurfaceDetail(new THREE.MeshStandardMaterial({ color: 0x3b3d42, roughness: 0.92, metalness: 0, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 }), 0.1),
       line: decal(0xe8b923, 2),
       stripe: decal(0xf2f2ee, 3),
-      curb: new THREE.MeshStandardMaterial({ color: 0xc2b9a9, roughness: 0.88, metalness: 0 })
+      curb: addSurfaceDetail(new THREE.MeshStandardMaterial({ color: 0xc2b9a9, roughness: 0.88, metalness: 0 }), 0.06, 0.6)
     };
     const roadMat = this.roadMats.road;
     const road = new THREE.Mesh(new THREE.PlaneGeometry(w, d), roadMat);
@@ -114,38 +195,29 @@ export class WorldBuilder {
     this.scene.add(road);
 
     const lineMat = this.roadMats.line;
-    const curbMat = this.roadMats.curb;
-    const sidewalkWidth = 5.5; // Grand spacious 5.5m wide pedestrian sidewalk
 
     if (isHorizontal) {
       // Yellow dashed lane divider
       for (let x = -w / 2 + 5; x < w / 2 - 5; x += 6) {
-        // Skip roundabout center
-        if (Math.abs(cx + x) < 14 && Math.abs(cz) < 14) continue;
+        if (this.isInsideJunction(cx + x, cz, true)) continue;
         const dash = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 0.3), lineMat);
         dash.rotation.x = -Math.PI / 2;
         dash.position.set(cx + x, 0.02, cz);
         dash.receiveShadow = true;
         this.scene.add(dash);
       }
-      // Sidewalks on both sides (each 5.5m wide, providing luxurious promenade space)
-      this.createSidewalk(cx, cz - d / 2 - sidewalkWidth / 2, w, sidewalkWidth, curbMat);
-      this.createSidewalk(cx, cz + d / 2 + sidewalkWidth / 2, w, sidewalkWidth, curbMat);
       // Wide Crosswalks at avenue crossings
       this.createCrosswalk(16, cz, isHorizontal);
       this.createCrosswalk(-16, cz, isHorizontal);
     } else {
       for (let z = -d / 2 + 5; z < d / 2 - 5; z += 6) {
-        if (Math.abs(cz + z) < 14 && Math.abs(cx) < 14) continue;
+        if (this.isInsideJunction(cx, cz + z, false)) continue;
         const dash = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 3.2), lineMat);
         dash.rotation.x = -Math.PI / 2;
         dash.position.set(cx, 0.02, cz + z);
         dash.receiveShadow = true;
         this.scene.add(dash);
       }
-      // Sidewalks on both sides
-      this.createSidewalk(cx - w / 2 - sidewalkWidth / 2, cz, sidewalkWidth, d, curbMat);
-      this.createSidewalk(cx + w / 2 + sidewalkWidth / 2, cz, sidewalkWidth, d, curbMat);
       // Wide Crosswalks
       this.createCrosswalk(cx, 16, isHorizontal);
       this.createCrosswalk(cx, -16, isHorizontal);
@@ -186,99 +258,67 @@ export class WorldBuilder {
   // 2. Central Plaza & Independence Monument (ساحة الاستقلال)
   // ═════════════════════════════════════════════════════
   createPlazaMonument() {
-    const px = 0;
-    const pz = 0;
+    // Independence monument on a compact roundabout island (traffic circulates around it)
+    const R = this.roundaboutIsland;
+    const isle = new THREE.Group();
+    this.scene.add(isle);
 
-    // Tiled Sandstone Circular Plaza
-    const plaza = new THREE.Mesh(
-      new THREE.CylinderGeometry(13.5, 13.5, 0.12, 32),
-      new THREE.MeshLambertMaterial({ color: 0xd2c4a8 })
+    const curb = new THREE.Mesh(
+      new THREE.CylinderGeometry(R, R + 0.15, 0.3, 48),
+      addSurfaceDetail(new THREE.MeshStandardMaterial({ color: 0xd8d0c0, roughness: 0.85 }), 0.05)
     );
-    plaza.position.set(px, 0.06, pz);
-    plaza.receiveShadow = true;
-    this.scene.add(plaza);
-
-    // Inner Geometric Ring Pattern
-    const innerRing = new THREE.Mesh(
-      new THREE.RingGeometry(6, 12, 24),
-      new THREE.MeshStandardMaterial({ color: 0xd4c2a5, roughness: 0.85, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 })
+    curb.position.y = 0.15;
+    curb.receiveShadow = true;
+    isle.add(curb);
+    const lawn = new THREE.Mesh(
+      new THREE.CylinderGeometry(R - 0.35, R - 0.35, 0.06, 48),
+      addSurfaceDetail(new THREE.MeshStandardMaterial({ color: 0x5a8f3c, roughness: 0.95 }), 0.08)
     );
-    innerRing.rotation.x = -Math.PI / 2;
-    innerRing.position.set(px, 0.13, pz);
-    innerRing.receiveShadow = true;
-    this.scene.add(innerRing);
+    lawn.position.y = 0.31;
+    lawn.receiveShadow = true;
+    isle.add(lawn);
 
-    // Monument Grand Stepped Marble Base
-    const step1 = new THREE.Mesh(new THREE.CylinderGeometry(3.6, 4.0, 0.4, 16), new THREE.MeshLambertMaterial({ color: 0xf5f6fa }));
-    step1.position.set(px, 0.26, pz);
-    step1.castShadow = true;
-    this.scene.add(step1);
+    // Monument (scaled to fit the island)
+    const monument = new THREE.Group();
+    monument.position.y = 0.3;
+    monument.scale.setScalar(0.62);
+    isle.add(monument);
 
-    const step2 = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.8, 0.8, 16), new THREE.MeshLambertMaterial({ color: 0xecf0f1 }));
-    step2.position.set(px, 0.8, pz);
-    step2.castShadow = true;
-    this.scene.add(step2);
-
-    // Main Martyr Memorial Column (مقام الشهيد / مسلة التحرير)
-    const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1.2, 7.8, 10), new THREE.MeshLambertMaterial({ color: 0xffffff }));
-    pillar.position.set(px, 5.0, pz);
-    pillar.castShadow = true;
-    this.scene.add(pillar);
-
-    // Golden Crescent & Star Top Finial
-    const crescent = new THREE.Mesh(new THREE.TorusGeometry(0.65, 0.12, 8, 16, Math.PI * 1.5), new THREE.MeshLambertMaterial({ color: 0xf1c40f }));
-    crescent.position.set(px, 9.4, pz);
+    const step1 = new THREE.Mesh(new THREE.CylinderGeometry(3.6, 4.0, 0.4, 32), new THREE.MeshLambertMaterial({ color: 0xf5f6fa }));
+    step1.position.y = 0.2;
+    const step2 = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.8, 0.8, 32), new THREE.MeshLambertMaterial({ color: 0xecf0f1 }));
+    step2.position.y = 0.8;
+    const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1.2, 7.8, 24), new THREE.MeshLambertMaterial({ color: 0xffffff }));
+    pillar.position.y = 5.0;
+    const crescent = new THREE.Mesh(new THREE.TorusGeometry(0.65, 0.12, 10, 24, Math.PI * 1.5), new THREE.MeshLambertMaterial({ color: 0xf1c40f }));
+    crescent.position.y = 9.4;
     crescent.rotation.y = Math.PI / 4;
-    this.scene.add(crescent);
-
-    const star = new THREE.Mesh(new THREE.CircleGeometry(0.24, 5), new THREE.MeshLambertMaterial({ color: 0xf1c40f }));
-    star.position.set(px + 0.18, 9.4, pz);
+    const star = new THREE.Mesh(new THREE.CircleGeometry(0.24, 5), new THREE.MeshLambertMaterial({ color: 0xf1c40f, side: THREE.DoubleSide }));
+    star.position.set(0.13, 9.4, 0.13);
     star.rotation.y = Math.PI / 4;
-    this.scene.add(star);
+    [step1, step2, pillar, crescent, star].forEach(m => { m.castShadow = true; m.receiveShadow = true; monument.add(m); });
 
-    // Stylized Wrought-Iron Railing Square Enclosure (just like City Island 5 reference)
-    const railW = 8.5;
-    this.streetProps.createDecorativeRailing(px, pz - railW / 2, railW, 0);
-    this.streetProps.createDecorativeRailing(px, pz + railW / 2, railW, 0);
-    this.streetProps.createDecorativeRailing(px - railW / 2, pz, railW, Math.PI / 2);
-    this.streetProps.createDecorativeRailing(px + railW / 2, pz, railW, Math.PI / 2);
+    // Flower bushes ringing the monument base
+    for (let i = 0; i < 6; i++) {
+      const ang = (i / 6) * Math.PI * 2 + 0.3;
+      const bush = this.nature.createCartoonBush(Math.cos(ang) * 3.4, Math.sin(ang) * 3.4, 0.55, i % 2 ? 'autumn' : 'cyan');
+      bush.position.y = 0.3;
+    }
 
-    // Stylized Autumn Golden & Cyan Flowering Bushes inside the garden square
-    this.nature.createCartoonBush(px - 2.4, pz - 2.4, 0.9, 'autumn');
-    this.nature.createCartoonBush(px + 2.4, pz - 2.4, 0.9, 'cyan');
-    this.nature.createCartoonBush(px - 2.4, pz + 2.4, 0.9, 'cyan');
-    this.nature.createCartoonBush(px + 2.4, pz + 2.4, 0.9, 'autumn');
-    this.nature.createCartoonBush(px, pz - 3.0, 0.8, 'green');
-    this.nature.createCartoonBush(px, pz + 3.0, 0.8, 'green');
-
-    // 4 Corner Globe Lanterns around the plaza garden
-    const corners = [
-      [-railW / 2 - 0.3, -railW / 2 - 0.3],
-      [railW / 2 + 0.3, -railW / 2 - 0.3],
-      [-railW / 2 - 0.3, railW / 2 + 0.3],
-      [railW / 2 + 0.3, railW / 2 + 0.3]
-    ];
-    corners.forEach(([cx, cz]) => {
-      const lamp = this.streetProps.createGlobeStreetLamp(px + cx, pz + cz, 0.85);
+    // Lanterns on the four curved corner sidewalks
+    [[1, 1], [-1, 1], [1, -1], [-1, -1]].forEach(([sx, sz]) => {
+      const lamp = this.streetProps.createGlobeStreetLamp(sx * 7.6, sz * 7.6, 0.85);
       this.streetLights.push(lamp.light);
     });
 
-    // 4 Plaza Benches in Diagonal Corners
-    const angles = [Math.PI / 4, (3 * Math.PI) / 4, (5 * Math.PI) / 4, (7 * Math.PI) / 4];
-    angles.forEach(ang => {
-      const bx = px + Math.cos(ang) * 9.8;
-      const bz = pz + Math.sin(ang) * 9.8;
-      this.createBench(bx, bz, ang + Math.PI / 2);
-    });
-
-    this.collisionSystem.addBox(px - 4.4, pz - 4.4, px + 4.4, pz + 4.4, 10);
+    this.collisionSystem.addBox(-R * 0.85, -R * 0.85, R * 0.85, R * 0.85, 10);
   }
 
   // ═════════════════════════════════════════════════════
   // 3. The Great Algerian Mosque (المسجد الكبير)
   // ═════════════════════════════════════════════════════
   createMosque() {
-    const mx = -38;
+    const mx = -62;
     const mz = 22;
 
     const wallMat = new THREE.MeshLambertMaterial({ color: 0xfbfcfe });
@@ -386,8 +426,8 @@ export class WorldBuilder {
   // 4. The National Museum of Algerian History (المتحف الوطني)
   // ═════════════════════════════════════════════════════
   createMuseum() {
-    const mx = 34;
-    const mz = -22;
+    const mx = 21;
+    const mz = -23;
 
     const stoneMat = new THREE.MeshLambertMaterial({ color: 0xefeae1 });
     const marbleMat = new THREE.MeshLambertMaterial({ color: 0xf8f9fa });
@@ -436,8 +476,8 @@ export class WorldBuilder {
   // 5. The Primary School (مدرسة الأمل الابتدائية)
   // ═════════════════════════════════════════════════════
   createSchool() {
-    const sx = -36;
-    const sz = -20;
+    const sx = -63;
+    const sz = -21;
 
     const wallMat = new THREE.MeshLambertMaterial({ color: 0xfffcf0 });
     const blueMat = new THREE.MeshLambertMaterial({ color: 0x2980b9 });
@@ -514,8 +554,8 @@ export class WorldBuilder {
   // 7. The Health Center (المركز الصحي)
   // ═════════════════════════════════════════════════
   createHealthCenter() {
-    const hx = 16;
-    const hz = -22;
+    const hx = 63;
+    const hz = -21;
 
     const wallMat = new THREE.MeshLambertMaterial({ color: 0xf8f9fa });
     const redMat = new THREE.MeshLambertMaterial({ color: 0xe74c3c });
@@ -538,12 +578,12 @@ export class WorldBuilder {
   // 8. Central Park (الحديقة المركزية)
   // ═════════════════════════════════════════════════════
   createCentralPark() {
-    const px = 22;
-    const pz = 16;
+    const px = 21.25;
+    const pz = 21.25;
 
     // Lush green park grass lawn
     const parkGround = new THREE.Mesh(
-      new THREE.BoxGeometry(26, 0.12, 18),
+      new THREE.BoxGeometry(22.5, 0.12, 22.5),
       new THREE.MeshLambertMaterial({ color: 0x388e3c })
     );
     parkGround.position.set(px, 0.06, pz);
@@ -552,8 +592,8 @@ export class WorldBuilder {
 
     // Stone Walkway Path through park
     const path = new THREE.Mesh(
-      new THREE.PlaneGeometry(3.5, 18),
-      new THREE.MeshStandardMaterial({ color: 0xd8d2c6, roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 })
+      new THREE.PlaneGeometry(3.5, 22.5),
+      addSurfaceDetail(new THREE.MeshStandardMaterial({ color: 0xd8d2c6, roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 }), 0.06, 0.5)
     );
     path.rotation.x = -Math.PI / 2;
     path.position.set(px, 0.08, pz);
@@ -649,8 +689,8 @@ export class WorldBuilder {
   // 9. Traditional Algerian Souk (السوق الشعبي المنظم)
   // ═════════════════════════════════════════════════════
   createSouk() {
-    const sx = 20;
-    const sz = 40;
+    const sx = 21;
+    const sz = 63;
 
     // Dedicated paved souk square
     const soukFloor = new THREE.Mesh(
@@ -736,29 +776,23 @@ export class WorldBuilder {
   // ═════════════════════════════════════════════════════
   createResidentialQuarter() {
     const buildings = [
-      // North-West Block (Safe distance from roads, well spaced apart)
-      { x: -54, z: -18, w: 9, h: 12, d: 8, color: 0xf5eedc },
-      { x: -54, z: -32, w: 8, h: 10, d: 8, color: 0xe8d5b7 },
-
-      // South-West Block
-      { x: -54, z: 18,  w: 9, h: 13, d: 8, color: 0xf5eedc },
-      { x: -54, z: 32,  w: 8, h: 11, d: 8, color: 0xecd0b8 },
-
-      // North-East Block
-      { x: 54,  z: -18, w: 9, h: 14, d: 8, color: 0xf5eedc },
-      { x: 54,  z: -32, w: 8, h: 11, d: 8, color: 0xe8dfd8 },
-
-      // South-East Block
-      { x: 54,  z: 18,  w: 9, h: 12, d: 8, color: 0xd8cbb5 },
-      { x: 54,  z: 32,  w: 8, h: 10, d: 8, color: 0xf5eedc },
-
-      // North Avenue Facades (Outer perimeter - completely clear of Town Hall at x: 0, z: -52)
-      { x: -24, z: -56, w: 10, h: 12, d: 8, color: 0xe0d6c8 },
-      { x: 24,  z: -56, w: 10, h: 11, d: 8, color: 0xd8cbb5 },
-
-      // South Avenue Facades (Outer perimeter)
-      { x: -24, z: 56, w: 10, h: 12, d: 8, color: 0xf5eedc },
-      { x: 24,  z: 56, w: 10, h: 10, d: 8, color: 0xecd0b8 }
+      // Residential corner blocks (each block sits fully between the ring roads: |x|,|z| in [51, 75])
+      // North-West
+      { x: -69, z: -69, w: 9, h: 12, d: 8, color: 0xf5eedc },
+      { x: -57, z: -69, w: 8, h: 10, d: 8, color: 0xe8d5b7 },
+      { x: -63, z: -57, w: 10, h: 13, d: 8, color: 0xe0d6c8 },
+      // North-East
+      { x: 57,  z: -69, w: 9, h: 14, d: 8, color: 0xf5eedc },
+      { x: 69,  z: -69, w: 8, h: 11, d: 8, color: 0xe8dfd8 },
+      { x: 63,  z: -57, w: 10, h: 11, d: 8, color: 0xd8cbb5 },
+      // South-West
+      { x: -63, z: 57,  w: 10, h: 12, d: 8, color: 0xf5eedc },
+      { x: -69, z: 69,  w: 9, h: 13, d: 8, color: 0xf5eedc },
+      { x: -57, z: 69,  w: 8, h: 11, d: 8, color: 0xecd0b8 },
+      // South-East
+      { x: 63,  z: 57,  w: 10, h: 10, d: 8, color: 0xecd0b8 },
+      { x: 57,  z: 69,  w: 9, h: 12, d: 8, color: 0xd8cbb5 },
+      { x: 69,  z: 69,  w: 8, h: 10, d: 8, color: 0xf5eedc }
     ];
 
     buildings.forEach(b => {
@@ -779,11 +813,11 @@ export class WorldBuilder {
     // Streetlamps positioned strictly along the curb edge (away from central pedestrian corridor)
     const lampPositions = [
       // East-West Main Avenue (curb line at z = 4.4 & -4.4, pedestrian corridor is at z = 6.8 & -6.8)
-      [-18, 4.4], [18, 4.4], [-18, -4.4], [18, -4.4],
-      [-34, 4.4], [34, 4.4], [-34, -4.4], [34, -4.4],
+      [-18, 5], [18, 5], [-18, -5], [18, -5],
+      [-34, 5], [34, 5], [-34, -5], [34, -5],
       // North-South Main Boulevard (curb line at x = 4.4 & -4.4, pedestrian corridor is at x = 6.8 & -6.8)
-      [-4.4, -18], [4.4, -18], [-4.4, 18], [4.4, 18],
-      [-4.4, -34], [4.4, -34], [-4.4, 34], [4.4, 34]
+      [-5, -18], [5, -18], [-5, 18], [5, 18],
+      [-5, -34], [5, -34], [-5, 34], [5, 34]
     ];
 
     lampPositions.forEach(([lx, lz]) => {
@@ -797,8 +831,8 @@ export class WorldBuilder {
     });
 
     // Street Name Signs in Arabic (securely mounted on curb posts)
-    this.createStreetSign(-14, 4.4, 'شارع أول نوفمبر 🇩🇿');
-    this.createStreetSign(4.4, 14, 'نهج الشهداء 🇩🇿');
+    this.createStreetSign(-14, 5.2, 'شارع أول نوفمبر 🇩🇿');
+    this.createStreetSign(5.2, 14, 'نهج الشهداء 🇩🇿');
   }
 
   createStreetLamp(x, z) {
@@ -883,27 +917,20 @@ export class WorldBuilder {
   // ═════════════════════════════════════════════════════
   createShowcaseSection() {
     // 1. Featured Stylized Lavender Apartment Building (West promenade facade, set back generously)
-    this.buildings.createCartoonApartment(-18, 13, 9, 3, 8, 0x6c5ce7, Math.PI / 2);
-    this.collisionSystem.addBox(-22.5, 8.5, -13.5, 17.5, 12);
+    this.createVolunteerAssociation();
 
     // 2. Featured Algerian Bakery Shop ("مخبزة الأصالة الجزائرية" - spaced 14m north-to-south)
     this.buildings.createCartoonShop(-18, 27, 'bakery', Math.PI / 2);
     this.collisionSystem.addBox(-22.5, 22.5, -13.5, 31.5, 6);
 
-    // 3. Stylized Algerian Yellow Taxi parked neatly along the street asphalt curb (leaving sidewalk completely open)
-    this.vehicles.createCartoonCar(-3.4, 11, 0, 0xf1c40f, true);
-    this.collisionSystem.addBox(-4.2, 9.5, -2.6, 12.5, 2);
-
-    // 4. Stylized Green & White City Bus at the dedicated asphalt bus bay
-    this.vehicles.createCartoonBus(-3.4, 21, 0);
-    this.collisionSystem.addBox(-4.4, 18.0, -2.4, 24.0, 3.5);
+    // (Parked taxi and bus removed: they sat in the driving lane and blocked traffic)
 
     // 5. Stylized Modern Bus Stop Shelter on the outer sidewalk verge
     this.streetProps.createBusStopShelter(-9.2, 21, Math.PI / 2);
     this.collisionSystem.addBox(-9.8, 19.5, -8.6, 22.5, 3);
 
     // 6. Stylized Cartoon Traffic Light at the curb corner
-    this.streetProps.createTrafficLight(-4.4, 5.2, Math.PI);
+    this.streetProps.createTrafficLight(-4.6, 10.6, Math.PI);
 
     // 7. Eco Recycling Bins on the outer promenade edge
     this.streetProps.createEcoBins(-9.2, 17, Math.PI / 2);
@@ -922,9 +949,63 @@ export class WorldBuilder {
   // ═════════════════════════════════════════════════════
   // 13. Police Station (مقر الأمن الوطني الجزائري)
   // ═════════════════════════════════════════════════════
+  /**
+   * Volunteer association HQ (مقر جمعية شباب التطوع): two storeys, green trim, faces the main avenue.
+   * The Arabic entrance sign and the interior are added by InteriorSystem.
+   */
+  createVolunteerAssociation() {
+    const cx = -21, cz = 15, w = 10, d = 7.5, h = 7;
+    const g = new THREE.Group();
+    g.position.set(cx, 0, cz);
+    this.scene.add(g);
+
+    const wall = new THREE.MeshLambertMaterial({ color: 0xf3e3c3 });
+    const trim = new THREE.MeshLambertMaterial({ color: 0x1e8449 });
+    const glass = new THREE.MeshLambertMaterial({ color: 0x9fd8e8, transparent: true, opacity: 0.8 });
+    const wood = new THREE.MeshLambertMaterial({ color: 0x6e4b2a });
+    const red = new THREE.MeshLambertMaterial({ color: 0xc0392b });
+    const add = (mesh, x, y, z) => { mesh.position.set(x, y, z); mesh.castShadow = true; mesh.receiveShadow = true; g.add(mesh); return mesh; };
+
+    add(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wall), 0, h / 2, 0);
+    add(new THREE.Mesh(new THREE.BoxGeometry(w + 0.2, 0.3, d + 0.2), trim), 0, 3.5, 0);
+    add(new THREE.Mesh(new THREE.BoxGeometry(w + 0.3, 0.5, d + 0.3), trim), 0, h + 0.1, 0);
+
+    const fz = -d / 2 - 0.06; // front facade (faces -z)
+    add(new THREE.Mesh(new THREE.BoxGeometry(2.1, 2.9, 0.1), trim), 0, 1.45, fz + 0.02);
+    add(new THREE.Mesh(new THREE.BoxGeometry(1.8, 2.6, 0.12), wood), 0, 1.3, fz);
+    add(new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.15, 1.2), trim), 0, 2.95, fz - 0.55);
+    [[-3.3, 1.7], [3.3, 1.7], [-3.3, 5.2], [3.3, 5.2]].forEach(([x, y]) => {
+      add(new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.6, 0.08), trim), x, y, fz + 0.02);
+      add(new THREE.Mesh(new THREE.BoxGeometry(2.0, 1.4, 0.1), glass), x, y, fz);
+    });
+
+    // Heart logo (volunteering) above the entrance
+    const heart = new THREE.Group();
+    [-1, 1].forEach(s => {
+      const lobe = new THREE.Mesh(new THREE.SphereGeometry(0.32, 20, 14), red);
+      lobe.position.set(s * 0.24, 0.12, 0);
+      heart.add(lobe);
+    });
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.5, 0.75, 20), red);
+    tip.rotation.z = Math.PI;
+    tip.position.y = -0.3;
+    heart.add(tip);
+    heart.scale.z = 0.35;
+    add(heart, 0, 5.2, fz - 0.1);
+
+    // Donation boxes by the door
+    [[-1.9, -d / 2 - 0.5], [1.9, -d / 2 - 0.5]].forEach(([x, z]) => {
+      add(new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.5, 0.5), new THREE.MeshLambertMaterial({ color: 0xc8a165 })), x, 0.45, z);
+    });
+
+    this.collisionSystem.addBox(cx - w / 2 - 0.2, cz - d / 2 - 0.2, cx + w / 2 + 0.2, cz + d / 2 + 0.2, h);
+    this.collisionSystem.addBox(cx - 2.3, cz - d / 2 - 0.8, cx - 1.5, cz - d / 2 - 0.2, 1);
+    this.collisionSystem.addBox(cx + 1.5, cz - d / 2 - 0.8, cx + 2.3, cz - d / 2 - 0.2, 1);
+  }
+
   createPoliceStationBuilding() {
-    const px = -28;
-    const pz = 48;
+    const px = -21;
+    const pz = 63;
     this.buildings.createPoliceStation(px, pz, Math.PI);
     this.collisionSystem.addBox(px - 8.5, pz - 7.5, px + 8.5, pz + 7.5, 12);
 
@@ -940,8 +1021,8 @@ export class WorldBuilder {
   // 14. Civil Protection Station (مركز الحماية المدنية)
   // ═════════════════════════════════════════════════════
   createCivilProtectionStationBuilding() {
-    const fx = -28;
-    const fz = -48;
+    const fx = -21;
+    const fz = -63;
     this.buildings.createCivilProtectionStation(fx, fz, 0);
     this.collisionSystem.addBox(fx - 8.5, fz - 7.5, fx + 8.5, fz + 7.5, 14);
 
@@ -954,8 +1035,8 @@ export class WorldBuilder {
   // 15. Municipality / Town Hall (مقر البلدية APC)
   // ═════════════════════════════════════════════════════
   createTownHallBuilding() {
-    const tx = 0;
-    const tz = -52;
+    const tx = 21;
+    const tz = -69;
     this.buildings.createTownHall(tx, tz, 0);
     this.collisionSystem.addBox(tx - 9.5, tz - 7.5, tx + 9.5, tz + 7.5, 15);
 
@@ -968,8 +1049,8 @@ export class WorldBuilder {
   // 16. Casbah Traditional Heritage Quarter (حي القصبة العتيق)
   // ═════════════════════════════════════════════════════
   createCasbahHeritageQuarter() {
-    const cx = 40;
-    const cz = 22;
+    const cx = 63;
+    const cz = 21;
     this.buildings.createCasbahHeritage(cx, cz, -Math.PI / 2);
     this.collisionSystem.addBox(cx - 7.5, cz - 6.5, cx + 7.5, cz + 6.5, 10);
 

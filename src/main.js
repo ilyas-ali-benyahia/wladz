@@ -16,6 +16,7 @@ import { UISystem } from './systems/UISystem.js';
 import { DialogueSystem } from './systems/DialogueSystem.js';
 import { TrafficSystem } from './systems/TrafficSystem.js';
 import { PedestrianSystem } from './systems/PedestrianSystem.js';
+import { InteriorSystem } from './systems/InteriorSystem.js';
 
 class GhirassGameApp {
   constructor() {
@@ -29,6 +30,7 @@ class GhirassGameApp {
     // 2. Systems
     this.collisionSystem = new CollisionSystem();
     this.worldBuilder = new WorldBuilder(this.engine, this.collisionSystem);
+    this.collisionSystem.buildWalkables(this.engine.scene);
     this.player = new PlayerController(this.engine, this.collisionSystem, this.input);
     this.npcSystem = new NPCSystem(this.engine, this.collisionSystem);
 
@@ -47,6 +49,29 @@ class GhirassGameApp {
 
     // 3. UI
     this.ui = new UISystem(this);
+    this.interiors = new InteriorSystem(this.engine, this.collisionSystem, this.player, this.ui);
+
+    // Mission objectives can point at NPCs and building entrances
+    this.missionSystem.npcLookup = (id) => {
+      const n = this.npcSystem.npcInstances.find(n => n.data.id === id);
+      return n ? n.group.position : null;
+    };
+    this.missionSystem.doorLookup = (id) => {
+      const l = this.interiors.landmarks.find(l => l.id === id);
+      return l ? l.door : null;
+    };
+    this.missionSystem.isInside = () => this.interiors.isInside();
+    this.missionSystem.npcSystem = this.npcSystem;
+    this.missionSystem.lightPhase = () => this.trafficSystem.currentLightPhase;
+    this.missionSystem.setHint = (html) => this.ui.setCustomHint(html, 'mission');
+    this.trafficSystem.extraCrossers = () => this.missionSystem.getEscortPositions();
+    this.missionSystem.emitUpdate();
+
+    // Pedestrians steer around NPCs who stand still on the sidewalks
+    this.pedestrianSystem.setObstacleProvider(() => [
+      ...this.npcSystem.npcInstances.map(n => n.group.position),
+      ...this.npcSystem.childNPCs.map(k => k.group.position)
+    ]);
 
     this.setupInputHandlers();
 
@@ -60,8 +85,11 @@ class GhirassGameApp {
   setupInputHandlers() {
     // E to interact
     this.input.onInteract = () => {
+      if (this.interiors.tryInteract()) return;
       const nearNPC = this.npcSystem.getNearNPC();
       if (nearNPC) {
+        // Mission givers (association) and "talk to" objectives are handled by the mission system
+        if (this.missionSystem.handleNPCInteraction(nearNPC)) return;
         this.ui.openDialogue(nearNPC);
       }
     };
@@ -107,6 +135,8 @@ class GhirassGameApp {
       // Update NPCs
       this.npcSystem.update(dt, this.player.position);
 
+      this.interiors.update();
+
       // Update Missions
       this.missionSystem.update(dt, this.player.position);
 
@@ -119,8 +149,8 @@ class GhirassGameApp {
         this.player.model.update(dt, { isMoving: false, speedRatio: 0, isJumping: false });
 
         // Frame camera right on player for 3D character showcase
-        const charLookAt = this.player.position.clone().add(new THREE.Vector3(0, 0.85, 0));
-        const previewCamPos = this.player.position.clone().add(new THREE.Vector3(0, 1.05, 2.8));
+        const charLookAt = this.player.position.clone().add(new THREE.Vector3(0, 1.0, 0));
+        const previewCamPos = this.player.position.clone().add(new THREE.Vector3(0, 1.15, 2.6));
         this.engine.camera.position.lerp(previewCamPos, Math.min(1.0, 10.0 * dt));
         this.engine.camera.lookAt(charLookAt);
       }
