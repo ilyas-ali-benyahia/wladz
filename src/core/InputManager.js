@@ -10,6 +10,7 @@ export class InputManager {
     this.onInteract = null;
     this.onEscape = null;
     this.onMapToggle = null;
+    this.onHorn = null;
 
     this.init();
   }
@@ -22,6 +23,10 @@ export class InputManager {
 
       if (e.code === 'KeyE' && this.onInteract) {
         this.onInteract();
+      }
+
+      if (e.code === 'KeyH' && this.onHorn) {
+        this.onHorn();
       }
 
       if (e.code === 'KeyM' && this.onMapToggle) {

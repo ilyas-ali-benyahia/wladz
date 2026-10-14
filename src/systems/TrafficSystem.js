@@ -54,6 +54,25 @@ export class TrafficSystem {
     this.syncFootprints();
   }
 
+  /**
+   * Footprint that vehicle `index` would hit at (x, z, heading), or null. A car already overlapping
+   * something may still move if the move takes it further away (so nobody stays locked together).
+   */
+  vehicleBlocking(index, x, z, heading) {
+    const me = this.footprints[index];
+    const next = { x, z, heading, hw: me.hw, hl: me.hl };
+    const others = this.footprints.filter((_, j) => j !== index);
+    if (this.extraVehicles) others.push(...this.extraVehicles());
+    for (const o of others) {
+      if (!this.collisionSystem.obbOverlap(next, o, 0.25)) continue;
+      const nowOverlap = this.collisionSystem.obbOverlap(me, o, 0.25);
+      const awayNow = Math.hypot(me.x - o.x, me.z - o.z), awayNext = Math.hypot(x - o.x, z - o.z);
+      if (nowOverlap && awayNext > awayNow) continue;
+      return o;
+    }
+    return null;
+  }
+
   syncFootprints() {
     this.vehicles.forEach((v, i) => {
       const f = this.footprints[i];
@@ -334,6 +353,12 @@ export class TrafficSystem {
           const op = this.vehicles[j].mesh.position;
           if (Math.hypot(op.x, op.z) < 9.8 && op.distanceTo(currentPos) < 11) { brakeFor(r - 10.5, 0); break; }
         }
+        // ...and to the player's car on the ring
+        if (this.extraVehicles) {
+          for (const o of this.extraVehicles()) {
+            if (Math.hypot(o.x, o.z) < 9.8 && Math.hypot(o.x - currentPos.x, o.z - currentPos.z) < 11) { brakeFor(r - 10.5, 0); break; }
+          }
+        }
       }
     }
 
@@ -360,19 +385,35 @@ export class TrafficSystem {
     veh.heading += THREE.MathUtils.clamp(angleDiff, -maxTurn, maxTurn);
     mesh.rotation.y = veh.heading;
 
-    // Move forward
+    // Move forward, but never into another vehicle: the next footprint (plus a small look-ahead)
+    // is tested against every other car, including the player's, from any side
     const forwardVec = new THREE.Vector3(Math.sin(veh.heading), 0, Math.cos(veh.heading));
-    mesh.position.add(forwardVec.multiplyScalar(veh.speed * dt));
+    const step = veh.speed * dt;
+    const blocker = this.vehicleBlocking(index, currentPos.x + forwardVec.x * (step + 0.6), currentPos.z + forwardVec.z * (step + 0.6), veh.heading);
+    if (blocker) {
+      veh.speed = 0;
+      veh.blockedByCar = (veh.blockedByCar || 0) + dt;
+      // A polite horn when the player's car keeps blocking the way
+      if (blocker.id === 'family_car_01' && veh.blockedByCar > 3 && veh.hornCooldown <= 0) {
+        veh.hornCooldown = 10;
+        const dist = playerPos ? playerPos.distanceTo(currentPos) : 0;
+        if (dist < 40) audio.playHorn(Math.max(0.15, 1 - dist / 40), veh.type === 'bus' || veh.type === 'fire');
+      }
+    } else {
+      veh.blockedByCar = 0;
+      mesh.position.add(forwardVec.multiplyScalar(step));
+    }
 
-    // G. Stuck Detection & Recovery
-    if (veh.speed > 0.5) {
+    // G. Stuck Detection & Recovery (only when nothing is in the way)
+    if (veh.speed > 0.5 && !blocker) {
       const movedDist = currentPos.distanceTo(veh.lastPos);
       if (movedDist < 0.1 * dt) {
         veh.stuckTimer += dt;
         if (veh.stuckTimer > 3.0) {
-          // Nudge forward or advance waypoint to unfreeze
           veh.waypointIdx = (veh.waypointIdx + 1) % veh.circuit.length;
-          mesh.position.add(new THREE.Vector3(dir.x * 0.5, 0, dir.z * 0.5));
+          if (!this.vehicleBlocking(index, currentPos.x + dir.x * 0.5, currentPos.z + dir.z * 0.5, veh.heading)) {
+            mesh.position.add(new THREE.Vector3(dir.x * 0.5, 0, dir.z * 0.5));
+          }
           veh.stuckTimer = 0;
         }
       } else {
@@ -380,5 +421,8 @@ export class TrafficSystem {
       }
     }
     veh.lastPos.copy(currentPos);
+    this.footprints[index].x = currentPos.x;
+    this.footprints[index].z = currentPos.z;
+    this.footprints[index].heading = veh.heading;
   }
 }

@@ -109,6 +109,9 @@ class GhirassGameApp {
       }
     };
 
+    // H: car horn while driving
+    this.input.onHorn = () => this.vehicle.honk();
+
     // M to toggle full map
     this.input.onMapToggle = () => {
       this.mapSystem.toggleFullMap();

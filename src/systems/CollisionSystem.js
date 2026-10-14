@@ -93,13 +93,29 @@ export class CollisionSystem {
     }
 
     // 3. Moving vehicles (oriented boxes)
-    if (!b && this.vehicleProvider) {
+    if (!b && this.vehicleProvider && ignoreVehicle !== 'all') {
       for (const v of this.vehicleProvider()) {
         if (v !== ignoreVehicle && this.vehiclePenetration(v, pos.x, pos.z, radius)) return true;
       }
     }
 
     return false;
+  }
+
+  /** Oriented box vs oriented box (separating axis test). Footprints: {x, z, heading, hw, hl} */
+  obbOverlap(a, b, pad = 0) {
+    const axes = [a.heading, a.heading + Math.PI / 2, b.heading, b.heading + Math.PI / 2];
+    const dx = b.x - a.x, dz = b.z - a.z;
+    const radius = (f, ax, az) => {
+      const s = Math.sin(f.heading), c = Math.cos(f.heading);
+      // forward (s, c) * hl, right (c, -s) * hw projected on the axis
+      return Math.abs((s * ax + c * az) * f.hl) + Math.abs((c * ax - s * az) * f.hw);
+    };
+    for (const h of axes) {
+      const ax = Math.sin(h), az = Math.cos(h);
+      if (Math.abs(dx * ax + dz * az) > radius(a, ax, az) + radius(b, ax, az) + pad) return false;
+    }
+    return true;
   }
 
   /** Circle vs vehicle footprint (oriented box). Returns the push-out vector {x, z} or null */

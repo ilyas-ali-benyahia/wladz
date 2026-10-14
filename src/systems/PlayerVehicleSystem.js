@@ -79,13 +79,13 @@ export class PlayerVehicleSystem {
   }
 
   /** Would the car overlap anything solid at this pose? Three circles cover the body. */
-  blockedAt(x, z, h) {
+  blockedAt(x, z, h, ignoreVehicles = false) {
     const fp = this.footprint;
     const r = fp.hw;
     const off = fp.hl - fp.hw;
     for (const lz of [-off, 0, off]) {
       const p = this.toWorld(0, lz, x, z, h);
-      if (this.collision.checkCollision(p, r, fp)) return 'solid';
+      if (this.collision.checkCollision(p, r, ignoreVehicles ? 'all' : fp)) return 'solid';
     }
     // Never drive into people: they are checked against the real (oriented) footprint
     const test = { ...fp, x, z, heading: h };
@@ -120,7 +120,7 @@ export class PlayerVehicleSystem {
     events.emit('VEHICLE_ENTERED', { id: PLAYER_CAR_ID });
     if (this.firstDrive) {
       this.firstDrive = false;
-      events.emit('TOAST', '🚗 W/S: تقدّم ورجوع • A/D: انعطاف • المسافة: فرملة • E: النزول. احترم الراجلين والإشارات!');
+      events.emit('TOAST', '🚗 W/S: تقدّم ورجوع • A/D: انعطاف • المسافة: فرملة • H: المنبّه • E: النزول. احترم الراجلين والإشارات!');
     }
   }
 
@@ -186,6 +186,10 @@ export class PlayerVehicleSystem {
     st.steer += (target - st.steer) * Math.min(1, dt * 6);
     const yawRate = (s / WHEELBASE) * Math.tan(st.steer);
 
+    // Already pressed against another car (e.g. traffic cut in)? Then other vehicles do not block this move,
+    // so the player can always drive out of the overlap; walls, the boundary and people still do.
+    const tangled = this.blockedAt(st.x, st.z, st.heading) === 'solid' && !this.blockedAt(st.x, st.z, st.heading, true);
+
     // Move in short sub-steps; stop on contact
     const total = s * dt;
     const n = Math.max(1, Math.ceil(Math.abs(total) / STEP));
@@ -193,7 +197,7 @@ export class PlayerVehicleSystem {
       const h = st.heading + yawRate * dt / n;
       const x = st.x + Math.sin(h) * total / n;
       const z = st.z + Math.cos(h) * total / n;
-      const hit = this.blockedAt(x, z, h);
+      const hit = this.blockedAt(x, z, h, tangled);
       if (hit) {
         if (Math.abs(s) > 3) {
           audio.playTone(110, 0.15, 'square');
@@ -224,6 +228,24 @@ export class PlayerVehicleSystem {
     const kmh = Math.round(Math.abs(s) * 3.6);
     const text = `🚗 ${kmh} كم/سا${s < -0.3 ? ' • رجوع' : ''}`;
     if (text !== this.hudText) { this.hudText = text; this.hud.textContent = text; }
+  }
+
+  /** Put the car at a pose (parked) and refresh its mesh and collision footprint immediately */
+  place(x, z, heading) {
+    Object.assign(this.state, { x, z, heading, speed: 0, steer: 0 });
+    this.state.y = this.collision.getGroundHeight(x, z);
+    this.syncMesh(0);
+  }
+
+  /** Car horn (H while driving); short cooldown so holding the key gives a steady honk */
+  honk() {
+    if (!this.driving) return false;
+    const now = performance.now();
+    if (this.lastHonk && now - this.lastHonk < 380) return true;
+    this.lastHonk = now;
+    audio.playHorn(1, false);
+    events.emit('PLAYER_HORN', { x: this.state.x, z: this.state.z, heading: this.state.heading });
+    return true;
   }
 
   syncMesh(dt) {
@@ -299,8 +321,6 @@ export class PlayerVehicleSystem {
   loadState(saved) {
     if (!saved || saved.id !== PLAYER_CAR_ID || this.driving) return;
     if (this.blockedAt(saved.x, saved.z, saved.heading) === 'solid') return; // keep the driveway spot if the save is invalid
-    Object.assign(this.state, { x: saved.x, z: saved.z, heading: saved.heading, speed: 0, steer: 0 });
-    this.state.y = this.collision.getGroundHeight(saved.x, saved.z);
-    this.syncMesh(0);
+    this.place(saved.x, saved.z, saved.heading);
   }
 }

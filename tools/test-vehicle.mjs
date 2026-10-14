@@ -20,7 +20,9 @@ const { TrafficSystem } = await import('../src/systems/TrafficSystem.js');
 const { InteriorSystem } = await import('../src/systems/InteriorSystem.js');
 const { PlayerVehicleSystem, PLAYER_CAR_ID } = await import('../src/systems/PlayerVehicleSystem.js');
 const { audio } = await import('../src/systems/AudioSystem.js');
-audio.playTone = audio.playClick = audio.playHorn = () => {};
+let horns = 0;
+audio.playTone = audio.playClick = () => {};
+audio.playHorn = () => { horns++; };
 
 let failed = 0;
 const check = (ok, msg) => { if (!ok) failed++; console.log(ok ? 'PASS' : 'FAIL', msg); };
@@ -31,6 +33,7 @@ const cs = new CollisionSystem();
 const wb = new WorldBuilder(engine, cs);
 cs.buildWalkables(scene);
 const traffic = new TrafficSystem(engine, cs, wb);
+const trafficStart = traffic.vehicles.map(v => ({ p: v.mesh.position.clone(), h: v.heading, wp: v.waypointIdx, sp: v.speed }));
 traffic.vehicles.forEach(v => v.mesh.position.set(-500, 0, -500)); // park traffic far away (isolated test area)
 traffic.syncFootprints();
 
@@ -48,6 +51,9 @@ const car = new PlayerVehicleSystem(engine, cs, player, input, ui, wb.playerHome
 const people = [];
 car.peopleProvider = () => people;
 car.canUse = () => !interiors.isInside();
+// Same wiring as main.js: traffic sees the player car as a vehicle
+traffic.extraVehicles = () => [car.footprint];
+traffic.playerIsVehicle = () => car.driving;
 const run = (sec, fn) => { for (let i = 0; i < sec * 60; i++) { fn && fn(i); car.update(1 / 60); } };
 const walk = (to, steps = 900) => {
   for (let i = 0; i < steps; i++) {
@@ -87,7 +93,7 @@ check(maxSpeed <= 13.01, `speed capped (${(maxSpeed * 3.6).toFixed(0)} km/h afte
 check(Math.abs(player.position.x - car.state.x) < 1e-6 && Math.abs(player.position.z - car.state.z) < 1e-6, 'hidden player rides with the car (missions and map see the car position)');
 
 // 4. Steering on the open ring road: turning needs speed and is progressive
-Object.assign(car.state, { x: 60, z: 42, heading: -Math.PI / 2, speed: 0, steer: 0 });
+car.place(60, 42, -Math.PI / 2);
 keys.W = true; run(1.2);
 keys.D = true;
 const h0 = car.state.heading;
@@ -101,7 +107,7 @@ keys.D = true; run(0.5); keys.D = false;
 check(Math.abs(car.state.heading - h0) < 1e-6, 'no rotation while stopped (needs speed to turn)');
 
 // 5. Braking: from speed, Space stops quickly
-Object.assign(car.state, { x: 30, z: 42, heading: -Math.PI / 2, speed: 0, steer: 0 });
+car.place(30, 42, -Math.PI / 2);
 keys.W = true; run(3); keys.W = false;
 const v0 = car.state.speed;
 let t = 0; keys.Space = true; run(3, () => { if (car.state.speed > 0.05) t++; }); keys.Space = false;
@@ -110,18 +116,18 @@ keys.S = true; run(2); keys.S = false;
 check(car.state.speed < 0 && car.state.speed >= -4.51, `S reverses slowly when stopped (${(car.state.speed * 3.6).toFixed(0)} km/h)`);
 
 // 6. Full speed into the road-end barrier: stops before it (no tunnelling)
-Object.assign(car.state, { x: 50, z: -2, heading: Math.PI / 2, speed: 0, steer: 0 });
+car.place(50, -2, Math.PI / 2);
 keys.W = true; run(5); keys.W = false;
 check(car.state.x + car.footprint.hl < 81.0 && !overlapsSolid(), `top-speed run east is stopped by the tunnel barrier (front at x=${(car.state.x + car.footprint.hl).toFixed(2)})`);
 
 // 7. Into a building wall (the house front from the courtyard)
-Object.assign(car.state, { x: 76.5, z: 50.2, heading: 0, speed: 0, steer: 0 });
+car.place(76.5, 50.2, 0);
 car.update(1 / 60);
 keys.W = true; run(3); keys.W = false;
 check(car.state.z + car.footprint.hl < wb.playerHome.house.minZ && !overlapsSolid(), `drives up to the house wall and stops (front z=${(car.state.z + car.footprint.hl).toFixed(2)} < ${wb.playerHome.house.minZ})`);
 
 // 8. A pedestrian in the lane: the car stops instead of driving through
-Object.assign(car.state, { x: 10, z: -42, heading: -Math.PI / 2, speed: 0, steer: 0 });
+car.place(10, -42, -Math.PI / 2);
 car.update(1 / 60);
 people.push(new THREE.Vector3(-2, 0, -42));
 keys.W = true; run(4); keys.W = false;
@@ -141,7 +147,7 @@ check(car.state.x === parked.x && car.state.z === parked.z && car.state.heading 
 check(cs.checkCollision(new THREE.Vector3(parked.x, 0, parked.z), 0.42), 'the parked car is solid for people');
 
 // 10. Exit next to a wall uses the free side; blocked in on both sides refuses
-Object.assign(car.state, { x: 70.45, z: 56.5, heading: Math.PI, speed: 0, steer: 0 }); car.update(1 / 60);
+car.place(70.45, 56.5, Math.PI);
 car.enter(); car.tryExit();
 check(!car.driving && !cs.checkCollision(player.position, 0.42), `exit in the narrow driveway lands at (${player.position.x.toFixed(1)}, ${player.position.z.toFixed(1)})`);
 
@@ -154,6 +160,53 @@ check(count() === 1, 'exactly one personal car in the scene after enter / exit c
 const saved = car.getState();
 Object.assign(car.state, { x: 0, z: 30 }); car.loadState(saved);
 check(car.state.x === saved.x && car.state.z === saved.z && saved.id === PLAYER_CAR_ID, `save / load restores the parked car (${JSON.stringify(saved)})`);
+
+// 12. Horn: H while driving, nothing on foot
+horns = 0;
+check(!car.honk() && horns === 0, 'horn does nothing on foot');
+car.place(30, 42, -Math.PI / 2);
+car.enter();
+car.honk(); car.honk(); // second press inside the cooldown is merged
+check(horns === 1, 'H sounds the horn while driving (rapid repeats merged)');
+
+// 13. Tangled with a traffic car (it cut in): the player can still drive out
+const taxi = traffic.vehicles[2];
+taxi.mesh.position.set(30, 0, 41.2); taxi.heading = -Math.PI / 2 + 0.4; traffic.syncFootprints();
+check(cs.obbOverlap(traffic.footprints[2], car.footprint, 0), 'set-up: a traffic car overlaps the player car');
+keys.S = true; run(1.5); keys.S = false;
+const moved = Math.hypot(car.state.x - 30, car.state.z - 42);
+check(moved > 2, `player car drives out of the overlap (moved ${moved.toFixed(1)} m)`);
+taxi.mesh.position.set(-500, 0, -500); traffic.syncFootprints();
+keys.Space = true; run(1); keys.Space = false;
+car.tryExit();
+
+// 14. Real traffic for 60 s with the player's car parked across a lane on its route
+traffic.vehicles.forEach((v, i) => { v.mesh.position.copy(trafficStart[i].p); v.heading = trafficStart[i].h; v.waypointIdx = trafficStart[i].wp; v.speed = trafficStart[i].sp; v.mesh.rotation.y = v.heading; });
+traffic.syncFootprints();
+car.place(-2.2, 26, Math.PI / 2); // across the N-S boulevard
+let carHits = 0, trafficHits = 0, minMoved = Infinity;
+const startPos = traffic.vehicles.map(v => v.mesh.position.clone());
+for (let f = 0; f < 60 * 60; f++) {
+  traffic.update(1 / 60, f / 60, player.position);
+  if (f % 6) continue;
+  traffic.footprints.forEach((a, i) => {
+    if (cs.obbOverlap(a, car.footprint, 0)) carHits++;
+    for (let j = i + 1; j < traffic.footprints.length; j++) if (cs.obbOverlap(a, traffic.footprints[j], 0)) trafficHits++;
+  });
+}
+const stuckOnes = traffic.vehicles.filter((v, i) => v.mesh.position.distanceTo(startPos[i]) < 1).length;
+check(carHits === 0, `60 s of traffic: no car ever overlaps the player's car (samples with overlap: ${carHits})`);
+check(trafficHits === 0, `60 s of traffic: traffic cars never overlap each other (samples with overlap: ${trafficHits})`);
+
+// 15. Move the car away: the blocked lane flows again
+car.place(70.45, 56.5, Math.PI);
+const travelled = traffic.vehicles.map(() => 0), lastPos = traffic.vehicles.map(v => v.mesh.position.clone());
+for (let f = 0; f < 20 * 60; f++) {
+  traffic.update(1 / 60, f / 60, player.position);
+  traffic.vehicles.forEach((v, i) => { travelled[i] += v.mesh.position.distanceTo(lastPos[i]); lastPos[i].copy(v.mesh.position); });
+}
+const minMove = Math.min(...travelled);
+check(minMove > 20, `after the car is moved away every traffic car keeps going (shortest distance driven in 20 s: ${minMove.toFixed(0)} m)`);
 
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll vehicle checks passed');
 process.exit(failed ? 1 : 0);
