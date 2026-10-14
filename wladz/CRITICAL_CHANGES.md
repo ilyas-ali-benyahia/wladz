@@ -53,3 +53,20 @@
 - **Nouvelle règle effective** : celle du WLADZ_TEAM_PROMPT.md à jour au 2026-10-13.
 - **Statut** : actif
 
+
+
+### CC-20261014-game-salati-01 — Salati prayer trainer: Three.js and GSAP dependencies
+
+- **Date** : 2026-10-14
+- **Développeur** : linuxcoding-ADAM
+- **Groupe** : game:salati
+- **Branche / PR** : game/salati — PR to main (not yet opened)
+- **Type** : écart forcé
+- **Règle(s) concernée(s)** : WLADZ_TEAM_PROMPT.md §4 (three.js listed as a game engine that needs the deviation protocol), §6.5 #9 (new npm dependency)
+- **Changement** : adds `three` 0.160.1 and `gsap` 3.15.0 (exact versions, same as the original Salati project) to `wladz/package.json`. Adds the game folder `app/dashboard/games/salati/` (engine in `_engine/`, Three.js scene included) and `public/games/salati/thumbnail.webp`. The game keeps its Three.js architecture: it is not converted to static HTML.
+- **Raison** : the Salati game is a 3D Three.js application. The developer chose to keep its architecture (option B of the deviation protocol).
+- **Conséquences et risques acceptés** : larger client bundle (Three.js is loaded only when the Learn mode starts). WebGL is required for the 3D lesson, and the game falls back to text instructions if WebGL fails. The engine is plain JavaScript, not type-checked. The game uses a scoped copy of the original stylesheet and some `innerHTML` templates built from static constants.
+- **Impact sur les autres groupes** : none. The dependencies are used only by the Salati game folder.
+- **Action requise pour les autres** : run `npm ci` after pulling this change (the lockfile gains `three` and `gsap`).
+- **Nouvelle règle effective** : a game may depend on `three` and `gsap` when its architecture requires them, at the exact versions recorded here. Any other new dependency still needs the deviation protocol.
+- **Statut** : actif (effective once merged into main; until then this entry is a proposal on branch game/salati)
