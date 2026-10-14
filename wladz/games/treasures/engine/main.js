@@ -4,6 +4,7 @@
 // Retirés pour WLADZ : pièces et joyaux, roue de la chance, cadeaux quotidiens et coffre.
 
 import { store } from "./state/store.js";
+import { iconSvg } from "../../_shared/svgIcons.js";
 import { sounds } from "./audio/audioEngine.js";
 import { WILAYAS_DATA } from "./data/wilayas.js";
 import { ConfettiEngine } from "./components/confetti.js";
@@ -102,7 +103,7 @@ import { WilayaInfoSheet } from "./components/wilayaInfoSheet.js";
     if (playerNameEl) playerNameEl.textContent = state.playerName;
 
     if (soundBtn) {
-      soundBtn.textContent = state.settings.soundEnabled ? "🔊" : "🔇";
+      soundBtn.innerHTML = iconSvg(state.settings.soundEnabled ? "volume-2" : "volume-x");
     }
   };
 
@@ -162,7 +163,7 @@ import { WilayaInfoSheet } from "./components/wilayaInfoSheet.js";
     musicBtn.addEventListener("click", () => {
       const isPlaying = sounds.toggleMusic();
       musicBtn.style.color = isPlaying ? "var(--c-gold)" : "var(--text-muted)";
-      musicBtn.textContent = isPlaying ? "🎵" : "🎼";
+      musicBtn.innerHTML = iconSvg(isPlaying ? "music-2" : "music");
     });
   }
 

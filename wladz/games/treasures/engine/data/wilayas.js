@@ -11,7 +11,7 @@ export const WILAYAS_DATA = [
     accent: "#fbbf24",
     badge: {
       name: "وسام واحات توات الحكيمة",
-      icon: "🏜️",
+      icon: "sun",
       title: "حارس الفقارات وقصور الطين",
       description: "مُنح لاكتشاف أسرار قصور أدرار ونظام الفقارات الفريد"
     },
@@ -29,7 +29,7 @@ export const WILAYAS_DATA = [
     accent: "#34d399",
     badge: {
       name: "وسام الونشريس الخالد",
-      icon: "⛰️",
+      icon: "mountain",
       title: "صامد وادي الشلف",
       description: "مُنح لفتح معالم الونشريس وتنس الفينيقية"
     },
@@ -47,7 +47,7 @@ export const WILAYAS_DATA = [
     accent: "#fb923c",
     badge: {
       name: "وسام واحة الأطلس الصحراوي",
-      icon: "🌴",
+      icon: "tree-palm",
       title: "فارس الأغواط العريقة",
       description: "مُنح لاجتياز قصر كاف سيدي بوزيد وتراث الجلفة والأغواط"
     },
@@ -65,7 +65,7 @@ export const WILAYAS_DATA = [
     accent: "#38bdf8",
     badge: {
       name: "وسام قلاع الشاوية الحرة",
-      icon: "🦅",
+      icon: "bird",
       title: "نسر الأوراس والسباخ",
       description: "مُنح للتعرف على آثار سيقوس ومسقط رأس البواسل"
     },
@@ -83,7 +83,7 @@ export const WILAYAS_DATA = [
     accent: "#f87171",
     badge: {
       name: "وسام إمدغاسن وتيمقاد",
-      icon: "🏛️",
+      icon: "landmark",
       title: "مستكشف معالم الأوراس",
       description: "مُنح لاستكشاف ضريح إمدغاسن النوميدي ومدينة تيمقاد الرومانية"
     },
@@ -101,7 +101,7 @@ export const WILAYAS_DATA = [
     accent: "#2dd4bf",
     badge: {
       name: "وسام لؤلؤة الناصرية ويما قورايا",
-      icon: "🌊",
+      icon: "waves",
       title: "حارس منارة كاب كربون",
       description: "مُنح لتسلق قمة يما قورايا واكتشاف عاصمة الحماديين"
     },
@@ -119,7 +119,7 @@ export const WILAYAS_DATA = [
     accent: "#fde047",
     badge: {
       name: "وسام دقلة نور الذهبية",
-      icon: "🍯",
+      icon: "hexagon",
       title: "سلطان عروس الزيبان",
       description: "مُنح لاكتشاف واحات بسكرة وأطباق الدوبارة الشهية"
     },
@@ -137,7 +137,7 @@ export const WILAYAS_DATA = [
     accent: "#fb923c",
     badge: {
       name: "وسام كثبان الساورة الشامخة",
-      icon: "🐪",
+      icon: "paw-print",
       title: "رحالة وادي الساورة",
       description: "مُنح لفتح أسرار تاغيت وكثبان الرمال الذهبية"
     },
@@ -155,7 +155,7 @@ export const WILAYAS_DATA = [
     accent: "#4ade80",
     badge: {
       name: "وسام مدينة الورود والشريعة",
-      icon: "🌹",
+      icon: "flower",
       title: "صديق أرز الشريعة",
       description: "مُنح لعبور قمم الشريعة وبساتين البرتقال والورود"
     },
@@ -173,7 +173,7 @@ export const WILAYAS_DATA = [
     accent: "#60a5fa",
     badge: {
       name: "وسام ثلوج تيكجدة وجرجرة",
-      icon: "❄️",
+      icon: "snowflake",
       title: "متسلق قمم تيكجدة",
       description: "مُنح لاستكشاف منتجع تيكجدة وغابات الأرز الباسقة"
     },
@@ -191,7 +191,7 @@ export const WILAYAS_DATA = [
     accent: "#818cf8",
     badge: {
       name: "وسام قمم الهقار والأسكرام",
-      icon: "🌌",
+      icon: "sparkles",
       title: "أمير صحراء التوارق",
       description: "مُنح لمشاهدة أجمل شروق شمس من هضبة الأسكرام بالهقار"
     },
@@ -209,7 +209,7 @@ export const WILAYAS_DATA = [
     accent: "#f59e0b",
     badge: {
       name: "وسام سور كاراكلا والأمفيثياتر",
-      icon: "🛡️",
+      icon: "shield",
       title: "حارس ثغور تيفست القديمة",
       description: "مُنح لفتح باب كاراكلا الروماني ومعالم تبسة العريقة"
     },
@@ -227,7 +227,7 @@ export const WILAYAS_DATA = [
     accent: "#c084fc",
     badge: {
       name: "وسام الشدة التلمسانية والمنصورة",
-      icon: "👑",
+      icon: "crown",
       title: "فارس عاصمة الزيانيين",
       description: "مُنح لاكتشاف صومعة المنصورة وتراث الحياكة والشدة الملكية"
     },
@@ -245,7 +245,7 @@ export const WILAYAS_DATA = [
     accent: "#eab308",
     badge: {
       name: "وسام الجواد العربي وأجدار تاهرت",
-      icon: "🐎",
+      icon: "paw-print",
       title: "فارس تاهرت الرستمية",
       description: "مُنح لمعرفة تاريخ الدولة الرستمية والأحصنة العربية الأصيلة بشاوشاوة"
     },
@@ -263,7 +263,7 @@ export const WILAYAS_DATA = [
     accent: "#34d399",
     badge: {
       name: "وسام الفضة الأمازيغية وجرجرة",
-      icon: "💍",
+      icon: "gem",
       title: "حارس تقاليد بني يني",
       description: "مُنح لإتقان صناعة الفضة المرجانية والجبة القبائلية وتراث جرجرة"
     },
@@ -281,7 +281,7 @@ export const WILAYAS_DATA = [
     accent: "#38bdf8",
     badge: {
       name: "وسام البهجة ومقام الشهيد",
-      icon: "🕊️",
+      icon: "bird",
       title: "سفير المحروسة وقصبة الأصالة",
       description: "مُنح للتجول في أزقة القصبة العتيقة وتكريم شهداء الجزائر الشرفاء"
     },
@@ -299,7 +299,7 @@ export const WILAYAS_DATA = [
     accent: "#fbbf24",
     badge: {
       name: "وسام كبش أولاد جلال وحجر الملح",
-      icon: "🐑",
+      icon: "paw-print",
       title: "رائد سهوب الصوان",
       description: "مُنح لاكتشاف نقوش زكار الحجرية وجبل حجر الملح العجيب"
     },
@@ -317,7 +317,7 @@ export const WILAYAS_DATA = [
     accent: "#38bdf8",
     badge: {
       name: "وسام الكهوف العجيبة والكورنيش",
-      icon: "🌊",
+      icon: "waves",
       title: "مستكشف الكورنيش الجيجلي",
       description: "مُنح لفتح أسرار الكهوف العجيبة وغابات الحظيرة الوطنية لتازة"
     },
@@ -335,7 +335,7 @@ export const WILAYAS_DATA = [
     accent: "#60a5fa",
     badge: {
       name: "وسام عين الفوارة وجميلة",
-      icon: "⛲",
+      icon: "droplets",
       title: "حكيم عاصمة الهضاب العليا",
       description: "مُنح لشرب ماء عين الفوارة وزيارة آثار كويكول (جميلة) الخالدة"
     },
@@ -353,7 +353,7 @@ export const WILAYAS_DATA = [
     accent: "#34d399",
     badge: {
       name: "وسام ينابيع المياه المعدنية النقية",
-      icon: "💧",
+      icon: "droplet",
       title: "صديق منابع سعيدة العذبة",
       description: "مُنح لزيارة شلالات تيفريت وينابيع حمام ربي المعدنية"
     },
@@ -371,7 +371,7 @@ export const WILAYAS_DATA = [
     accent: "#38bdf8",
     badge: {
       name: "وسام روسيكادا وفراولة القل",
-      icon: "🍓",
+      icon: "cherry",
       title: "ربان خليج ستورا",
       description: "مُنح لتذوق فراولة سكيكدة وزيارة المسرح الروماني بروسيكادا"
     },
@@ -389,7 +389,7 @@ export const WILAYAS_DATA = [
     accent: "#4ade80",
     badge: {
       name: "وسام بحيرة سيدي امحمد بن علي",
-      icon: "🌾",
+      icon: "wheat",
       title: "فارس بساتين مكرة",
       description: "مُنح لاكتشاف وادي مكرة وبحيرة سيدي امحمد بن علي وموسيقى الراي الأصيلة"
     },
@@ -407,7 +407,7 @@ export const WILAYAS_DATA = [
     accent: "#22d3ee",
     badge: {
       name: "وسام بونة وسيدة إيبون",
-      icon: "⛵",
+      icon: "sailboat",
       title: "أمير خليج عنابة الجميل",
       description: "مُنح لزيارة هضبة القديس أوغسطين وشواطئ سرايدي وجبل إيدوغ"
     },
@@ -425,7 +425,7 @@ export const WILAYAS_DATA = [
     accent: "#2dd4bf",
     badge: {
       name: "وسام حمام دباغ الشلال المتكلس",
-      icon: "♨️",
+      icon: "flame",
       title: "مستكشف ينابيع كالاتا الحارة",
       description: "مُنح للتعرف على شلال حمام المسخوطين الأسطوري والمسرح الروماني بقالمة"
     },
@@ -443,7 +443,7 @@ export const WILAYAS_DATA = [
     accent: "#f472b6",
     badge: {
       name: "وسام مدينة الجسور المعلقة وسيرتا",
-      icon: "🌉",
+      icon: "bridge",
       title: "عمدة صخرة سيرتا العريقة",
       description: "مُنح لعبور قنطرة سيدي مسيد المعلقة وقصر أحمد باي الفاخر"
     },
@@ -461,7 +461,7 @@ export const WILAYAS_DATA = [
     accent: "#86efac",
     badge: {
       name: "وسام التيطري وعنب المدية",
-      icon: "🍇",
+      icon: "grape",
       title: "حارس منارة التيطري",
       description: "مُنح لاكتشاف مضيق الشفة وبساتين العنب والكرز وقصر الباي"
     },
@@ -479,7 +479,7 @@ export const WILAYAS_DATA = [
     accent: "#38bdf8",
     badge: {
       name: "وسام مسك الغنائم والشعر الملحون",
-      icon: "🎭",
+      icon: "drama",
       title: "شاعر مسك الغنائم والمسرح",
       description: "مُنح لفتح مهرجان المسرح الهواة وتراث سيدي لخضر بن خلوف"
     },
@@ -497,7 +497,7 @@ export const WILAYAS_DATA = [
     accent: "#fde047",
     badge: {
       name: "وسام قلعة بني حماد التاريخية",
-      icon: "🏰",
+      icon: "castle",
       title: "حارس صرح الحماديين بالمعاضيد",
       description: "مُنح لاكتشاف مئذنة قلعة بني حماد المصنفة في التراث الإنساني العالمي"
     },
@@ -515,7 +515,7 @@ export const WILAYAS_DATA = [
     accent: "#4ade80",
     badge: {
       name: "وسام الأمير عبد القادر الجزائري",
-      icon: "⚔️",
+      icon: "swords",
       title: "حامل راية مؤسس الدولة الجزائرية الحديثة",
       description: "مُنح لزيارة شجرة الدردارة ومبايعة الأمير عبد القادر بطل المقاومة"
     },
@@ -533,7 +533,7 @@ export const WILAYAS_DATA = [
     accent: "#fed7aa",
     badge: {
       name: "وسام قصر ورقلة وبحيرة الرمال",
-      icon: "🕌",
+      icon: "moon-star",
       title: "سيد قصر ورقلة العتيق",
       description: "مُنح لعبور حاسي مسعود وقصر ورقلة العتيق وبحيرة حاسي بن عبد الله"
     },
@@ -551,7 +551,7 @@ export const WILAYAS_DATA = [
     accent: "#38bdf8",
     badge: {
       name: "وسام الباهية وسانتا كروز",
-      icon: "🏰",
+      icon: "castle",
       title: "سفير الباهية وهران والبلوزة",
       description: "مُنح لتسلق قمة المرجاجو وزيارة حصن سانتا كروز والبلوزة الوهرانية"
     },
@@ -569,7 +569,7 @@ export const WILAYAS_DATA = [
     accent: "#fdba74",
     badge: {
       name: "وسام نقوش الغيشة والقصور",
-      icon: "🦬",
+      icon: "paw-print",
       title: "صائد نقوش الوعول بالبيض",
       description: "مُنح لاكتشاف قصر بوسمغون والنقوش الصخرية النادرة في الغيشة"
     },
@@ -587,7 +587,7 @@ export const WILAYAS_DATA = [
     accent: "#f59e0b",
     badge: {
       name: "وسام كهوف ورسوم الطاسيلي العالمية",
-      icon: "🎨",
+      icon: "palette",
       title: "مستكشف متحف الهواء الطلق العالمي",
       description: "مُنح لفك رموز أقدم لوحات جدارية للإنسان في هضبة طاسيلي ناجر"
     },
@@ -605,7 +605,7 @@ export const WILAYAS_DATA = [
     accent: "#818cf8",
     badge: {
       name: "وسام برج المقراني والبيببان",
-      icon: "🏰",
+      icon: "castle",
       title: "حارس معقل ثورة المقراني",
       description: "مُنح لزيارة برج المقراني ومضايق البيبان الشامخة وعاصمة الإلكترونيك"
     },
@@ -623,7 +623,7 @@ export const WILAYAS_DATA = [
     accent: "#38bdf8",
     badge: {
       name: "وسام صخرة قصبة دلس ورأس جنات",
-      icon: "⚓",
+      icon: "anchor",
       title: "ملاح قصبة دلس العتيقة",
       description: "مُنح للتجول في القصبة الساحلية بدلس وميناء رأس جنات الخلاب"
     },
@@ -641,7 +641,7 @@ export const WILAYAS_DATA = [
     accent: "#6ee7b7",
     badge: {
       name: "وسام بحيرة طونغا والقالة المرجانية",
-      icon: "🪸",
+      icon: "shell",
       title: "غواص مرجان القالة الثمين",
       description: "مُنح لاستكشاف محمية القالة وبحيرة طونغا ومصائد المرجان الملكي"
     },
@@ -659,7 +659,7 @@ export const WILAYAS_DATA = [
     accent: "#fde047",
     badge: {
       name: "وسام واحة بلاد الحطاطبة",
-      icon: "⛺",
+      icon: "tent",
       title: "حارس قوافل الصحراء الغربية",
       description: "مُنح لاجتياز حمادة تندوف وزيارة زوايا العلم والتراث الأصيل"
     },
@@ -677,7 +677,7 @@ export const WILAYAS_DATA = [
     accent: "#86efac",
     badge: {
       name: "وسام حظيرة ثنية الحد وأرز المداد",
-      icon: "🌲",
+      icon: "tree-pine",
       title: "صديق أرز المداد الألفي",
       description: "مُنح لعبور غابة الأرز المعمرة بثنية الحد وعيون مياه الونشريس"
     },
@@ -695,7 +695,7 @@ export const WILAYAS_DATA = [
     accent: "#fdba74",
     badge: {
       name: "وسام مدينة الألف قبة والغوط",
-      icon: "🕌",
+      icon: "moon-star",
       title: "فلاح الغيطان السوفية الذهبية",
       description: "مُنح لفك هندسة الغيطان لزراعة النخيل وتفاصيل مدينة القباب المعمارية"
     },
@@ -713,7 +713,7 @@ export const WILAYAS_DATA = [
     accent: "#fca5a5",
     badge: {
       name: "وسام حمام الصالحين والملكة ديهيا",
-      icon: "♨️",
+      icon: "flame",
       title: "أمير مياه أكوا كاليدا الرومانية",
       description: "مُنح للسباحة في حمام الصالحين الأثري المستمر بالتدفق منذ 2000 عام"
     },
@@ -731,7 +731,7 @@ export const WILAYAS_DATA = [
     accent: "#86efac",
     badge: {
       name: "وسام زيتونة القديس أوغسطين وطاغاست",
-      icon: "🫒",
+      icon: "leaf",
       title: "فيلسوف طاغاست التاريخية",
       description: "مُنح لزيارة شجرة زيتونة القديس أوغسطين المعمرة وآثار مادور الفكرية"
     },
@@ -749,7 +749,7 @@ export const WILAYAS_DATA = [
     accent: "#38bdf8",
     badge: {
       name: "وسام الضريح الموريتاني الملكي وتيبازة",
-      icon: "🏛️",
+      icon: "landmark",
       title: "حارس قبر الرومية وضفاف المتوسط",
       description: "مُنح لاستكشاف الضريح الملكي الموريتاني وآثار تيبازة البحرية يونسكو"
     },
@@ -767,7 +767,7 @@ export const WILAYAS_DATA = [
     accent: "#a5b4fc",
     badge: {
       name: "وسام عين البلد ومسجد سيدي غانم",
-      icon: "⛲",
+      icon: "droplets",
       title: "مؤرخ ميليف وأقدم مسجد جزائري",
       description: "مُنح للتعرف على مسجد أبي المهاجر دينار (سيدي غانم) وينبوع عين البلد الروماني"
     },
@@ -785,7 +785,7 @@ export const WILAYAS_DATA = [
     accent: "#86efac",
     badge: {
       name: "وسام جبل زكار وحمام ريغة",
-      icon: "⛰️",
+      icon: "mountain",
       title: "حارس سفوح جبل زكار الشامخ",
       description: "مُنح لزيارة حمام ريغة المعدني ومحاصيل عين الدفلى الوفيرة"
     },
@@ -803,7 +803,7 @@ export const WILAYAS_DATA = [
     accent: "#fde047",
     badge: {
       name: "وسام قلعة الشيخ بوعمامة ومكمن بن عمار",
-      icon: "🐎",
+      icon: "paw-print",
       title: "فارس مقاومة الشيخ بوعمامة",
       description: "مُنح لتخليد مسار مقاومة الشيخ بوعمامة وزيارة قصر عسلة القديم"
     },
@@ -821,7 +821,7 @@ export const WILAYAS_DATA = [
     accent: "#38bdf8",
     badge: {
       name: "وسام جزيرة رشقون ومملكة سيفاكس",
-      icon: "🏝️",
+      icon: "tree-palm",
       title: "ربان عاصمة النوميديين الغربيين سيقا",
       description: "مُنح لزيارة جزيرة رشقون الساحرة وموقع سيقا عاصمة الملك سيفاكس"
     },
@@ -839,7 +839,7 @@ export const WILAYAS_DATA = [
     accent: "#fbbf24",
     badge: {
       name: "وسام قصر بني يزقن ومآذن ميزاب",
-      icon: "🕌",
+      icon: "moon-star",
       title: "مهندس العمارة الميزابية العالمية",
       description: "مُنح لاكتشاف قصور وادي ميزاب الخمسة المصنفة يونسكو وزربية غرداية العريقة"
     },
@@ -857,7 +857,7 @@ export const WILAYAS_DATA = [
     accent: "#4ade80",
     badge: {
       name: "وسام سهل مينا وزاوية سيدي امحمد بن عودة",
-      icon: "🌾",
+      icon: "wheat",
       title: "فارس الفانتازيا بوعدة بن عودة",
       description: "مُنح لحضور أكبر تظاهرة فانتازيا شعبية بوعدة سيدي امحمد بن عودة"
     },
@@ -875,7 +875,7 @@ export const WILAYAS_DATA = [
     accent: "#f87171",
     badge: {
       name: "وسام الواحة الحمراء وأهليل قورارة",
-      icon: "🥁",
+      icon: "drum",
       title: "منشد تراث الأهليل العالمي",
       description: "مُنح للاستماع لفن أهليل قورارة الشفهي المعترف به في اليونسكو"
     },
@@ -893,7 +893,7 @@ export const WILAYAS_DATA = [
     accent: "#fde047",
     badge: {
       name: "وسام بوابات تنزروفت الكبرى",
-      icon: "🧭",
+      icon: "compass",
       title: "دليل دروب صحراء تنزروفت العظيمة",
       description: "مُنح لقطع دروب صحراء تنزروفت الشاسعة وتراث البدو الرحل"
     },
@@ -911,7 +911,7 @@ export const WILAYAS_DATA = [
     accent: "#fbbf24",
     badge: {
       name: "وسام سلالة الشياه والتمور البهية",
-      icon: "🐑",
+      icon: "paw-print",
       title: "راعي سلالة أولاد جلال الأصيلة",
       description: "مُنح لمعرفة أشهر سلالة أغنام جزائرية ذات الصيت الإقليمي والعالمي"
     },
@@ -929,7 +929,7 @@ export const WILAYAS_DATA = [
     accent: "#fdba74",
     badge: {
       name: "وسام واحة العقرب الأبيض والنخلة",
-      icon: "🦂",
+      icon: "bug",
       title: "حكيم قصر بني عباس ومتحف الصحراء",
       description: "مُنح لزيارة صومعة شارل دو فوكو ومتحف بني عباس وتلال العرق الذهبي"
     },
@@ -947,7 +947,7 @@ export const WILAYAS_DATA = [
     accent: "#fed7aa",
     badge: {
       name: "وسام غابات الخشب المتحجر بتديكلت",
-      icon: "🪵",
+      icon: "trees",
       title: "جيولوجي غابات الأشجار المتحجرة",
       description: "مُنح لاكتشاف ظاهرة الغابات المتحجرة العائدة لملايين السنين في قلب الصحراء"
     },
@@ -965,7 +965,7 @@ export const WILAYAS_DATA = [
     accent: "#818cf8",
     badge: {
       name: "وسام بوابة التجارة الإفريقية الخضراء",
-      icon: "🌍",
+      icon: "earth",
       title: "حارس بوابة الساحل الإفريقي",
       description: "مُنح لفتح معبر قوافل التجارة العابرة للصحراء والتضاريس الجبلية النادرة"
     },
@@ -983,7 +983,7 @@ export const WILAYAS_DATA = [
     accent: "#fde047",
     badge: {
       name: "وسام أضرحة ملوك بني جلاب وتقرت",
-      icon: "👑",
+      icon: "crown",
       title: "أمير سلطنة وادي ريغ",
       description: "مُنح لزيارة قبة ملوك بني جلاب ومسجد الجامع الكبير العتيق بتقرت"
     },
@@ -1001,7 +1001,7 @@ export const WILAYAS_DATA = [
     accent: "#c4b5fd",
     badge: {
       name: "وسام البقرة الباكية وإهرير الساحرة",
-      icon: "🗿",
+      icon: "landmark",
       title: "عاشق نقش البقرة الباكية بتيديس",
       description: "مُنح لتأمل رائعة النحت الصخري 'البقرة الباكية' وواحات إهرير المائية العجيبة"
     },
@@ -1019,7 +1019,7 @@ export const WILAYAS_DATA = [
     accent: "#fbbf24",
     badge: {
       name: "وسام شط ملغيغ وأدنى نقطة بالجزائر",
-      icon: "🪞",
+      icon: "sparkle",
       title: "مستكشف مرآة شط ملغيغ البلورية",
       description: "مُنح لزيارة شط ملغيغ ذي السطح الملحي الأخاذ المنخفض عن مستوى البحر"
     },
@@ -1037,7 +1037,7 @@ export const WILAYAS_DATA = [
     accent: "#fed7aa",
     badge: {
       name: "وسام قصر القليعة ووردة الرمال",
-      icon: "🌹",
+      icon: "flower",
       title: "حارس حصن القليعة الحصين",
       description: "مُنح للصعود إلى قصر القليعة المنيع والظفر بأجمل ورود الرمال الكريستالية"
     },

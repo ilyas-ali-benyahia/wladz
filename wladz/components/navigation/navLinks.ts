@@ -6,10 +6,11 @@ export type NavLink = {
   short: string;
   description: string;
   icon: LucideIcon;
-  tile: string;
+  // Couleur de la tuile d'icône (IconTile).
+  tone: string;
 };
 
-// Each item gets its own bright icon tile so kids can recognise it by colour
+// Chaque lien a sa propre tuile colorée, pour que les enfants le reconnaissent à sa couleur.
 export const navLinks: NavLink[] = [
   {
     href: "/dashboard",
@@ -17,7 +18,7 @@ export const navLinks: NavLink[] = [
     short: "الرئيسية",
     description: "عُد إلى الصفحة الرئيسية",
     icon: Home,
-    tile: "bg-dz-green",
+    tone: "#0b7a43",
   },
   {
     href: "/dashboard/quick-games",
@@ -25,7 +26,7 @@ export const navLinks: NavLink[] = [
     short: "سريعة",
     description: "تحدّيات قصيرة وممتعة",
     icon: Zap,
-    tile: "bg-dz-red",
+    tone: "#d21034",
   },
   {
     href: "/dashboard/games",
@@ -33,7 +34,7 @@ export const navLinks: NavLink[] = [
     short: "الألعاب",
     description: "العب وتعلّم واجمع النقاط",
     icon: Gamepad2,
-    tile: "bg-dz-green-light",
+    tone: "#2f8f5b",
   },
   {
     href: "/dashboard/ranking",
@@ -41,7 +42,7 @@ export const navLinks: NavLink[] = [
     short: "المتصدرون",
     description: "شاهد ترتيب الأبطال",
     icon: Trophy,
-    tile: "bg-gold",
+    tone: "#e5a400",
   },
   {
     href: "/dashboard/profile",
@@ -49,6 +50,6 @@ export const navLinks: NavLink[] = [
     short: "حسابي",
     description: "معلوماتك ونقاطك",
     icon: User,
-    tile: "bg-sky-deep",
+    tone: "#3a8ee6",
   },
 ];

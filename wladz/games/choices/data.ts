@@ -12,10 +12,30 @@ export type Choice = {
   good?: boolean;
 };
 
+export type SceneIcon =
+  | "school"
+  | "candy"
+  | "house"
+  | "pill"
+  | "buildings"
+  | "cigarette"
+  | "secret"
+  | "child"
+  | "phone"
+  | "gift"
+  | "backpack"
+  | "books"
+  | "vapor"
+  | "fruit"
+  | "hug"
+  | "chat"
+  | "package";
+
 export type ChoiceScene = {
   id: string;
   place: string;
-  emoji: string;
+  // Illustration du lieu : deux icônes (voir sceneIcons dans ChoicesGame.tsx).
+  art: [SceneIcon, SceneIcon];
   background: string;
   story: string;
   choices: Choice[];
@@ -29,7 +49,7 @@ export const choiceScenes: Record<AgeTier, ChoiceScene[]> = {
     {
       id: "junior:1",
       place: "أمام المدرسة",
-      emoji: "🏫🍬",
+      art: ["school", "candy"],
       background: "from-dz-red/25 to-gold/25",
       story:
         "خرجت من المدرسة، فاقترب منك رجل لا تعرفه ومدّ لك حبّة ملوّنة تشبه الحلوى وقال: «خذها، ستجعلك سعيداً!»",
@@ -55,7 +75,7 @@ export const choiceScenes: Record<AgeTier, ChoiceScene[]> = {
     {
       id: "junior:2",
       place: "في البيت",
-      emoji: "🏠💊",
+      art: ["house", "pill"],
       background: "from-dz-green/25 to-dz-green-light/25",
       story: "وجدت على الطاولة علبة دواء فيها أقراص ملوّنة تشبه الحلوى، ولا أحد في الغرفة.",
       choices: [
@@ -79,7 +99,7 @@ export const choiceScenes: Record<AgeTier, ChoiceScene[]> = {
     {
       id: "junior:3",
       place: "في الحيّ",
-      emoji: "🏘️🚬",
+      art: ["buildings", "cigarette"],
       background: "from-dz-green-light/25 to-dz-green-soft",
       story: "ولد أكبر منك في الحيّ يدخّن سيجارة. نظر إليك وقال: «جرّب، كل الكبار يفعلون ذلك!»",
       choices: [
@@ -102,7 +122,7 @@ export const choiceScenes: Record<AgeTier, ChoiceScene[]> = {
     {
       id: "junior:4",
       place: "في ساحة اللعب",
-      emoji: "🤫🧒",
+      art: ["secret", "child"],
       background: "from-green/20 to-dz-green/20",
       story:
         "صديقك أراك سيجارة إلكترونية أخذها من أخيه الأكبر وقال: «سأجرّبها، لا تخبر أحداً. هذا سرّنا!»",
@@ -126,7 +146,7 @@ export const choiceScenes: Record<AgeTier, ChoiceScene[]> = {
     {
       id: "junior:5",
       place: "على الإنترنت",
-      emoji: "📱🎁",
+      art: ["phone", "gift"],
       background: "from-dz-green/20 to-dz-green-light/20",
       story:
         "وأنت تلعب على الهاتف، كتب لك شخص لا تعرفه: «عندي هدية تجعلك أقوى من الجميع! أعطني عنوان بيتك.»",
@@ -152,7 +172,7 @@ export const choiceScenes: Record<AgeTier, ChoiceScene[]> = {
     {
       id: "senior:1",
       place: "بعد المدرسة",
-      emoji: "🎒🚬",
+      art: ["backpack", "cigarette"],
       background: "from-dz-red/25 to-gold/25",
       story:
         "بعد الدراسة، مجموعة من الزملاء يدخّنون في الزاوية. مدّ أحدهم لك سيجارة وقال أمام الجميع: «خذ، لا تكن طفلاً!»",
@@ -178,7 +198,7 @@ export const choiceScenes: Record<AgeTier, ChoiceScene[]> = {
     {
       id: "senior:2",
       place: "أسبوع الامتحانات",
-      emoji: "📚💊",
+      art: ["books", "pill"],
       background: "from-dz-green/25 to-dz-green-light/25",
       story:
         "الامتحانات على الأبواب وأنت متعب. زميلك أخرج حبّة وقال: «خذها، ستسهر وتركّز طول الليل. الكل يأخذها.»",
@@ -204,7 +224,7 @@ export const choiceScenes: Record<AgeTier, ChoiceScene[]> = {
     {
       id: "senior:3",
       place: "في الحيّ",
-      emoji: "💨🍓",
+      art: ["vapor", "fruit"],
       background: "from-dz-green-light/25 to-dz-green-soft",
       story:
         "صديق أراك سيجارة إلكترونية وقال: «هذه ليست مثل السجائر، مجرد بخار بنكهة الفواكه. جرّب!»",
@@ -229,7 +249,7 @@ export const choiceScenes: Record<AgeTier, ChoiceScene[]> = {
     {
       id: "senior:4",
       place: "صديق في ورطة",
-      emoji: "🫂💬",
+      art: ["hug", "chat"],
       background: "from-green/20 to-dz-green/20",
       story:
         "صديقك المقرّب تغيّر: يتغيّب عن الدراسة، يبتعد عن الجميع، وأخبرك أنه بدأ يتعاطى شيئاً وطلب منك ألا تخبر أحداً.",
@@ -254,7 +274,7 @@ export const choiceScenes: Record<AgeTier, ChoiceScene[]> = {
     {
       id: "senior:5",
       place: "على الإنترنت",
-      emoji: "📱📦",
+      art: ["phone", "package"],
       background: "from-dz-green/20 to-dz-green-light/20",
       story:
         "حساب لا تعرفه كتب لك: «تريد مالاً سهلاً؟ فقط أوصل طرداً صغيراً إلى شخص في حيّك، ولا تسأل عمّا بداخله.»",

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
 import { ageTier } from "@/games/ageTier";
@@ -11,6 +11,7 @@ import { SalatiGame } from "@/games/salati/SalatiGame";
 import { SkillsLauncher } from "@/games/skills/SkillsLauncher";
 import { SpaceGame } from "@/games/space/SpaceGame";
 import { TreasuresLauncher } from "@/games/treasures/TreasuresLauncher";
+import { ButtonLink } from "@/components/ui/Button";
 import { getSessionUser } from "@/lib/auth";
 import { findGame } from "@/lib/games";
 import { getAnsweredQuestions } from "@/lib/points";
@@ -30,12 +31,16 @@ export default async function GamePage({ params }: PageProps<"/dashboard/games/[
 
   return (
     <>
-      <Link
+      <ButtonLink
         href="/dashboard"
-        className="mb-3 inline-flex h-11 items-center rounded-2xl border-2 border-dz-green bg-white px-4 text-base font-bold text-dz-green transition hover:bg-dz-green-soft"
+        variant="secondary"
+        size="sm"
+        icon={ArrowRight}
+        iconPosition="start"
+        className="mb-4"
       >
         العودة
-      </Link>
+      </ButtonLink>
       {game.slug === "space" ? <SpaceGame initialAnswered={answered} /> : null}
       {game.slug === "choices" ? <ChoicesGame tier={tier} initialAnswered={answered} /> : null}
       {game.slug === "math" ? <MathLauncher /> : null}

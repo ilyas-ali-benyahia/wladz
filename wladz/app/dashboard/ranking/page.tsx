@@ -1,7 +1,11 @@
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Star, Trophy } from "lucide-react";
+import { Gamepad2, Star, Trophy } from "lucide-react";
+import { ButtonLink } from "@/components/ui/Button";
+import { IconTile } from "@/components/ui/GameIcon";
+import { RankMedal } from "@/components/ui/RankMedal";
+import { Tilt } from "@/components/ui/Tilt";
 import { getSessionUser } from "@/lib/auth";
 import { getPlayerRank, getRanking, rankingName, type RankingEntry } from "@/lib/ranking";
 
@@ -10,18 +14,20 @@ export const metadata: Metadata = { title: "لوحة المتصدرين" };
 const listSize = 20;
 
 const podiumStyles = {
-  1: { medal: "🥇", tile: "bg-gold", height: "h-36", ring: "ring-gold" },
-  2: { medal: "🥈", tile: "bg-dz-green-light", height: "h-28", ring: "ring-dz-green-light" },
-  3: { medal: "🥉", tile: "bg-dz-red", height: "h-20", ring: "ring-dz-red" },
+  1: { tone: "#e5a400", height: "h-36" },
+  2: { tone: "#2f8f5b", height: "h-28" },
+  3: { tone: "#d21034", height: "h-20" },
 } as const;
 
-const avatarTiles = ["bg-dz-green-light", "bg-dz-green", "bg-dz-red", "bg-green", "bg-gold"];
+const avatarTones = ["#2f8f5b", "#0b7a43", "#d21034", "#3a8ee6", "#e5a400", "#7c5ce6"];
 
-function Avatar({ name, index, size = "size-11" }: { name: string; index: number; size?: string }) {
+// Première lettre du prénom dans une tuile colorée en relief.
+function Avatar({ name, tone, size = "2.75rem" }: { name: string; tone: string; size?: string }) {
   return (
     <span
       aria-hidden="true"
-      className={`grid shrink-0 place-items-center rounded-2xl text-lg font-extrabold text-white shadow-md ${size} ${avatarTiles[index % avatarTiles.length]}`}
+      className="wz-icon-tile text-lg font-extrabold"
+      style={{ "--tile": size, "--tone": tone } as CSSProperties}
     >
       {name[0]}
     </span>
@@ -30,7 +36,7 @@ function Avatar({ name, index, size = "size-11" }: { name: string; index: number
 
 function Points({ points }: { points: number }) {
   return (
-    <span className="flex items-center gap-1 rounded-full bg-dz-green-soft px-3 py-1 text-base font-extrabold text-ink">
+    <span className="wz-glass-soft flex items-center gap-1 rounded-full px-3 py-1 text-base font-extrabold text-ink">
       <Star size={16} className="fill-gold text-gold" aria-hidden="true" />
       {points}
     </span>
@@ -47,27 +53,23 @@ function Podium({ entries, meId }: { entries: RankingEntry[]; meId: string }) {
         const style = podiumStyles[place];
         const isMe = entry.id === meId;
         return (
-          <li key={entry.id} className="flex w-28 flex-col items-center gap-2 sm:w-36">
-            <span aria-hidden="true" className="text-4xl">
-              {style.medal}
-            </span>
-            <span
-              aria-hidden="true"
-              className={`grid size-16 place-items-center rounded-3xl text-2xl font-extrabold text-white shadow-lg ring-4 ${style.tile} ${style.ring}`}
-            >
-              {entry.displayName[0]}
-            </span>
+          <Tilt as="li" key={entry.id} className="flex w-28 flex-col items-center gap-2 rounded-t-3xl sm:w-36">
+            <RankMedal rank={place} size="lg" />
+            <Avatar name={entry.displayName} tone={style.tone} size="4rem" />
             <span className="text-center text-base font-extrabold text-ink">
               {entry.displayName}
               {isMe ? <span className="block text-sm text-dz-green">(أنت)</span> : null}
             </span>
             <Points points={entry.points} />
             <span
-              className={`flex w-full items-start justify-center rounded-t-3xl pt-2 text-2xl font-black text-white shadow-inner ${style.height} ${style.tile}`}
+              className={`flex w-full items-start justify-center rounded-t-3xl pt-2 text-2xl font-black text-white shadow-inner ${style.height}`}
+              style={{
+                background: `linear-gradient(180deg, rgb(255 255 255 / 0.28), transparent 45%), linear-gradient(160deg, color-mix(in srgb, ${style.tone} 75%, white), ${style.tone})`,
+              }}
             >
               {entry.rank}
             </span>
-          </li>
+          </Tilt>
         );
       })}
     </ol>
@@ -88,16 +90,14 @@ export default async function RankingPage() {
     <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <span className="grid size-12 place-items-center rounded-2xl bg-gold text-white shadow-md">
-            <Trophy size={26} strokeWidth={2.5} aria-hidden="true" />
-          </span>
+          <IconTile icon={Trophy} tone="#e5a400" size="md" />
           <div>
             <h1 className="text-2xl font-extrabold text-ink">لوحة المتصدرين</h1>
             <p className="text-base text-ink-soft">العب وتعلّم، واجمع النقاط لتصعد في الترتيب!</p>
           </div>
         </div>
         {me ? (
-          <p className="flex items-center gap-3 rounded-3xl bg-white px-5 py-3 shadow-xl shadow-dz-green/10">
+          <p className="wz-glass flex items-center gap-3 rounded-3xl px-5 py-3">
             <span className="text-base font-bold text-ink-soft">ترتيبك</span>
             <span className="text-3xl font-black text-dz-green">{me.rank}</span>
             <span className="text-base text-ink-soft">من {me.total}</span>
@@ -106,38 +106,40 @@ export default async function RankingPage() {
       </header>
 
       {ranking.length === 0 ? (
-        <section className="rounded-[2rem] bg-white p-8 text-center shadow-xl shadow-dz-green/10">
+        <section className="wz-glass wz-rise rounded-[2rem] p-8 text-center">
           <p className="text-lg text-ink-soft">لا يوجد لاعبون بعد. كن أول من يجمع النقاط!</p>
         </section>
       ) : (
         <>
-          <section className="rounded-[2rem] bg-white px-4 pt-6 shadow-xl shadow-dz-green/10 sm:px-8">
+          <section className="wz-glass wz-rise rounded-[2rem] px-4 pt-6 sm:px-8">
             <Podium entries={podium} meId={user.id} />
           </section>
 
           {rest.length > 0 || !meInList ? (
-            <section className="rounded-[2rem] bg-white p-3 shadow-xl shadow-dz-green/10 sm:p-5">
+            <section className="wz-glass wz-rise rounded-[2rem] p-3 sm:p-5" style={{ "--i": 1 } as CSSProperties}>
               <ol className="flex flex-col gap-2">
                 {rest.map((entry, index) => {
                   const isMe = entry.id === user.id;
                   return (
-                    <li
+                    <Tilt
+                      as="li"
                       key={entry.id}
+                      maxTilt={4}
                       aria-current={isMe ? "true" : undefined}
                       className={`flex items-center gap-3 rounded-3xl px-3 py-2 ${
-                        isMe ? "bg-dz-green-soft ring-2 ring-dz-green-light" : "bg-paper"
+                        isMe ? "bg-white/90 shadow-md ring-2 ring-dz-green-light" : "wz-glass-soft"
                       }`}
                     >
                       <span className="w-8 text-center text-lg font-black text-ink-soft">
                         {entry.rank}
                       </span>
-                      <Avatar name={entry.displayName} index={index} />
+                      <Avatar name={entry.displayName} tone={avatarTones[index % avatarTones.length]} />
                       <span className="flex-1 text-base font-extrabold text-ink">
                         {entry.displayName}
                         {isMe ? <span className="ms-2 text-sm text-dz-green">(أنت)</span> : null}
                       </span>
                       <Points points={entry.points} />
-                    </li>
+                    </Tilt>
                   );
                 })}
 
@@ -148,12 +150,12 @@ export default async function RankingPage() {
                     </li>
                     <li
                       aria-current="true"
-                      className="flex items-center gap-3 rounded-3xl bg-dz-green-soft px-3 py-2 ring-2 ring-dz-green-light"
+                      className="flex items-center gap-3 rounded-3xl bg-white/90 px-3 py-2 shadow-md ring-2 ring-dz-green-light"
                     >
                       <span className="w-8 text-center text-lg font-black text-ink-soft">
                         {me.rank}
                       </span>
-                      <Avatar name={rankingName(user.full_name)} index={0} />
+                      <Avatar name={rankingName(user.full_name)} tone={avatarTones[0]} />
                       <span className="flex-1 text-base font-extrabold text-ink">
                         {rankingName(user.full_name)}
                         <span className="ms-2 text-sm text-dz-green">(أنت)</span>
@@ -168,12 +170,14 @@ export default async function RankingPage() {
         </>
       )}
 
-      <p className="text-center text-base text-ink-soft">
-        تظهر الأسماء مختصرة (الاسم وأول حرف من اللقب) لحماية خصوصيتكم.{" "}
-        <Link href="/dashboard/games" className="font-bold text-dz-green underline-offset-4 hover:underline">
+      <div className="flex flex-col items-center gap-3 text-center">
+        <p className="text-base text-ink-soft">
+          تظهر الأسماء مختصرة (الاسم وأول حرف من اللقب) لحماية خصوصيتكم.
+        </p>
+        <ButtonLink href="/dashboard/games" icon={Gamepad2}>
           العب الآن لتجمع نقاطاً أكثر
-        </Link>
-      </p>
+        </ButtonLink>
+      </div>
     </div>
   );
 }

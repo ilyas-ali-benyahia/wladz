@@ -53,14 +53,6 @@ body {
   background-color: #f2faff;
 }
 
-/* Bouton principal « pilule » de la page d'accueil (fun-button), pour toute l'application. */
-@utility fun-btn {
-  border-radius: 9999px;
-  box-shadow:
-    0 5px 0 color-mix(in srgb, var(--color-dz-green) 72%, #000),
-    0 10px 26px color-mix(in srgb, var(--color-dz-green) 18%, transparent);
-}
-
 ::selection {
   background: #006233;
   color: #ffffff;

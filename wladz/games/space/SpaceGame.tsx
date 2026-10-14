@@ -3,6 +3,28 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
+  BookOpen,
+  CircleHelp,
+  House,
+  Lightbulb,
+  Lock,
+  Moon,
+  Orbit,
+  PartyPopper,
+  Rocket,
+  Sparkles,
+  Star,
+  Telescope,
+  TriangleAlert,
+  Trophy,
+  Undo2,
+  Volume2,
+  VolumeX,
+  type LucideIcon,
+} from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { IconTile } from "@/components/ui/GameIcon";
+import {
   spaceBodies,
   spaceQuestionId,
   totalSpaceQuestions,
@@ -17,34 +39,44 @@ type ActiveQuestion = {
   // Ordre d'affichage des réponses, mélangé à chaque question.
   order: number[];
   wrongCount: number;
-  feedback: { good: boolean; text: string } | null;
+  feedback: Feedback | null;
   status: "open" | "saving" | "solved";
 };
 
 type Overlay = "collection" | "help" | "complete" | null;
 
+// Message sous la question : son icône dépend du type (à la place des emojis).
+type Feedback = { kind: "wrong" | "hint" | "success" | "error"; text: string; awarded?: boolean };
+
+const feedbackIcons: Record<Feedback["kind"], LucideIcon> = {
+  wrong: CircleHelp,
+  hint: Lightbulb,
+  success: PartyPopper,
+  error: TriangleAlert,
+};
+
 const letters = ["أ", "ب", "ج"];
 const coreBodies = spaceBodies.filter((body) => body.core);
 
 const badges = [
-  { icon: "🌟", name: "مستكشف مبتدئ", desc: "أول اكتشاف لك", earned: (ids: string[]) => ids.length >= 1 },
+  { icon: Star, name: "مستكشف مبتدئ", desc: "أول اكتشاف لك", earned: (ids: string[]) => ids.length >= 1 },
   {
-    icon: "🪐",
+    icon: Orbit,
     name: "صديق الكواكب",
     desc: "اكتشف 4 كواكب",
     earned: (ids: string[]) =>
       spaceBodies.filter((body) => body.kind === "planet" && ids.includes(body.id)).length >= 4,
   },
-  { icon: "✨", name: "حارس النجوم", desc: "اكتشف النجوم", earned: (ids: string[]) => ids.includes("stars") },
-  { icon: "🌙", name: "رفيق القمر", desc: "اكتشف القمر", earned: (ids: string[]) => ids.includes("moon") },
+  { icon: Sparkles, name: "حارس النجوم", desc: "اكتشف النجوم", earned: (ids: string[]) => ids.includes("stars") },
+  { icon: Moon, name: "رفيق القمر", desc: "اكتشف القمر", earned: (ids: string[]) => ids.includes("moon") },
   {
-    icon: "🏆",
+    icon: Trophy,
     name: "بطل المجموعة الشمسية",
     desc: "أكمل المهمة الرئيسية",
     earned: (ids: string[]) => coreBodies.every((body) => ids.includes(body.id)),
   },
   {
-    icon: "🚀",
+    icon: Rocket,
     name: "رحّال الفضاء",
     desc: "اكتشف كل الأجرام",
     earned: (ids: string[]) => ids.length >= spaceBodies.length,
@@ -75,12 +107,8 @@ function wrongMessage(wrongCount: number, hint: string) {
   return "لا بأس! أشرت لك إلى الجواب الصحيح. هيا نتعلم معاً.";
 }
 
-const goldButton =
-  "cursor-pointer rounded-full bg-linear-to-b from-[#ffd977] to-[#ff9f1c] px-7 py-3 text-lg font-extrabold text-[#2a1a00] shadow-[0_6px_0_#b86a00] transition active:translate-y-1 active:shadow-[0_2px_0_#b86a00]";
-const ghostButton =
-  "cursor-pointer rounded-full border-2 border-white/25 px-5 py-2 text-base font-bold text-[#f4f8ff] transition hover:bg-white/10 disabled:cursor-default disabled:opacity-50";
 const iconButton =
-  "flex size-10 cursor-pointer items-center justify-center rounded-full border-2 border-white/20 bg-[#161d4d]/80 text-lg transition hover:bg-[#3a2a6b] sm:size-11 sm:text-xl";
+  "flex size-10 cursor-pointer items-center justify-center rounded-full border-2 border-white/20 bg-[#161d4d]/80 transition hover:-translate-y-0.5 hover:bg-[#3a2a6b] hover:shadow-[0_0_18px_-4px_#4fe3d0] sm:size-11";
 
 function Modal({
   label,
@@ -114,6 +142,25 @@ function Modal({
         {children}
       </div>
     </div>
+  );
+}
+
+function FeedbackLine({ feedback }: { feedback: Feedback }) {
+  const Icon = feedbackIcons[feedback.kind];
+  const good = feedback.kind === "success";
+  return (
+    <p
+      role="status"
+      className={`mt-4 flex items-start gap-2 rounded-2xl px-4 py-3 text-base font-bold ${
+        good ? "bg-[#25c9c0]/20 text-[#9ff5ea]" : "bg-[#ffc857]/15 text-[#ffe2a3]"
+      }`}
+    >
+      <Icon size={20} strokeWidth={2.4} className="mt-0.5 shrink-0" aria-hidden="true" />
+      <span>{feedback.text}</span>
+      {feedback.awarded ? (
+        <Star size={18} className="mt-0.5 shrink-0 fill-[#ffc857] text-[#ffc857]" aria-hidden="true" />
+      ) : null}
+    </p>
   );
 }
 
@@ -256,7 +303,7 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
       setActive({
         ...active,
         wrongCount,
-        feedback: { good: false, text: `🤔 ${wrongMessage(wrongCount, question.hint)}` },
+        feedback: { kind: "wrong", text: wrongMessage(wrongCount, question.hint) },
       });
       return;
     }
@@ -290,8 +337,9 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
         ...active,
         status: "solved",
         feedback: {
-          good: true,
-          text: awarded ? "🎉 أحسنت! إجابة صحيحة: +1 نقطة ⭐" : "🎉 أحسنت! إجابة صحيحة.",
+          kind: "success",
+          text: awarded ? "أحسنت! إجابة صحيحة: +1 نقطة" : "أحسنت! إجابة صحيحة.",
+          awarded,
         },
       });
       // Met à jour le total de points affiché dans l'en-tête du tableau de bord.
@@ -311,7 +359,7 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
       setActive({
         ...active,
         status: "open",
-        feedback: { good: false, text: "تعذّر حفظ إجابتك. تحقّق من الإنترنت وحاول مرة أخرى!" },
+        feedback: { kind: "error", text: "تعذّر حفظ إجابتك. تحقّق من الإنترنت وحاول مرة أخرى!" },
       });
     }
   }
@@ -331,17 +379,17 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
   function discoverMore() {
     const next = spaceBodies.find((body) => !isDiscovered(body));
     closeCard();
-    showToast(next ? "🔭 هناك أجرام أخرى تنتظرك. اضغط على جسم مضيء!" : "🎉 لقد اكتشفت كل الأجرام!");
+    showToast(next ? "هناك أجرام أخرى تنتظرك. اضغط على جسم مضيء!" : "لقد اكتشفت كل الأجرام!");
   }
 
   const hud = (
     <div className="flex flex-wrap items-center gap-2">
-      <p className="rounded-full border-2 border-white/20 bg-[#161d4d]/80 px-3 py-1.5 text-base font-bold sm:px-4 sm:py-2">
-        <span aria-hidden="true">⭐</span> {answered.length}/{totalSpaceQuestions}
+      <p className="flex items-center gap-1.5 rounded-full border-2 border-white/20 bg-[#161d4d]/80 px-3 py-1.5 text-base font-bold sm:px-4 sm:py-2">
+        <Star size={18} className="fill-[#ffc857] text-[#ffc857]" aria-hidden="true" /> {answered.length}/{totalSpaceQuestions}
         <span className="sr-only"> نقطة في هذه اللعبة</span>
       </p>
-      <p className="rounded-full border-2 border-white/20 bg-[#161d4d]/80 px-3 py-1.5 text-base font-bold sm:px-4 sm:py-2">
-        <span aria-hidden="true">🪐</span> {discoveredIds.length}/{spaceBodies.length}
+      <p className="flex items-center gap-1.5 rounded-full border-2 border-white/20 bg-[#161d4d]/80 px-3 py-1.5 text-base font-bold sm:px-4 sm:py-2">
+        <Orbit size={18} className="text-[#4fe3d0]" aria-hidden="true" /> {discoveredIds.length}/{spaceBodies.length}
         <span className="sr-only"> اكتشاف</span>
       </p>
       <div className="flex-1" />
@@ -351,7 +399,7 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
         aria-label="عرض المجموعة الشمسية"
         onClick={() => scene.current?.goHome()}
       >
-        🏠
+        <House size={20} aria-hidden="true" />
       </button>
       <button
         type="button"
@@ -359,7 +407,7 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
         aria-label="مجموعة الاكتشافات"
         onClick={() => setOverlay("collection")}
       >
-        📖
+        <BookOpen size={20} aria-hidden="true" />
       </button>
       <button
         type="button"
@@ -367,7 +415,7 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
         aria-label={muted ? "تشغيل الصوت" : "إيقاف الصوت"}
         onClick={() => setMuted(!muted)}
       >
-        {muted ? "🔇" : "🔊"}
+        {muted ? <VolumeX size={20} aria-hidden="true" /> : <Volume2 size={20} aria-hidden="true" />}
       </button>
       <button
         type="button"
@@ -375,7 +423,7 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
         aria-label="كيف ألعب؟"
         onClick={() => setOverlay("help")}
       >
-        ❓
+        <CircleHelp size={20} aria-hidden="true" />
       </button>
     </div>
   );
@@ -410,9 +458,9 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
 
       {!started ? (
         <div className="relative flex min-h-[62dvh] flex-col items-center justify-center gap-4 text-center">
-          <div aria-hidden="true" className="flex items-end gap-3 text-7xl motion-safe:animate-float">
-            <span>🧑‍🚀</span>
-            <span>🔭</span>
+          <div className="wz-bob flex items-end gap-4">
+            <IconTile icon={Rocket} tone="#3a8ee6" size="xl" />
+            <IconTile icon={Telescope} tone="#7c5ce6" size="lg" />
           </div>
           <p className="max-w-md rounded-3xl border-2 border-[#78b4ff]/25 bg-[#161d4d]/80 px-5 py-3 text-lg">
             مرحباً أيها المستكشف الصغير! هل أنت مستعد لرحلة مذهلة بين الكواكب والنجوم؟
@@ -423,16 +471,17 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
           <p className="max-w-md text-lg text-[#a9b8dd]">
             انظر عبر التلسكوب السحري واكتشف أسرار الشمس والكواكب والنجوم. كل إجابة صحيحة تمنحك نقطة!
           </p>
-          <button
-            type="button"
-            className={goldButton}
+          <Button
+            variant="gold"
+            size="lg"
+            icon={Rocket}
             onClick={() => {
               setStarted(true);
               play([392, 523, 659]);
             }}
           >
-            ابدأ مغامرتي الفضائية 🚀
-          </button>
+            ابدأ مغامرتي الفضائية
+          </Button>
         </div>
       ) : (
         <div className="relative">
@@ -440,8 +489,9 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
           {sceneFailed ? (
             <>
               {hud}
-              <p className="mt-4 text-center text-lg text-[#a9b8dd]">
-                اضغط على أي جسم مضيء لتكتشف سرّه ✨
+              <p className="mt-4 flex items-center justify-center gap-2 text-center text-lg text-[#a9b8dd]">
+                اضغط على أي جسم مضيء لتكتشف سرّه
+                <Sparkles size={18} className="text-[#ffc857]" aria-hidden="true" />
               </p>
 
               <ul className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
@@ -487,8 +537,9 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
                   className="absolute inset-0 size-full cursor-grab touch-none"
                 />
                 <div className="absolute inset-x-2 top-2">{hud}</div>
-                <p className="pointer-events-none absolute inset-x-3 bottom-3 mx-auto w-fit rounded-full bg-[#0a1236]/80 px-4 py-2 text-center text-base text-[#a9b8dd]">
-                  اضغط على أي جسم مضيء لتكتشف سرّه ✨ واسحب لتدور في الفضاء
+                <p className="pointer-events-none absolute inset-x-3 bottom-3 mx-auto flex w-fit items-center gap-2 rounded-full bg-[#0a1236]/80 px-4 py-2 text-center text-base text-[#a9b8dd]">
+                  <Sparkles size={16} className="shrink-0 text-[#ffc857]" aria-hidden="true" />
+                  اضغط على أي جسم مضيء لتكتشف سرّه، واسحب لتدور في الفضاء
                 </p>
               </div>
 
@@ -532,8 +583,9 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
       {toast ? (
         <p
           role="status"
-          className="fixed inset-x-4 bottom-6 z-50 mx-auto w-fit max-w-full rounded-full bg-[#161d4d] px-5 py-3 text-center text-base font-bold text-[#f4f8ff] shadow-xl"
+          className="fixed inset-x-4 bottom-6 z-50 mx-auto flex w-fit max-w-full items-center gap-2 rounded-full bg-[#161d4d] px-5 py-3 text-center text-base font-bold text-[#f4f8ff] shadow-xl"
         >
+          <Telescope size={20} className="shrink-0 text-[#4fe3d0]" aria-hidden="true" />
           {toast}
         </p>
       ) : null}
@@ -541,7 +593,7 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
       {active && question ? (
         <Modal label="سؤال" sheet onClose={() => active.status === "open" && leaveQuestion()}>
           <p className="flex items-center gap-2 text-base text-[#a9b8dd]">
-            <span aria-hidden="true">🔭</span>
+            <Telescope size={20} className="shrink-0 text-[#4fe3d0]" aria-hidden="true" />
             جسم غامض يريد أن يعرّفك بنفسه ({active.questionIndex + 1}/{active.body.questions.length})
           </p>
           <p className="mt-3 text-xl font-extrabold leading-relaxed">{question.q}</p>
@@ -571,34 +623,29 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
             })}
           </div>
           {active.feedback ? (
-            <p
-              role="status"
-              className={`mt-4 rounded-2xl px-4 py-3 text-base font-bold ${
-                active.feedback.good ? "bg-[#25c9c0]/20 text-[#9ff5ea]" : "bg-[#ffc857]/15 text-[#ffe2a3]"
-              }`}
-            >
-              {active.feedback.text}
-            </p>
+            <FeedbackLine feedback={active.feedback} />
           ) : null}
           <div className="mt-4 flex flex-wrap justify-between gap-2">
-            <button
-              type="button"
-              className={ghostButton}
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={Lightbulb}
+              iconPosition="start"
               disabled={active.status !== "open"}
-              onClick={() =>
-                setActive({ ...active, feedback: { good: false, text: `💡 ${question.hint}` } })
-              }
+              onClick={() => setActive({ ...active, feedback: { kind: "hint", text: question.hint } })}
             >
-              💡 أعطني تلميحاً
-            </button>
-            <button
-              type="button"
-              className={ghostButton}
+              أعطني تلميحاً
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={Undo2}
+              iconPosition="start"
               disabled={active.status !== "open"}
               onClick={leaveQuestion}
             >
-              ↩ العودة إلى الفضاء
-            </button>
+              العودة إلى الفضاء
+            </Button>
           </div>
         </Modal>
       ) : null}
@@ -609,36 +656,39 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
             <SpaceBodyVisual body={card.body} scale={1.3} />
           </div>
           <h2 className="mt-2 text-center text-3xl font-black text-[#ffc857]">
-            {card.body.emoji} {card.body.name}
+            {card.body.name}
           </h2>
           <p className="mt-2 text-center text-lg">{card.body.desc}</p>
           <ul className="mt-4 flex flex-col gap-2">
             {card.body.facts.map((fact) => (
               <li key={fact} className="flex gap-2 rounded-2xl bg-[#161d4d]/80 px-4 py-2 text-base">
-                <span aria-hidden="true">✨</span>
+                <Sparkles size={18} className="mt-1 shrink-0 text-[#ffc857]" aria-hidden="true" />
                 {fact}
               </li>
             ))}
           </ul>
           {card.gained ? (
-            <p className="mx-auto mt-4 w-fit rounded-full bg-[#ffc857]/20 px-5 py-2 text-lg font-extrabold text-[#ffc857]">
-              ⭐ +{card.gained} نقطة
+            <p className="mx-auto mt-4 flex w-fit items-center gap-2 rounded-full bg-[#ffc857]/20 px-5 py-2 text-lg font-extrabold text-[#ffc857]">
+              <Star size={20} className="fill-[#ffc857]" aria-hidden="true" />+{card.gained} نقطة
             </p>
           ) : null}
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-            <button type="button" className={goldButton} onClick={discoverMore}>
-              اكتشف المزيد ✨
-            </button>
-            <button type="button" className={ghostButton} onClick={closeCard}>
+            <Button variant="gold" icon={Sparkles} onClick={discoverMore}>
+              اكتشف المزيد
+            </Button>
+            <Button variant="ghost" icon={Undo2} iconPosition="start" onClick={closeCard}>
               العودة إلى الفضاء
-            </button>
+            </Button>
           </div>
         </Modal>
       ) : null}
 
       {overlay === "collection" ? (
         <Modal label="مجموعة الاكتشافات" onClose={() => setOverlay(null)}>
-          <h2 className="text-2xl font-black text-[#ffc857]">📖 مجموعة الاكتشافات</h2>
+          <h2 className="flex items-center gap-2 text-2xl font-black text-[#ffc857]">
+            <BookOpen size={26} aria-hidden="true" />
+            مجموعة الاكتشافات
+          </h2>
           <ul className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4">
             {spaceBodies.map((body) => {
               const discovered = isDiscovered(body);
@@ -649,8 +699,12 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
                     discovered ? "" : "opacity-45"
                   }`}
                 >
-                  <span aria-hidden="true" className="block text-3xl">
-                    {discovered ? body.emoji : "❔"}
+                  <span aria-hidden="true" className="flex h-12 items-center justify-center">
+                    {discovered ? (
+                      <SpaceBodyVisual body={body} scale={0.36} />
+                    ) : (
+                      <CircleHelp size={30} className="text-[#a9b8dd]" />
+                    )}
                   </span>
                   {discovered ? body.name : "؟؟؟"}
                 </li>
@@ -668,9 +722,11 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
                     earned ? "" : "opacity-45"
                   }`}
                 >
-                  <span aria-hidden="true" className="text-2xl">
-                    {earned ? badge.icon : "🔒"}
-                  </span>
+                  {earned ? (
+                    <IconTile icon={badge.icon} tone="#e5a400" size="sm" />
+                  ) : (
+                    <IconTile icon={Lock} tone="#5b6788" size="sm" />
+                  )}
                   <span>
                     <span className="block text-base font-bold">{badge.name}</span>
                     <span className="block text-base text-[#a9b8dd]">{badge.desc}</span>
@@ -680,48 +736,56 @@ export function SpaceGame({ initialAnswered }: { initialAnswered: string[] }) {
             })}
           </ul>
           <div className="mt-5 text-center">
-            <button type="button" className={ghostButton} onClick={() => setOverlay(null)}>
+            <Button variant="ghost" onClick={() => setOverlay(null)}>
               إغلاق
-            </button>
+            </Button>
           </div>
         </Modal>
       ) : null}
 
       {overlay === "help" ? (
         <Modal label="كيف ألعب؟" onClose={() => setOverlay(null)}>
-          <h2 className="text-2xl font-black text-[#ffc857]">❓ كيف ألعب؟</h2>
+          <h2 className="flex items-center gap-2 text-2xl font-black text-[#ffc857]">
+            <CircleHelp size={26} aria-hidden="true" />
+            كيف ألعب؟
+          </h2>
           <ol className="mt-4 flex flex-col gap-2 text-lg">
             <li>1. اضغط على أي جسم مضيء في الفضاء.</li>
             <li>2. اقرأ السؤال واختر الجواب الصحيح.</li>
-            <li>3. كل إجابة صحيحة تمنحك نقطة واحدة ⭐</li>
+            <li className="flex items-center gap-1.5">
+              3. كل إجابة صحيحة تمنحك نقطة واحدة
+              <Star size={18} className="fill-[#ffc857] text-[#ffc857]" aria-hidden="true" />
+            </li>
             <li>4. أجب عن سؤالَي كل جرم لتكتشفه وتقرأ أسراره.</li>
           </ol>
-          <p className="mt-3 text-base text-[#a9b8dd]">
-            إذا أخطأت فلا بأس: جرّب من جديد أو اطلب تلميحاً 💡
+          <p className="mt-3 flex items-center gap-1.5 text-base text-[#a9b8dd]">
+            إذا أخطأت فلا بأس: جرّب من جديد أو اطلب تلميحاً
+            <Lightbulb size={18} className="text-[#ffc857]" aria-hidden="true" />
           </p>
           <div className="mt-5 text-center">
-            <button type="button" className={goldButton} onClick={() => setOverlay(null)}>
+            <Button variant="gold" onClick={() => setOverlay(null)}>
               فهمت!
-            </button>
+            </Button>
           </div>
         </Modal>
       ) : null}
 
       {overlay === "complete" ? (
         <Modal label="أكملت المهمة" onClose={() => setOverlay(null)}>
-          <p aria-hidden="true" className="text-center text-6xl">
-            🏆
-          </p>
+          <div className="flex justify-center">
+            <IconTile icon={Trophy} tone="#e5a400" size="xl" className="wz-bob" />
+          </div>
           <h2 className="mt-2 text-center text-3xl font-black text-[#ffc857]">
             أحسنت يا بطل المجموعة الشمسية!
           </h2>
-          <p className="mt-3 text-center text-lg">
-            اكتشفت الشمس والقمر وكل الكواكب. جمعت {answered.length} نقطة في هذه الرحلة ⭐
+          <p className="mt-3 flex flex-wrap items-center justify-center gap-1.5 text-center text-lg">
+            اكتشفت الشمس والقمر وكل الكواكب. جمعت {answered.length} نقطة في هذه الرحلة
+            <Star size={18} className="fill-[#ffc857] text-[#ffc857]" aria-hidden="true" />
           </p>
           <div className="mt-5 text-center">
-            <button type="button" className={goldButton} onClick={() => setOverlay(null)}>
-              أواصل الاستكشاف 🚀
-            </button>
+            <Button variant="gold" icon={Rocket} onClick={() => setOverlay(null)}>
+              أواصل الاستكشاف
+            </Button>
           </div>
         </Modal>
       ) : null}

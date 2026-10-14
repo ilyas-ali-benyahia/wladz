@@ -141,7 +141,7 @@ h1,#q-text,.val,#combo-val,#wave-ann{font-family:'Orbitron',sans-serif}
   opacity:0;pointer-events:none;
 }
 #score-pop.anim{animation:pop-rise .8s cubic-bezier(.2,.7,.4,1) forwards}
-/* ⚡ fast-answer bonus: gold instead of green */
+/* fast-answer bonus: gold instead of green */
 #score-pop.fast{color:#ffcc00;text-shadow:0 0 16px rgba(255,204,0,.9)}
 @keyframes pop-rise{
   0%{opacity:0;transform:translate(-50%,10px) scale(.8)}
@@ -440,3 +440,6 @@ h1,#q-text,.val,#combo-val,#wave-ann,.btn,.diff-btn{font-family:'Orbitron',var(-
 #start-screen h1 span{margin-left:0}
 .exit-game{margin-top:12px;width:100%;font-size:13px;color:#adbdce}
 #over-screen .exit-game{width:auto}
+
+/* WLADZ : icônes SVG (games/_shared/svgIcons.js) à la place des emojis. */
+.wz-i { display: inline-block; flex-shrink: 0; vertical-align: -0.14em; }
