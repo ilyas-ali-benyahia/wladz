@@ -55,7 +55,7 @@ export class UISystem {
     const continueBtn = document.getElementById('continue-btn');
     if (continueBtn) {
       if (this.game.saveSystem.hasSave()) {
-        continueBtn.style.display = 'inline-block';
+        continueBtn.style.display = 'flex';
         continueBtn.addEventListener('click', () => {
           audio.init();
           audio.playClick();
