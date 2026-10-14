@@ -5,44 +5,54 @@ export const ghirasMarkup = `<!-- 3D Game Canvas -->
 
   <!-- 1. Title / Welcome Screen (غلاف اللعبة السينمائي الفخم) -->
   <div id="title-screen">
-    <div class="cover-overlay"></div>
-    <div class="title-content-box">
-      <div class="title-tag">🇩🇿 مغامرة المواطن الصغير ثلاثية الأبعاد 3D</div>
-      <h1 class="game-logo">غِراس المواطنة</h1>
-      <p class="slogan">«ازرع الخير في لعبتك... ليكبر أثره في حياتك ومجتمعك»</p>
-      
-      <div class="feature-grid">
-        <div class="feat-card">
-          <div class="icon">🧹</div>
-          <div class="name">مدينتنا أنظف</div>
-          <div class="desc">جمع النفايات والمحافظة على البيئة</div>
-        </div>
-        <div class="feat-card">
-          <div class="icon">🌳</div>
-          <div class="name">غرس وسقاية الأشجار</div>
-          <div class="desc">زيادة الرقعة الخضراء في الحديقة</div>
-        </div>
-        <div class="feat-card">
-          <div class="icon">🇩🇿</div>
-          <div class="name">تاريخ وثورة الجزائر</div>
-          <div class="desc">استكشاف بطولات الأجداد في المتحف</div>
-        </div>
-        <div class="feat-card">
-          <div class="icon">🕌</div>
-          <div class="name">مكارم الأخلاق</div>
-          <div class="desc">الصدق والأمانة وبر الوالدين بالمسجد</div>
-        </div>
+    <!-- Cartoon sky backdrop: light rays, drifting clouds, hills with the city silhouette, floating leaves -->
+    <div class="ts-sky" aria-hidden="true">
+      <div class="ts-rays"></div>
+      <div class="ts-sun"></div>
+      <div class="ts-cloud c1"></div><div class="ts-cloud c2"></div><div class="ts-cloud c3"></div><div class="ts-cloud c4"></div>
+      <svg class="ts-land" viewBox="0 0 1440 360" preserveAspectRatio="none">
+        <path class="ts-skyline" d="M0 210 L120 210 L120 170 L150 170 L150 150 L180 150 L180 170 L230 170 L230 120 L238 104 L246 120 L246 170 L300 170 L300 140 Q330 104 360 140 L360 170 L430 170 L430 150 L470 150 L470 175 L560 175 L560 135 L600 135 L600 175 L700 175 L700 95 L708 80 L716 95 L716 175 L760 175 Q790 130 820 175 L900 175 L900 150 L960 150 L960 170 L1040 170 L1040 128 L1080 128 L1080 170 L1160 170 L1160 112 L1168 96 L1176 112 L1176 170 L1240 170 L1240 150 L1300 150 L1300 175 L1440 175 L1440 360 L0 360 Z"/>
+        <path class="ts-hill back" d="M0 230 Q240 160 520 215 T1040 205 T1440 190 L1440 360 L0 360 Z"/>
+        <path class="ts-hill front" d="M0 285 Q300 225 640 270 T1180 262 T1440 250 L1440 360 L0 360 Z"/>
+      </svg>
+      <span class="ts-leaf l1">🍃</span><span class="ts-leaf l2">🌿</span><span class="ts-leaf l3">🍃</span><span class="ts-leaf l4">🌱</span><span class="ts-leaf l5">🍃</span><span class="ts-leaf l6">✨</span>
+    </div>
+
+    <div class="ts-content">
+      <img class="ts-logo" src="/games/ghiras/logo.png" alt="غراس المواطنة" draggable="false">
+      <p class="ts-slogan">ازرع الخير في لعبتك... ليكبر أثره في حياتك ومجتمعك</p>
+
+      <div class="menu-buttons-group ts-buttons">
+        <button id="start-btn" class="ts-btn ts-play">
+          <span class="ts-btn-icon">▶</span>
+          <span><b>ابدأ المغامرة</b><small>لعبة جديدة</small></span>
+        </button>
+        <button id="continue-btn" class="ts-btn ts-continue" style="display: none;">
+          <span class="ts-btn-icon">📂</span>
+          <span><b>متابعة</b><small>من آخر حفظ</small></span>
+        </button>
+        <button type="button" class="ts-btn ts-continue wladz-exit">
+          <span class="ts-btn-icon">✕</span>
+          <span><b>خروج</b><small>العودة إلى WLADZ</small></span>
+        </button>
       </div>
 
-      <div class="menu-buttons-group">
-        <button id="start-btn" class="primary-btn pulse-glow">ابدأ المغامرة الآن 🎮</button>
-        <button id="continue-btn" class="secondary-btn" style="display: none;">📂 متابعة التقدم</button>
-        <button type="button" class="secondary-btn wladz-exit">✕ خروج من اللعبة</button>
+      <div class="ts-features">
+        <span>🌳 غرس الأشجار</span>
+        <span>🧹 نظافة المدينة</span>
+        <span>⚽ ملعب كرة القدم</span>
+        <span>🏊 مدرسة السباحة</span>
+        <span>🚗 سيارة العائلة</span>
+        <span>🏛️ المتحف والموسوعة</span>
       </div>
+    </div>
 
-      <div class="cover-footer-info">
-        <span>🎮 تحكم بالحاسوب: WASD للحركة | Shift للجري السريع | Space للقفز | E للتحدث والتفاعل</span>
-      </div>
+    <div class="ts-controls">
+      <span><kbd>W A S D</kbd> الحركة</span>
+      <span><kbd>Shift</kbd> الجري</span>
+      <span><kbd>E</kbd> التفاعل</span>
+      <span><kbd>F</kbd> الأدوات والتسديد</span>
+      <span><kbd>M</kbd> الخريطة</span>
     </div>
   </div>
 
