@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { events } from '../core/EventBus.js';
 import { audio } from './AudioSystem.js';
 
@@ -65,20 +66,53 @@ export class UISystem {
       }
     }
 
-    // Character selection buttons (3 Heroes)
+    // Character selection: a boy or a girl
     this.selectedCharType = 'boy_purple';
-    const charCards = document.querySelectorAll('.char-opt-card');
+    this.previewYaw = 0;
+    this.previewPop = 1;
+    const charCards = [...document.querySelectorAll('.char-opt-card')];
+    this.selectCharacter = (charType) => {
+      if (!charCards.some(c => c.dataset.type === charType)) charType = 'boy_purple';
+      charCards.forEach(c => c.classList.toggle('active', c.dataset.type === charType));
+      if (charType === this.selectedCharType && this.game.player.gender === charType) return;
+      this.selectedCharType = charType;
+      this.selectedGender = charType;
+      this.game.player.switchGender(charType);
+      this.previewPop = 0; // the new model grows in (see main.js preview)
+      this.previewYaw = 0;
+      if (this.previewStage) this.previewStage.userData.ring.material.color.setHex(charType === 'girl_green' ? 0x2ecc71 : 0x8e5cf7);
+    };
     charCards.forEach(card => {
       card.addEventListener('click', () => {
         audio.playClick();
-        charCards.forEach(c => c.classList.remove('active'));
-        card.classList.add('active');
-        const charType = card.dataset.type || 'boy_purple';
-        this.selectedCharType = charType;
-        this.selectedGender = charType;
-        this.game.player.switchGender(charType);
+        this.selectCharacter(card.dataset.type);
       });
     });
+
+    // Keyboard: arrows switch, Enter starts
+    window.addEventListener('keydown', (e) => {
+      if (!this.characterSelectScreen.classList.contains('show')) return;
+      if (e.code === 'ArrowLeft' || e.code === 'ArrowRight') {
+        audio.playClick();
+        this.selectCharacter(this.selectedCharType === 'boy_purple' ? 'girl_green' : 'boy_purple');
+      } else if (e.code === 'Enter') {
+        audio.playClick();
+        this.startGameSession();
+      }
+    });
+
+    // Drag anywhere on the stage to turn the character around
+    let dragX = null;
+    window.addEventListener('pointerdown', (e) => {
+      if (this.characterSelectScreen.classList.contains('show') && !e.target.closest('button')) dragX = e.clientX;
+    });
+    window.addEventListener('pointermove', (e) => {
+      if (dragX === null) return;
+      this.previewYaw += (e.clientX - dragX) * 0.012;
+      dragX = e.clientX;
+    });
+    window.addEventListener('pointerup', () => { dragX = null; });
+    this.isDraggingPreview = () => dragX !== null;
 
     const confirmCharBtn = document.getElementById('confirm-character-btn');
     if (confirmCharBtn) {
@@ -219,11 +253,42 @@ export class UISystem {
   openCharacterSelect() {
     this.titleScreen.style.display = 'none';
     this.characterSelectScreen.classList.add('show');
-    this.game.player.switchGender(this.selectedCharType || 'boy_purple');
+    this.createPreviewStage();
+    this.previewStage.visible = true;
+    this.selectCharacter(this.selectedCharType || 'boy_purple');
+    this.game.player.switchGender(this.selectedCharType);
+  }
+
+  /** Small showcase stage under the character: stone disc and a soft light ring in the hero's colour */
+  createPreviewStage() {
+    if (this.previewStage) return;
+    const scene = this.game.engine.scene;
+    const p = this.game.player.position;
+    const g = new THREE.Group();
+    g.position.set(p.x, 0, p.z);
+    const disc = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.95, 1.05, 0.12, 48),
+      new THREE.MeshStandardMaterial({ color: 0xf2ece0, roughness: 0.55 })
+    );
+    disc.position.y = 0.06;
+    disc.receiveShadow = true;
+    g.add(disc);
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(1.0, 0.035, 12, 64),
+      new THREE.MeshBasicMaterial({ color: 0x8e5cf7, transparent: true, opacity: 0.9 })
+    );
+    ring.rotation.x = Math.PI / 2;
+    ring.position.y = 0.125;
+    g.add(ring);
+    g.userData.ring = ring;
+    scene.add(g);
+    this.previewStage = g;
   }
 
   startGameSession() {
     this.characterSelectScreen.classList.remove('show');
+    if (this.previewStage) this.previewStage.visible = false;
+    this.game.player.group.scale.setScalar(1);
     this.hud.style.display = 'block';
     this.game.isGameActive = true;
     this.game.input.setEnabled(true);
@@ -238,13 +303,7 @@ export class UISystem {
 
     const avatar = document.getElementById('hud-avatar');
     if (avatar) {
-      if (this.selectedCharType === 'boy_purple') {
-        avatar.textContent = '👦';
-      } else if (this.selectedCharType === 'girl_green') {
-        avatar.textContent = '👧';
-      } else {
-        avatar.textContent = '👧';
-      }
+      avatar.textContent = /^girl/.test(this.selectedCharType || '') ? '🧕' : '👦';
     }
   }
 

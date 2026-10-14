@@ -62,39 +62,41 @@
     </div>
   </div>
 
-  <!-- 2. Character Selection Screen (اختيار الأبطال الثلاثة) -->
+  <!-- 2. Character Selection Screen: a boy or a girl -->
   <div id="character-select-screen">
     <div class="char-title">
-      <h2>اختر بطلك من فرسان غِراس المواطنة 🇩🇿</h2>
-      <p>ثلاثة أبطال صغار مميزون بنشاطهم وحيويتهم لخدمة الوطن والبيئة ومساعدة الجميع!</p>
+      <h2>اختر شخصيتك</h2>
+      <p>ولد أو بنت: بطلك الصغير في مدينة غِراس المواطنة 🇩🇿</p>
     </div>
 
-    <!-- 3D preview happens behind/around the player in center -->
+    <div class="char-stage">
+      <div class="char-selection-controls">
+        <button type="button" id="select-boy-btn" class="char-opt-card active" data-type="boy_purple" data-gender="boy" style="--accent: #7c3aed; --accent-2: #4f46e5;">
+          <span class="char-check">✓</span>
+          <span class="char-avatar-badge"><span>👦</span></span>
+          <span class="char-gender">ولد</span>
+          <span class="char-name">أمين</span>
+          <span class="char-sub">نشيط ورياضي، يحب المبادرات البيئية والعمل التطوعي في حيّه.</span>
+          <span class="char-traits"><span>⚽ رياضي</span><span>🤝 متطوع</span><span>🌱 صديق البيئة</span></span>
+        </button>
 
-    <div class="char-selection-controls">
-      <div id="select-boy-btn" class="char-opt-card active" data-type="boy_purple">
-        <div class="char-avatar-badge" style="background: linear-gradient(135deg, #7c3aed, #4f46e5);">🟣</div>
-        <div class="char-name">أمين - الفتى الرياضي</div>
-        <div class="char-tagline">سترة بنفسجية أنيقة وحذاء رياضي مميز</div>
-        <div class="char-sub">بطل المبادرات البيئية والعمل التطوعي في شوارع المدينة</div>
-      </div>
+        <div class="char-stage-gap" aria-hidden="true"></div>
 
-      <div id="select-girl-green-btn" class="char-opt-card" data-type="girl_green">
-        <div class="char-avatar-badge" style="background: linear-gradient(135deg, #f1c40f, #27ae60);">🟡</div>
-        <div class="char-name">ريان - صديقة الطبيعة</div>
-        <div class="char-tagline">تسريحة ذيل حصان وقميص أخضر رياضي</div>
-        <div class="char-sub">عاشقة الغرس والتشجير ورعاية الزهور في الحديقة المركزية</div>
-      </div>
-
-      <div id="select-girl-yellow-btn" class="char-opt-card" data-type="girl_yellow">
-        <div class="char-avatar-badge" style="background: linear-gradient(135deg, #e67e22, #e84393);">🟠</div>
-        <div class="char-name">سارة - سفيرة الثقافة</div>
-        <div class="char-tagline">شعر أنيق بوردة حمراء وقميص أصفر مشرق</div>
-        <div class="char-sub">شغوفة بالتاريخ الجزائري ومكارم الأخلاق بالمسجد والمكتبة</div>
+        <button type="button" id="select-girl-btn" class="char-opt-card" data-type="girl_green" data-gender="girl" style="--accent: #16a085; --accent-2: #27ae60;">
+          <span class="char-check">✓</span>
+          <span class="char-avatar-badge"><span>🧕</span></span>
+          <span class="char-gender">بنت</span>
+          <span class="char-name">ريان</span>
+          <span class="char-sub">ذكية ومجتهدة، تحب الغرس ورعاية الحدائق ومساعدة الآخرين.</span>
+          <span class="char-traits"><span>📚 مجتهدة</span><span>🌳 تحب الغرس</span><span>💚 تساعد الجميع</span></span>
+        </button>
       </div>
     </div>
 
-    <button id="confirm-character-btn" class="primary-btn">انطلق إلى شوارع مدينتنا 🏙️</button>
+    <div class="char-footer">
+      <div class="char-hint">🔄 اسحب بالفأرة لتدوير الشخصية • ← → للتبديل</div>
+      <button id="confirm-character-btn" class="primary-btn">ابدأ اللعب 🏙️</button>
+    </div>
   </div>
 
   <!-- 3. In-Game HUD -->

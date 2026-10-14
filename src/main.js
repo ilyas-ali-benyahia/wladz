@@ -165,12 +165,23 @@ class GhirassGameApp {
     } else {
       // In character select / menus: showcase character in center
       if (this.player && this.player.group) {
-        this.player.group.rotation.y = Math.sin(elapsed * 1.1) * 0.45;
+        // Turntable: follows the mouse drag, otherwise a gentle idle sway
+        const ui = this.ui;
+        const sway = ui.isDraggingPreview && ui.isDraggingPreview() ? 0 : Math.sin(elapsed * 0.9) * 0.25;
+        const targetYaw = (ui.previewYaw || 0) + sway;
+        this.player.group.rotation.y += (targetYaw - this.player.group.rotation.y) * Math.min(1, dt * 8);
+        // A newly chosen character grows in with a small overshoot
+        if (ui.previewPop !== undefined && ui.previewPop < 1) {
+          ui.previewPop = Math.min(1, ui.previewPop + dt * 2.8);
+          const t = ui.previewPop;
+          this.player.group.scale.setScalar(0.82 + 0.18 * (1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2)));
+        }
+        this.player.group.position.y = 0.12; // standing on the showcase stage
         this.player.model.update(dt, { isMoving: false, speedRatio: 0, isJumping: false });
 
-        // Frame camera right on player for 3D character showcase
-        const charLookAt = this.player.position.clone().add(new THREE.Vector3(0, 1.0, 0));
-        const previewCamPos = this.player.position.clone().add(new THREE.Vector3(0, 1.15, 2.6));
+        // Full-body framing, centred between the two character cards
+        const charLookAt = this.player.position.clone().add(new THREE.Vector3(0, 0.85, 0));
+        const previewCamPos = this.player.position.clone().add(new THREE.Vector3(0, 1.2, 2.95));
         this.engine.camera.position.lerp(previewCamPos, Math.min(1.0, 10.0 * dt));
         this.engine.camera.lookAt(charLookAt);
       }
@@ -195,8 +206,11 @@ class GhirassGameApp {
     if (!data) return;
 
     if (data.gender) {
-      this.ui.selectedGender = data.gender;
-      this.player.switchGender(data.gender);
+      // Only two characters remain (boy / girl): older saves with another girl map to the girl
+      const type = /^girl|^sara|^rayan/.test(data.gender) ? 'girl_green' : 'boy_purple';
+      this.ui.selectedGender = type;
+      this.ui.selectedCharType = type;
+      this.player.switchGender(type);
     }
     if (data.progression) {
       this.progression.loadState(data.progression);
