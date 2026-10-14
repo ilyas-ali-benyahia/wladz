@@ -21,6 +21,9 @@ import { PlayerVehicleSystem } from './systems/PlayerVehicleSystem.js';
 import { WardrobeSystem } from './systems/WardrobeSystem.js';
 import { ActivitySystem } from './systems/activities/ActivitySystem.js';
 import { CoastSystem } from './systems/coast/CoastSystem.js';
+import { EncyclopediaSystem } from './systems/EncyclopediaSystem.js';
+import { CityFacilities } from './systems/CityFacilities.js';
+import { createFirstAidActivity, createMuseumActivity, createRecyclingActivity, createDrivingSchoolActivity } from './systems/activities/CityActivities.js';
 import { events } from './core/EventBus.js';
 
 class GhirassGameApp {
@@ -79,6 +82,8 @@ class GhirassGameApp {
     events.on('INTERIOR_ACTION', ({ action }) => {
       if (action === 'shop') this.wardrobe.open('shop');
       else if (action === 'wardrobe') this.wardrobe.open('home');
+      else if (action === 'museum_quiz') this.activities.openMenu('museum');
+      else if (action === 'firstaid') this.activities.openMenu('firstaid');
     });
 
     // The family car parked in the home driveway (the only drivable vehicle)
@@ -95,6 +100,14 @@ class GhirassGameApp {
     this.activities = new ActivitySystem(this);
     this.coast = new CoastSystem(this);
     this.missionSystem.isInside = () => this.interiors.isInside() || this.coast.inCoast;
+
+    // City facilities: museum and first aid (inside their buildings), recycling centre, driving school; encyclopedia
+    this.encyclopedia = new EncyclopediaSystem(this);
+    this.facilities = new CityFacilities(this);
+    this.activities.register(createFirstAidActivity());
+    this.activities.register(createMuseumActivity(this));
+    this.activities.register(createRecyclingActivity(this, this.facilities));
+    this.activities.register(createDrivingSchoolActivity(this, this.facilities));
     this.trafficSystem.playerIsVehicle = () => this.vehicle.driving;
     this.trafficSystem.extraVehicles = () => [this.vehicle.footprint];
 
@@ -119,6 +132,7 @@ class GhirassGameApp {
       if (this.vehicle.handleInteract()) return;
       if (this.interiors.tryInteract()) return;
       if (this.coast.tryInteract()) return;
+      if (this.facilities.tryInteract()) return;
       const nearNPC = this.npcSystem.getNearNPC();
       if (nearNPC) {
         // Mission givers (association) and "talk to" objectives are handled by the mission system
@@ -139,6 +153,7 @@ class GhirassGameApp {
     this.input.onEscape = () => {
       if (this.wardrobe && this.wardrobe.isOpen) { this.wardrobe.close(); return; }
       if (this.activities && this.activities.menuOpen) { this.activities.closeMenu(); return; }
+      if (this.encyclopedia && this.encyclopedia.isOpen) { this.encyclopedia.close(); return; }
       if (this.activities && this.activities.quizOpen) { this.activities.stop(); return; }
       if (this.ui.dialogOverlay.classList.contains('show')) {
         this.ui.closeDialogue();
@@ -178,6 +193,7 @@ class GhirassGameApp {
 
       if (!this.vehicle.driving) this.interiors.update();
       this.coast.update(dt);
+      this.facilities.update(dt);
       this.activities.update(dt);
 
       // Clothing panel open: show the character from the front, standing left of the panel
@@ -242,7 +258,9 @@ class GhirassGameApp {
       timeOfDay: this.environment.timeOfDay,
       vehicle: this.vehicle.getState(),
       wardrobe: this.wardrobe.getState(),
-      activities: this.activities.getState()
+      activities: this.activities.getState(),
+      encyclopedia: this.encyclopedia.getState(),
+      world: this.facilities.getState()
     };
     this.saveSystem.saveGame(data);
   }
@@ -253,6 +271,8 @@ class GhirassGameApp {
 
     if (data.wardrobe) this.wardrobe.loadState(data.wardrobe);
     if (data.activities) this.activities.loadState(data.activities);
+    if (data.encyclopedia) this.encyclopedia.loadState(data.encyclopedia);
+    if (data.world) this.facilities.loadState(data.world);
     if (data.gender) {
       // Only two characters remain (boy / girl): older saves with another girl map to the girl
       const type = /^girl|^sara|^rayan/.test(data.gender) ? 'girl_green' : 'boy_purple';

@@ -602,3 +602,16 @@
 #kick-meter { position: fixed; left: 50%; bottom: 120px; transform: translateX(-50%); width: 220px; height: 14px; border-radius: 10px; background: rgba(12, 20, 34, 0.75); border: 2px solid rgba(255,255,255,0.3); overflow: hidden; display: none; z-index: 65; }
 #kick-meter.show { display: block; }
 #kick-meter div { height: 100%; width: 0; background: linear-gradient(90deg, #2ecc71, #f1c40f, #e74c3c); }
+
+/* Sorting mini-game and encyclopedia */
+.sort-card { width: min(620px, 100%); }
+.sort-item { display: flex; flex-direction: column; align-items: center; gap: 4px; margin: 10px 0 14px; }
+.sort-icon { font-size: 64px; line-height: 1.1; }
+.sort-name { font-size: 20px; }
+.sort-bins { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.sort-bin { font: inherit; font-weight: 800; font-size: 13.5px; color: #fff; background: color-mix(in srgb, var(--bc) 70%, #0b1118); border: 2px solid var(--bc); border-radius: 14px; padding: 12px 6px 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.sort-bin span { font-size: 28px; }
+.sort-bin small { opacity: 0.7; font-size: 11px; }
+.sort-bin:hover { transform: translateY(-2px); filter: brightness(1.15); }
+.enc-place { font-size: 13px; font-weight: 900; color: #f1c40f; margin: 6px 4px 2px; }
+@media (max-width: 560px) { .sort-bins { grid-template-columns: repeat(2, 1fr); } }

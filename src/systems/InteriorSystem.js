@@ -230,6 +230,10 @@ export class InteriorSystem {
       wallPanel('5 جويلية 1962', 'استقلال الجزائر', -w / 2 + 0.06, 3, Math.PI / 2, '#145a32');
       wallPanel('الأمير عبد القادر', '1808 – 1883', w / 2 - 0.06, -3, -Math.PI / 2, '#4a235a');
       wallPanel('التراث الفخاري', 'صناعة تقليدية جزائرية', w / 2 - 0.06, 3, -Math.PI / 2, '#784212');
+      // Guide desk: museum discovery challenges
+      add(new THREE.Mesh(new RoundedBoxGeometry(2.2, 1.0, 0.8, 2, 0.05), mat(0x6e4b2a, 0.6)), w / 2 - 3, 0.5, d / 2 - 3.5);
+      addBox(w / 2 - 3, d / 2 - 3.5, 2.4, 1.0, 1.2);
+      poi(w / 2 - 3, d / 2 - 2.5, '🏛️ دليل المتحف: تحديات الاكتشاف', '', 'museum_quiz');
       // Pedestals with exhibits
       [[-4, -2], [4, -2], [0, -5]].forEach(([x, z], i) => {
         add(new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.0, 1.1), mat(0xffffff, 0.5)), x, 0.5, z);
@@ -311,6 +315,11 @@ export class InteriorSystem {
           addBox(x, -1, 1.2, 2.2, 1);
         });
         poi(0, -d / 2 + 4.2, 'نظافة اليدين', 'اغسل يديك بالماء والصابون مدة 20 ثانية على الأقل، فذلك يحميك من كثير من الأمراض.');
+      // First-aid corner: white cabinet with a red cross
+      add(new THREE.Mesh(new RoundedBoxGeometry(0.5, 1.4, 1.2, 2, 0.05), mat(0xf4f6f7, 0.4)), -w / 2 + 0.3, 1.2, 1.5);
+      [[0.5, 0.14], [0.14, 0.5]].forEach(([a, b]) => add(new THREE.Mesh(new THREE.BoxGeometry(0.02, a, b), mat(0xc0392b, 0.5)), -w / 2 + 0.56, 1.3, 1.5));
+      addBox(-w / 2 + 0.3, 1.5, 0.6, 1.3, 2);
+      poi(-w / 2 + 1.5, 1.5, '🩺 ركن الإسعافات الأولية: تعلّم كيف تتصرّف', '', 'firstaid');
       } else if (id === 'police') {
         poi(0, -d / 2 + 4.2, 'رقم الطوارئ', 'في حالة الخطر اتصل بالشرطة على الرقم 17، وأبلغ عن أي وضع مريب لشخص بالغ تثق به.');
       } else {
@@ -506,7 +515,7 @@ export class InteriorSystem {
     }
     if (this.current && this.nearPOI) {
       events.emit('TOAST', `📖 ${this.nearPOI.text}`);
-      events.emit('INTERIOR_POI_READ', { id: this.current.id, title: this.nearPOI.title });
+      events.emit('INTERIOR_POI_READ', { id: this.current.id, title: this.nearPOI.title, text: this.nearPOI.text, building: this.current.name });
       return true;
     }
     return false;

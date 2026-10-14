@@ -202,6 +202,7 @@ export class PlayerVehicleSystem {
         if (Math.abs(s) > 3) {
           audio.playTone(110, 0.15, 'square');
           if (hit === 'person') events.emit('TOAST', '⚠️ انتبه! راجل أمام السيارة.');
+          events.emit('VEHICLE_BUMP', { type: hit, speed: Math.abs(s) });
         }
         s = -s * 0.12;
         break;

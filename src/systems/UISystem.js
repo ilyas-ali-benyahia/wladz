@@ -145,6 +145,9 @@ export class UISystem {
       });
     }
 
+    const bookBtn = document.getElementById('hud-book-btn');
+    if (bookBtn) bookBtn.addEventListener('click', () => this.game.encyclopedia && this.game.encyclopedia.open());
+
     const pauseBtn = document.getElementById('hud-pause-btn');
     if (pauseBtn) {
       pauseBtn.addEventListener('click', () => {
@@ -356,7 +359,7 @@ export class UISystem {
   setCustomHint(html, source = 'interior') {
     this.customHints = this.customHints || {};
     this.customHints[source] = html;
-    this.customHint = this.customHints.vehicle || this.customHints.interior || this.customHints.zone || this.customHints.mission || null;
+    this.customHint = this.customHints.vehicle || this.customHints.interior || this.customHints.zone || this.customHints.zone2 || this.customHints.mission || null;
     this.updateInteractHint(this.lastHintNPC);
   }
 

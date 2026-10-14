@@ -13,7 +13,8 @@
     "audit:characters": "node tools/audit-characters.mjs",
     "test:vehicle": "node tools/test-vehicle.mjs",
     "test:wardrobe": "node tools/test-wardrobe.mjs",
-    "test:coast": "node tools/test-coast.mjs"
+    "test:coast": "node tools/test-coast.mjs",
+    "test:facilities": "node tools/test-facilities.mjs"
   },
   "keywords": [
     "game",
