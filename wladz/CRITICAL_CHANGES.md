@@ -30,3 +30,19 @@
 ## Journal
 
 <!-- Ajouter les nouvelles entrées SOUS cette ligne, à la fin du fichier. -->
+
+### CC-20261013-game-games-2-01 — Déplacer le module Game 2 sous le dashboard
+
+- **Date** : 2026-10-13
+- **Développeur** : ilyas-alibenyahia
+- **Groupe** : game:games-2
+- **Branche / PR** : game/games-2/prototype-3d — PR non créée
+- **Type** : écart forcé
+- **Règle(s) concernée(s)** : WLADZ_TEAM_PROMPT.md §3.2, §6.1 et §6.7 — propriété des routes Dashboard et découverte des jeux depuis `games/<slug>/`
+- **Changement** : déplacer les sources du module `games/games-2/` vers `app/dashboard/games/games-2/`, sans remplacer les fichiers de route existants. L’asset reste dans `public/games/games-2/`.
+- **Raison** : demande du développeur de placer Game 2 sous le segment de route du dashboard.
+- **Conséquences et risques acceptés** : le registre de jeux décrit par §6.7 ne découvrira plus le manifest à son emplacement conventionnel. Le sous-dossier ne devient une route Next.js jouable qu’après ajout par Hub & Core d’un `page.tsx` qui l’héberge et fournit le contrat `GameProps`; les pages Dashboard existantes sont actuellement vides.
+- **Impact sur les autres groupes** : Hub & Core doit intégrer le module au routage et adapter ou confirmer la découverte du manifest ; les autres groupes gardent leur emplacement conventionnel.
+- **Action requise pour les autres** : Hub & Core doit relire cette proposition et fournir l’intégration route/host avant que la route Game 2 soit considérée comme fonctionnelle.
+- **Nouvelle règle effective** : proposition limitée à Game 2 : ses sources peuvent résider sous `app/dashboard/games/games-2/`; l’asset reste sous `public/games/games-2/`. Cette règle ne prend effet qu’après merge dans `main`.
+- **Statut** : actif

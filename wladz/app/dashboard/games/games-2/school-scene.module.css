@@ -1,0 +1,644 @@
+.wlG2Game {
+  --game-green: var(--color-dz-green, #006233);
+  --game-green-light: var(--color-dz-green-light, #2f8f5b);
+  --game-green-soft: var(--color-dz-green-soft, #e6f4ec);
+  --game-red: var(--color-dz-red, #d21034);
+  --game-white: var(--color-dz-white, #ffffff);
+  --game-ink: var(--color-ink, #13261d);
+  --game-ink-soft: var(--color-ink-soft, #4b5d54);
+  --game-sky-top: var(--color-sky-top, #9ed8ff);
+  --game-sky-bottom: var(--color-sky-bottom, #f2faff);
+  --game-gold: var(--color-gold, #f2b705);
+
+  color: var(--game-ink);
+  background:
+    radial-gradient(ellipse at 10% 6%, rgb(255 255 255 / 78%) 0, transparent 25rem),
+    linear-gradient(160deg, var(--game-sky-top), var(--game-sky-bottom) 50%, var(--game-green-soft));
+  border: 1px solid rgb(255 255 255 / 75%);
+  border-radius: 2rem;
+  box-shadow: 0 1.5rem 4rem rgb(19 38 29 / 12%);
+  font-family: var(--font-sans, Arial, Helvetica, sans-serif);
+  margin-inline: auto;
+  max-width: 76rem;
+  overflow: hidden;
+  padding: clamp(1rem, 3vw, 2rem);
+  width: 100%;
+}
+
+.wlG2Header {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-block-end: 1.15rem;
+}
+
+.wlG2Heading {
+  min-width: 0;
+}
+
+.wlG2Eyebrow {
+  align-items: center;
+  color: var(--game-green);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 1rem;
+  font-weight: 800;
+  gap: 0.5rem;
+  margin: 0 0 0.35rem;
+}
+
+.wlG2EyebrowDot {
+  background: var(--game-red);
+  border-radius: 50%;
+  height: 0.55rem;
+  width: 0.55rem;
+}
+
+.wlG2Title {
+  color: var(--game-ink);
+  font-size: clamp(1.6rem, 4vw, 2.35rem);
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.wlG2Subtitle {
+  color: var(--game-ink-soft);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0.45rem 0 0;
+}
+
+.wlG2PlayerBadge {
+  align-items: center;
+  background: var(--game-white);
+  border: 1px solid rgb(0 98 51 / 10%);
+  border-radius: 1.25rem;
+  box-shadow: 0 0.4rem 1.2rem rgb(19 38 29 / 7%);
+  display: flex;
+  gap: 0.7rem;
+  min-height: 3.5rem;
+  padding: 0.55rem 0.85rem;
+}
+
+.wlG2Avatar {
+  align-items: center;
+  background: var(--game-green-soft);
+  border-radius: 0.9rem;
+  color: var(--game-green);
+  display: grid;
+  font-size: 1.25rem;
+  font-weight: 900;
+  height: 2.35rem;
+  justify-items: center;
+  width: 2.35rem;
+}
+
+.wlG2PlayerMeta {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.wlG2PlayerLabel {
+  color: var(--game-ink-soft);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.wlG2PlayerName {
+  color: var(--game-ink);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.wlG2Campaign {
+  background: rgb(255 255 255 / 70%);
+  border: 1px solid rgb(0 98 51 / 9%);
+  border-radius: 1.35rem;
+  margin-block-end: 1rem;
+  padding: 0.85rem 1rem 0.75rem;
+}
+
+.wlG2CampaignTop {
+  align-items: center;
+  color: var(--game-ink-soft);
+  display: flex;
+  font-size: 1rem;
+  font-weight: 800;
+  justify-content: space-between;
+  margin-block-end: 0.55rem;
+}
+
+.wlG2CampaignTop strong {
+  color: var(--game-green);
+  font-variant-numeric: tabular-nums;
+}
+
+.wlG2ProgressTrack {
+  background: var(--game-green-soft);
+  border-radius: 999px;
+  height: 0.65rem;
+  overflow: hidden;
+}
+
+.wlG2ProgressFill {
+  background: linear-gradient(90deg, var(--game-green), var(--game-green-light));
+  border-radius: inherit;
+  height: 100%;
+  transition: width 250ms ease;
+}
+
+.wlG2TierRail {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-block-start: 0.75rem;
+}
+
+.wlG2Tier {
+  align-items: center;
+  background: rgb(255 255 255 / 60%);
+  border: 1px solid transparent;
+  border-radius: 0.85rem;
+  color: var(--game-ink-soft);
+  display: flex;
+  font-size: 0.875rem;
+  font-weight: 800;
+  gap: 0.5rem;
+  justify-content: center;
+  min-height: 2.55rem;
+  padding: 0.45rem;
+  text-align: center;
+}
+
+.wlG2TierActive {
+  background: var(--game-green-soft);
+  border-color: rgb(0 98 51 / 20%);
+  color: var(--game-green);
+}
+
+.wlG2TierDone {
+  color: var(--game-green);
+}
+
+.wlG2TierNumber {
+  align-items: center;
+  background: var(--game-white);
+  border-radius: 50%;
+  display: inline-flex;
+  flex: 0 0 1.5rem;
+  height: 1.5rem;
+  justify-content: center;
+  width: 1.5rem;
+}
+
+.wlG2WorldFrame {
+  background: var(--game-white);
+  border: 0.35rem solid var(--game-white);
+  border-radius: 1.75rem;
+  box-shadow: 0 0.75rem 2rem rgb(19 38 29 / 14%);
+  isolation: isolate;
+  overflow: hidden;
+  position: relative;
+}
+
+.wlG2Canvas {
+  aspect-ratio: 16 / 9;
+  display: block;
+  min-height: 280px;
+  max-height: min(62vh, 42rem);
+  touch-action: none;
+  width: 100%;
+  background: linear-gradient(var(--game-sky-top), var(--game-sky-bottom) 64%, #76a95e 64%);
+}
+
+.wlG2Hud {
+  align-items: flex-start;
+  display: flex;
+  inset-block-start: 0.85rem;
+  inset-inline: 0.85rem;
+  justify-content: space-between;
+  pointer-events: none;
+  position: absolute;
+}
+
+.wlG2HudPill {
+  align-items: center;
+  background: rgb(255 255 255 / 94%);
+  border: 1px solid rgb(0 98 51 / 10%);
+  border-radius: 1rem;
+  box-shadow: 0 0.3rem 0.8rem rgb(19 38 29 / 10%);
+  color: var(--game-ink);
+  display: flex;
+  font-size: 1rem;
+  font-weight: 800;
+  gap: 0.5rem;
+  line-height: 1.4;
+  max-width: min(60%, 35rem);
+  padding: 0.65rem 0.85rem;
+}
+
+.wlG2Objective {
+  align-items: center;
+  background: rgb(255 255 255 / 96%);
+  border: 1px solid rgb(0 98 51 / 12%);
+  border-radius: 1rem;
+  bottom: 0.9rem;
+  box-shadow: 0 0.35rem 1rem rgb(19 38 29 / 12%);
+  color: var(--game-ink);
+  display: flex;
+  font-size: 1rem;
+  font-weight: 800;
+  gap: 0.6rem;
+  inset-inline: 0.9rem;
+  line-height: 1.45;
+  padding: 0.7rem 0.9rem;
+  position: absolute;
+}
+
+.wlG2ObjectiveMark {
+  background: var(--game-gold);
+  border-radius: 0.55rem;
+  flex: 0 0 0.7rem;
+  height: 0.7rem;
+}
+
+.wlG2Loading {
+  align-items: center;
+  background: rgb(255 255 255 / 92%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 1.5rem;
+  position: absolute;
+  text-align: center;
+}
+
+.wlG2LoadingText {
+  color: var(--game-green);
+  font-size: 1.125rem;
+  font-weight: 800;
+}
+
+.wlG2PlayArea {
+  align-items: stretch;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) minmax(11rem, 15rem);
+  margin-block-start: 1rem;
+}
+
+.wlG2StoryCard {
+  align-content: center;
+  background: var(--game-white);
+  border: 1px solid rgb(0 98 51 / 10%);
+  border-radius: 1.4rem;
+  box-shadow: 0 0.45rem 1.3rem rgb(19 38 29 / 7%);
+  display: grid;
+  gap: 0.75rem;
+  min-height: 9rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.wlG2StoryLabel {
+  align-items: center;
+  color: var(--game-green);
+  display: flex;
+  font-size: 1rem;
+  font-weight: 900;
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.wlG2StoryLabelMark {
+  align-items: center;
+  background: var(--game-green-soft);
+  border-radius: 0.65rem;
+  display: inline-flex;
+  flex: 0 0 2rem;
+  height: 2rem;
+  justify-content: center;
+  width: 2rem;
+}
+
+.wlG2StoryText {
+  color: var(--game-ink);
+  font-size: 1.125rem;
+  font-weight: 650;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.wlG2StoryFeedback {
+  background: var(--game-green-soft);
+  border-inline-start: 0.25rem solid var(--game-green);
+  border-radius: 0.75rem;
+  color: var(--game-ink);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.75;
+  margin: 0;
+  padding: 0.8rem 1rem;
+}
+
+.wlG2StoryMeta {
+  color: var(--game-ink-soft);
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.wlG2ControlPanel {
+  align-content: center;
+  background: rgb(255 255 255 / 62%);
+  border: 1px solid rgb(255 255 255 / 90%);
+  border-radius: 1.4rem;
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+  padding: 0.85rem;
+}
+
+.wlG2ControlHint {
+  color: var(--game-ink-soft);
+  font-size: 0.875rem;
+  font-weight: 800;
+  margin: 0;
+  text-align: center;
+}
+
+.wlG2Dpad {
+  display: grid;
+  gap: 0.35rem;
+  grid-template-columns: repeat(3, 3.15rem);
+  justify-content: center;
+}
+
+.wlG2DpadSpacer {
+  min-height: 3.15rem;
+}
+
+.wlG2DirectionButton {
+  align-items: center;
+  background: var(--game-white);
+  border: 1px solid rgb(0 98 51 / 13%);
+  border-radius: 1rem;
+  box-shadow: 0 0.25rem 0.65rem rgb(19 38 29 / 8%);
+  color: var(--game-green);
+  cursor: pointer;
+  display: flex;
+  font-size: 1.4rem;
+  font-weight: 900;
+  height: 3.15rem;
+  justify-content: center;
+  touch-action: none;
+  transition: transform 120ms ease, background-color 120ms ease, color 120ms ease;
+  width: 3.15rem;
+}
+
+.wlG2DirectionButton:hover {
+  background: var(--game-green-soft);
+}
+
+.wlG2DirectionButton:active {
+  background: var(--game-green);
+  color: var(--game-white);
+  transform: scale(0.94);
+}
+
+.wlG2ActionButton,
+.wlG2ChoiceButton,
+.wlG2ExitButton {
+  align-items: center;
+  border-radius: 1rem;
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 900;
+  justify-content: center;
+  line-height: 1.5;
+  min-height: 3.25rem;
+  padding: 0.7rem 1rem;
+  text-align: center;
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+
+.wlG2ActionButton {
+  background: var(--game-green);
+  border: 1px solid var(--game-green);
+  box-shadow: 0 0.35rem 0.8rem rgb(0 98 51 / 18%);
+  color: var(--game-white);
+  width: 100%;
+}
+
+.wlG2ActionButton:hover:not(:disabled) {
+  background: var(--game-green-light);
+  box-shadow: 0 0.5rem 1rem rgb(0 98 51 / 22%);
+  transform: translateY(-1px);
+}
+
+.wlG2ActionButton:disabled {
+  background: #87988e;
+  border-color: #87988e;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.wlG2ChoiceList {
+  display: grid;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.wlG2ChoiceButton {
+  background: var(--game-white);
+  border: 1px solid rgb(0 98 51 / 18%);
+  color: var(--game-ink);
+  justify-content: flex-start;
+  text-align: start;
+  width: 100%;
+}
+
+.wlG2ChoiceButton:hover {
+  background: var(--game-green-soft);
+  border-color: var(--game-green);
+  box-shadow: 0 0.3rem 0.75rem rgb(0 98 51 / 10%);
+  transform: translateY(-1px);
+}
+
+.wlG2ChoiceNumber {
+  align-items: center;
+  background: var(--game-green-soft);
+  border-radius: 0.65rem;
+  color: var(--game-green);
+  display: inline-flex;
+  flex: 0 0 2rem;
+  height: 2rem;
+  justify-content: center;
+}
+
+.wlG2Footer {
+  align-items: center;
+  color: var(--game-ink-soft);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 1rem;
+  gap: 0.8rem;
+  justify-content: space-between;
+  margin-block-start: 0.85rem;
+}
+
+.wlG2FooterHint {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.wlG2ExitButton {
+  background: transparent;
+  border: 1px solid rgb(75 93 84 / 30%);
+  color: var(--game-ink-soft);
+  min-width: 6rem;
+}
+
+.wlG2ExitButton:hover {
+  background: var(--game-white);
+  border-color: var(--game-ink-soft);
+}
+
+.wlG2Error {
+  align-items: start;
+  background: var(--game-white);
+  border: 1px solid rgb(210 16 52 / 18%);
+  border-radius: 1.5rem;
+  box-shadow: 0 1rem 3rem rgb(19 38 29 / 10%);
+  color: var(--game-ink);
+  display: grid;
+  gap: 1rem;
+  margin-inline: auto;
+  max-width: 48rem;
+  padding: clamp(1.25rem, 4vw, 2rem);
+}
+
+.wlG2ErrorTitle {
+  color: var(--game-red);
+  font-size: 1.5rem;
+  font-weight: 900;
+  margin: 0;
+}
+
+.wlG2ErrorText {
+  font-size: 1.125rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.wlG2PrimaryButton {
+  background: var(--game-green);
+  border: 1px solid var(--game-green);
+  border-radius: 1rem;
+  color: var(--game-white);
+  cursor: pointer;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 900;
+  min-height: 3.25rem;
+  padding: 0.7rem 1.2rem;
+}
+
+.wlG2PrimaryButton:hover {
+  background: var(--game-green-light);
+}
+
+.wlG2Game button:focus-visible {
+  outline: 3px solid var(--game-gold);
+  outline-offset: 3px;
+}
+
+@media (max-width: 680px) {
+  .wlG2Game {
+    border-radius: 1.4rem;
+    padding: 0.85rem;
+  }
+
+  .wlG2Header {
+    align-items: flex-start;
+  }
+
+  .wlG2PlayerBadge {
+    min-height: 3rem;
+  }
+
+  .wlG2Campaign {
+    padding: 0.75rem;
+  }
+
+  .wlG2TierRail {
+    gap: 0.3rem;
+  }
+
+  .wlG2Tier {
+    align-items: flex-start;
+    flex-direction: column;
+    font-size: 0.875rem;
+    justify-content: flex-start;
+    min-height: 4rem;
+    text-align: start;
+  }
+
+  .wlG2Canvas {
+    aspect-ratio: 4 / 3;
+    min-height: 260px;
+    max-height: 48vh;
+  }
+
+  .wlG2Hud {
+    inset-block-start: 0.55rem;
+    inset-inline: 0.55rem;
+  }
+
+  .wlG2HudPill {
+    font-size: 1rem;
+    max-width: 80%;
+    padding: 0.55rem 0.65rem;
+  }
+
+  .wlG2PlayArea {
+    grid-template-columns: 1fr;
+  }
+
+  .wlG2ControlPanel {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .wlG2Dpad {
+    grid-template-columns: repeat(3, 3rem);
+  }
+
+  .wlG2DpadSpacer {
+    min-height: 3rem;
+  }
+
+  .wlG2DirectionButton {
+    height: 3rem;
+    width: 3rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wlG2ProgressFill,
+  .wlG2DirectionButton,
+  .wlG2ActionButton,
+  .wlG2ChoiceButton {
+    transition: none;
+  }
+}
