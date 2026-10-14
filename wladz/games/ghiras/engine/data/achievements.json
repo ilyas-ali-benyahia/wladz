@@ -1,0 +1,67 @@
+{
+  "achievements": [
+    {
+      "id": "badge_welcome",
+      "title": "المواطن الصغير",
+      "description": "انطلق في عالم غراس المواطنة واختر بطلك الصغير.",
+      "icon": "🌱",
+      "unlocked": true
+    },
+    {
+      "id": "badge_cleaner",
+      "title": "حامي النظافة",
+      "description": "أكملت مهمة تنظيف شوارع المدينة من النفايات الملقاة.",
+      "icon": "🧹",
+      "unlocked": false
+    },
+    {
+      "id": "badge_planter",
+      "title": "غارس الأمل",
+      "description": "غرست أشجاراً جديدة في الحديقة لتنقية هواء مدينتك.",
+      "icon": "🌳",
+      "unlocked": false
+    },
+    {
+      "id": "badge_waterer",
+      "title": "ساقي الحياة",
+      "description": "سقيت الأشجار العطشى بالماء وجعلت أوراقها خضراء يانعة.",
+      "icon": "💧",
+      "unlocked": false
+    },
+    {
+      "id": "badge_historian",
+      "title": "حارس الذاكرة الوطنية",
+      "description": "زرت المتحف الوطني وأجبت عن أسئلة ثورة التحرير وأبطال الجزائر.",
+      "icon": "📜",
+      "unlocked": false
+    },
+    {
+      "id": "badge_morals",
+      "title": "المواطن الخلوق",
+      "description": "تحدثت مع إمام المسجد وتعلمت مكارم الأخلاق والصدق والأمانة.",
+      "icon": "🕌",
+      "unlocked": false
+    },
+    {
+      "id": "badge_knowledge",
+      "title": "واحة المعرفة",
+      "description": "استكشفت المكتبة العامة وأظهرت ذكاءً في العلوم والرياضيات.",
+      "icon": "📚",
+      "unlocked": false
+    },
+    {
+      "id": "badge_health",
+      "title": "سفير الصحة والنشاط",
+      "description": "تعلمت عادات الغذاء الصحي والنظافة الشخصية في السوق والمركز الصحي.",
+      "icon": "🍎",
+      "unlocked": false
+    },
+    {
+      "id": "badge_citizen",
+      "title": "سفير المواطنة الصالحة",
+      "description": "أعلى وسام فخري لإكمال جميع مهام خدمة المجتمع والوطن!",
+      "icon": "🏆",
+      "unlocked": false
+    }
+  ]
+}

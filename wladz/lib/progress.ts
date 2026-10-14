@@ -1,6 +1,7 @@
 import type { AgeTier } from "@/games/ageTier";
 import { amineTotalEndings } from "@/games/amine/config";
 import { choiceScenes } from "@/games/choices/data";
+import { ghirasTotalWins } from "@/games/ghiras/config";
 import { mathDailyPoints } from "@/games/math/MathLauncher";
 import { mythCards } from "@/games/myths/data";
 import { salatiDailyWins } from "@/games/salati/config";
@@ -40,6 +41,7 @@ export function getGameActivity(userId: string, tier: AgeTier, today: string): G
       skills: { done: count("level:"), total: (LEVELS as unknown[]).length, unit: "محطات" },
       math: { done: count(`${today}:`), total: mathDailyPoints, unit: "نقطة اليوم" },
       amine: { done: count("ending:"), total: amineTotalEndings, unit: "نهاية" },
+      ghiras: { done: ids.length, total: ghirasTotalWins, unit: "مهمة ومرحلة" },
       salati: { done: count(`${today}:`), total: salatiDailyWins, unit: "فوز اليوم" },
     };
 
