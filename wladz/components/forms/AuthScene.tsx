@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ReactNode } from "react";
 
 function Cloud({ className }: { className: string }) {
@@ -30,9 +31,14 @@ export function AuthScene({
       <Cloud className="bottom-12 start-1/4 hidden scale-125 [animation-delay:-5s] sm:block" />
 
       <section className="relative w-full max-w-md rounded-3xl border-b-8 border-dz-green bg-dz-white p-6 shadow-xl sm:p-8">
-        <p dir="ltr" className="text-center text-2xl font-black tracking-wide text-dz-green">
-          WLADZ<span className="text-dz-red">.</span>
-        </p>
+        <Image
+          src="/images/logo-3.png"
+          alt="WLADZ"
+          width={1412}
+          height={704}
+          priority
+          className="mx-auto h-auto w-48"
+        />
         <div
           aria-hidden="true"
           className="mx-auto mt-4 flex size-20 items-center justify-center rounded-full bg-dz-green-soft text-4xl"

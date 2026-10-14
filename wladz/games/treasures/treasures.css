@@ -1,0 +1,2995 @@
+/* Styles de « كنوز الجزائر » (lamatna2), recolorés au thème WLADZ. Chargé seulement par /play/treasures. */
+
+/* ── main.css ── */
+/* =========================================================
+   كنوز الجزائر (Treasures of Algeria) - نظام التصميم العام
+   مستوحى من التراث الجزائري: الزليج، رمال الصحراء، زرقة المتوسط
+   ========================================================= */
+
+
+:root {
+  /* لوحة الألوان التراثية الأصيلة */
+  --c-primary: #3a8ee6;        /* ذهب الصحراء الدافئ */
+  --c-primary-dark: #2b74c7;
+  --c-secondary: #1fa89f;      /* فيروزي البحر المتوسط والزليج */
+  --c-secondary-dark: #17867f;
+  --c-accent: #d21034;         /* قرمزي العقيق والمرجان الجزائري */
+  --c-gold: #ffc857;           /* الذهب الخالص للعملات والنجوم */
+  --c-gem: #06b6d4;            /* ياقوت وجواهر أطلسية */
+  
+  /* خلفيات وظلال زجاجية حديثة */
+  --bg-main: #f2faff;          /* سماء ليلية صحراوية هادئة */
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-card-hover: rgba(255, 255, 255, 0.95);
+  --bg-surface: rgba(255, 255, 255, 0.92);
+  --bg-glass: rgba(58, 142, 230, 0.10);
+  --border-glass: rgba(58, 142, 230, 0.19);
+  --border-gold: rgba(255, 200, 87, 0.35);
+
+  /* خطوط ونصوص */
+  --font-sans: 'Tajawal', 'Cairo', sans-serif;
+  --font-display: 'El Messiri', 'Cairo', serif;
+  --text-main: #0a1236;
+  --text-muted: #4a5a85;
+  --text-gold: #b45309;
+
+  /* قياسات ونصف قطر الحواف */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+  --shadow-glow: 0 0 25px rgba(58, 142, 230, 0.35);
+  --shadow-card: 0 10px 30px -5px rgba(10, 18, 54, 0.17);
+
+  --app-max-width: 480px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-main);
+  background-image: 
+    radial-gradient(circle at 15% 10%, rgba(58, 142, 230, 0.12), transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(37, 201, 192, 0.12), transparent 45%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.02' fill-rule='evenodd'%3E%3Cpath d='M30 30L15 15h30L30 30zm0 0l15 15H15l15-15z'/%3E%3C/g%3E%3C/svg%3E");
+  color: var(--text-main);
+  direction: rtl;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  overflow-x: hidden;
+}
+
+/* حاوية التطبيق المركزية المتوافقة مع الموبايل والشاشات الكبيرة */
+#app {
+  width: 100%;
+  max-width: var(--app-max-width);
+  min-height: 100vh;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-left: 1px solid var(--border-glass);
+  border-right: 1px solid var(--border-glass);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 0 50px rgba(10, 18, 54, 0.28);
+}
+
+/* شريط الرأس العلوي الفاخر */
+.top-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(15px);
+  border-bottom: 1px solid var(--border-glass);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--c-primary), var(--c-accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  box-shadow: 0 2px 10px rgba(58, 142, 230, 0.4);
+  border: 2px solid var(--c-gold);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.avatar-badge:active {
+  transform: scale(0.92);
+}
+
+.player-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.player-title {
+  font-size: 0.75rem;
+  color: var(--text-gold);
+  font-weight: 700;
+}
+
+.player-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+/* العدادات الاقتصادية (النجوم، الذهب، الجواهر) */
+.economy-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eco-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  padding: 5px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(10, 18, 54, 0.10);
+  transition: transform 0.2s ease;
+}
+
+.eco-pill:active {
+  transform: scale(0.95);
+}
+
+.eco-pill.coins {
+  border-color: rgba(255, 200, 87, 0.4);
+  color: #b45309;
+}
+
+.eco-pill.gems {
+  border-color: rgba(6, 182, 212, 0.4);
+  color: #67e8f9;
+}
+
+.eco-pill.stars {
+  border-color: rgba(255, 159, 28, 0.4);
+  color: #b45309;
+}
+
+.eco-icon {
+  font-size: 1rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.header-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--c-primary);
+}
+
+.header-btn:active {
+  transform: scale(0.92);
+}
+
+/* مساحة المحتوى الرئيسية والتبديل بين الشاشات */
+.main-viewport {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 90px; /* مسافة شريط التنقل السفلي */
+  scroll-behavior: smooth;
+}
+
+.view-section {
+  display: none;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.view-section.active {
+  display: block;
+}
+
+/* شريط التنقل السفلي الاحترافي */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: var(--app-max-width);
+  height: 72px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-glass);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 8px;
+  z-index: 40;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.nav-item .nav-icon {
+  font-size: 1.35rem;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.nav-item.active {
+  color: var(--c-gold);
+}
+
+.nav-item.active .nav-icon {
+  transform: translateY(-4px) scale(1.15);
+  filter: drop-shadow(0 2px 8px rgba(255, 200, 87, 0.6));
+}
+
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  width: 18px;
+  height: 3px;
+  background: var(--c-gold);
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 8px var(--c-gold);
+}
+
+/* الزر المركزي البارز للعب */
+.nav-item.play-center {
+  background: linear-gradient(135deg, var(--c-primary), #ea580c);
+  color: white;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  margin-top: -24px;
+  box-shadow: 0 6px 20px rgba(234, 88, 12, 0.5);
+  border: 3px solid var(--bg-main);
+}
+
+.nav-item.play-center .nav-icon {
+  font-size: 1.6rem;
+}
+
+.nav-item.play-center.active {
+  box-shadow: 0 0 25px var(--c-gold);
+}
+
+.nav-item.play-center.active::after {
+  display: none;
+}
+
+/* أزرار وتأثيرات عامة */
+.btn {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  padding: 12px 20px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--c-primary), #ea580c);
+  color: white;
+  box-shadow: 0 4px 15px rgba(58, 142, 230, 0.4);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(58, 142, 230, 0.6);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, #ff9f1c, #3a8ee6);
+  color: #e3f3ff;
+  font-weight: 800;
+  box-shadow: 0 4px 15px rgba(255, 159, 28, 0.4);
+}
+
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-glass);
+}
+
+/* شريط المؤشرات والإشعارات المنبثقة */
+.toast-notice {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--c-primary);
+  color: white;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  font-size: 0.88rem;
+  font-weight: 600;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 10px 25px rgba(10, 18, 54, 0.17);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toast-notice.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── animations.css ── */
+/* =========================================================
+   كنوز الجزائر - الحركات والانتقالات التفاعلية السلسة
+   ========================================================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes letterPop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes celebratePulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+    box-shadow: 0 0 25px rgba(52, 211, 153, 0.6);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes shakeX {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-8px);
+  }
+  40%, 80% {
+    transform: translateX(8px);
+  }
+}
+
+@keyframes starPop {
+  0% {
+    transform: scale(0) rotate(-45deg);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.3) rotate(15deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-effect {
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(58, 142, 230, 0.24) 50%, rgba(255,255,255,0) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s infinite;
+}
+
+/* ── map.css ── */
+/* =========================================================
+   كنوز الجزائر - خريطة الاستكشاف ومسار الولايات الـ 58
+   ========================================================= */
+
+.map-container {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* بطاقة البانر الترحيبية الفاخرة */
+.hero-banner-card {
+  position: relative;
+  width: 100%;
+  height: 190px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-gold);
+  background: #000;
+}
+
+.hero-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.75);
+  transition: transform 0.5s ease;
+}
+
+.hero-banner-card:hover .hero-banner-img {
+  transform: scale(1.03);
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(58, 142, 230, 0.32) 0%, rgba(255, 255, 255, 0.95) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 18px;
+  gap: 6px;
+}
+
+.hero-badge-pill {
+  align-self: flex-start;
+  background: rgba(58, 142, 230, 0.85);
+  color: white;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(58, 142, 230, 0.32);
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(10, 18, 54, 0.28);
+}
+
+.hero-desc {
+  font-size: 0.82rem;
+  color: #4a5a85;
+  line-height: 1.35;
+}
+
+/* شريط التحدي اليومي السريع وصندوق المفاجآت */
+.quick-features-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.quick-feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.quick-feature-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--c-primary);
+  transform: translateY(-2px);
+}
+
+.quick-feature-card:active {
+  transform: translateY(0);
+}
+
+.qf-icon {
+  font-size: 1.7rem;
+  filter: drop-shadow(0 2px 4px rgba(10, 18, 54, 0.14));
+}
+
+.qf-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.qf-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.qf-sub {
+  font-size: 0.72rem;
+  color: var(--c-gold);
+  font-weight: 600;
+}
+
+/* شريط البحث وتصفية المناطق */
+.search-filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.search-box {
+  position: relative;
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 10px 38px 10px 14px;
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.search-input:focus {
+  border-color: var(--c-primary);
+  box-shadow: 0 0 10px rgba(58, 142, 230, 0.3);
+}
+
+.search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.region-chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.region-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.region-chip {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  color: var(--text-muted);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.region-chip.active {
+  background: var(--c-primary);
+  border-color: var(--c-gold);
+  color: white;
+  box-shadow: 0 2px 8px rgba(58, 142, 230, 0.4);
+}
+
+/* مسار وبطاقات الولايات */
+.wilayas-journey-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+}
+
+/* خط المسار الواصل بين الولايات */
+.wilayas-journey-list::before {
+  content: '';
+  position: absolute;
+  top: 30px;
+  bottom: 30px;
+  right: 28px;
+  width: 3px;
+  background: linear-gradient(180deg, var(--c-gold) 0%, rgba(58, 142, 230, 0.4) 50%, rgba(58, 142, 230, 0.16) 100%);
+  z-index: 1;
+}
+
+.wilaya-card {
+  position: relative;
+  z-index: 2;
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--shadow-card);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.wilaya-card.unlocked {
+  border-color: var(--border-gold);
+}
+
+.wilaya-card.unlocked:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px -5px rgba(58, 142, 230, 0.25);
+}
+
+.wilaya-card.current {
+  border-color: var(--c-gold);
+  box-shadow: 0 0 20px rgba(255, 200, 87, 0.35);
+}
+
+.wilaya-card.locked {
+  opacity: 0.65;
+  filter: grayscale(0.4);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.wilaya-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wilaya-main-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wilaya-num-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(58, 142, 230, 0.16), rgba(58, 142, 230, 0.05));
+  border: 1px solid var(--border-glass);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-gold);
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(10, 18, 54, 0.10);
+}
+
+.wilaya-card.unlocked .wilaya-num-badge {
+  background: linear-gradient(135deg, var(--c-primary), var(--c-primary-dark));
+  color: white;
+  border-color: var(--c-gold);
+}
+
+.wilaya-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.wilaya-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wilaya-region-tag {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.wilaya-status-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-completed {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.status-current {
+  background: rgba(58, 142, 230, 0.25);
+  color: #b45309;
+  border: 1px solid var(--c-gold);
+}
+
+.status-locked {
+  background: rgba(74, 90, 133, 0.1);
+  color: #4a5a85;
+  border: 1px solid rgba(74, 90, 133, 0.2);
+}
+
+/* تفاصيل وسام الولاية والتراث */
+.wilaya-badge-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10, 18, 54, 0.09);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  color: #4a5a85;
+}
+
+.w-badge-icon {
+  font-size: 1.3rem;
+}
+
+.w-badge-text {
+  font-weight: 600;
+  color: var(--text-gold);
+}
+
+/* شريط التقدم للولاية */
+.wilaya-progress-box {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: rgba(58, 142, 230, 0.13);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--c-primary), var(--c-gold));
+  border-radius: var(--radius-full);
+  transition: width 0.4s ease;
+}
+
+/* زر بدء استكشاف الولاية */
+.wilaya-action-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.wilaya-card.unlocked .wilaya-action-btn {
+  background: linear-gradient(135deg, var(--c-primary), #ea580c);
+  color: white;
+  box-shadow: 0 4px 12px rgba(58, 142, 230, 0.35);
+}
+
+.wilaya-card.unlocked .wilaya-action-btn:hover {
+  filter: brightness(1.1);
+}
+
+.wilaya-card.locked .wilaya-action-btn {
+  background: rgba(58, 142, 230, 0.08);
+  color: #4a5a85;
+  cursor: not-allowed;
+}
+
+/* ── game.css ── */
+/* =========================================================
+   كنوز الجزائر - شاشة اللعب وأنواع المراحل المتعددة
+   ========================================================= */
+
+.game-container {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 100%;
+}
+
+/* ترويسة المرحلة الحالية */
+.stage-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+}
+
+.stage-wilaya-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-to-map-btn {
+  background: rgba(58, 142, 230, 0.13);
+  border: none;
+  color: var(--text-main);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-to-map-btn:hover {
+  background: var(--c-primary);
+}
+
+.stage-title-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.stage-wilaya-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-gold);
+}
+
+.stage-num-badge {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.stage-category-pill {
+  background: rgba(58, 142, 230, 0.2);
+  border: 1px solid var(--c-gold);
+  color: #b45309;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* بطاقة السؤال الأساسية والصورة */
+.question-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--shadow-card);
+}
+
+.stage-media-wrap {
+  width: 100%;
+  height: 220px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  position: relative;
+  background: #f2faff;
+  border: 1px solid rgba(58, 142, 230, 0.13);
+}
+
+.stage-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.stage-image:hover {
+  transform: scale(1.03);
+}
+
+.media-badge-tag {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(10, 18, 54, 0.24);
+  backdrop-filter: blur(5px);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  color: white;
+  border: 1px solid rgba(58, 142, 230, 0.32);
+}
+
+.question-text-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+}
+
+.question-subtitle {
+  font-size: 0.78rem;
+  color: var(--c-primary);
+  font-weight: 700;
+}
+
+.question-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.4;
+}
+
+/* شريط أدوات المساعدة والتلميحات */
+.hints-toolbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0;
+}
+
+.hint-tool-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-full);
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-main);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hint-tool-btn:hover {
+  border-color: var(--c-gold);
+  transform: translateY(-2px);
+}
+
+.hint-tool-btn:active {
+  transform: translateY(0);
+}
+
+.hint-cost {
+  color: var(--c-gold);
+  font-size: 0.72rem;
+}
+
+/* =========================================================
+   النوع 1: تكوين الكلمة بالحروف المبعثرة (Scattered Letters)
+   ========================================================= */
+
+.word-puzzle-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  margin-top: 6px;
+}
+
+/* مربعات الإجابة */
+.answer-slots-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  min-height: 52px;
+}
+
+.answer-slot {
+  width: 46px;
+  height: 50px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px dashed rgba(255, 200, 87, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: inset 0 2px 6px rgba(10, 18, 54, 0.17);
+}
+
+.answer-slot.filled {
+  background: linear-gradient(135deg, #3a8ee6, #2b74c7);
+  border: 2px solid var(--c-gold);
+  box-shadow: 0 4px 12px rgba(58, 142, 230, 0.4);
+  animation: letterPop 0.25s ease-out;
+}
+
+.answer-slot.hinted {
+  border-color: #38bdf8;
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+}
+
+/* بنك الحروف المبعثرة في الأسفل */
+.letters-pool-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 360px;
+}
+
+.letter-tile {
+  width: 44px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, #cfe4f8 0%, #e3f3ff 100%);
+  border: 1px solid rgba(58, 142, 230, 0.24);
+  border-bottom: 3px solid #f2faff;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(10, 18, 54, 0.14);
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.letter-tile:hover {
+  transform: translateY(-2px);
+  border-color: var(--c-gold);
+  color: var(--text-gold);
+}
+
+.letter-tile:active {
+  transform: translateY(2px);
+  border-bottom-width: 1px;
+}
+
+.letter-tile.used {
+  opacity: 0.15;
+  pointer-events: none;
+  transform: scale(0.9);
+}
+
+.letter-tile.hidden-by-hint {
+  display: none;
+}
+
+/* =========================================================
+   النوع 2 و 3: اختيار من متعدد / من أي ولاية؟
+   ========================================================= */
+
+.quiz-options-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.quiz-option-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: right;
+  position: relative;
+  overflow: hidden;
+}
+
+.quiz-option-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--c-gold);
+  transform: translateX(-4px);
+}
+
+.quiz-option-letter {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: rgba(58, 142, 230, 0.13);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--c-gold);
+  flex-shrink: 0;
+}
+
+.quiz-option-btn.correct {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  border-color: #34d399 !important;
+  color: white;
+  animation: celebratePulse 0.4s ease-out;
+}
+
+.quiz-option-btn.wrong {
+  background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+  border-color: #f87171 !important;
+  color: white;
+  animation: shakeX 0.4s ease-in-out;
+}
+
+/* =========================================================
+   النوع 4: أكمل الحروف الناقصة
+   ========================================================= */
+
+.missing-pattern-display {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--c-gold);
+  letter-spacing: 4px;
+  padding: 16px;
+  background: rgba(10, 18, 54, 0.10);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-gold);
+}
+
+/* =========================================================
+   النوع 5: لعبة المطابقة (Matching Cards Grid)
+   ========================================================= */
+
+.matching-game-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.match-card-btn {
+  background: var(--bg-card);
+  border: 2px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 14px 10px;
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 64px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.match-card-btn:hover {
+  border-color: var(--c-primary);
+}
+
+.match-card-btn.selected {
+  border-color: var(--c-gold);
+  background: rgba(58, 142, 230, 0.25);
+  box-shadow: 0 0 15px rgba(255, 200, 87, 0.4);
+  transform: scale(1.02);
+}
+
+.match-card-btn.matched {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #34d399;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* تنبيه الخطأ السفلي */
+.error-shake-banner {
+  background: rgba(220, 38, 38, 0.9);
+  color: white;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: center;
+  display: none;
+  animation: shakeX 0.4s ease-in-out;
+}
+
+.error-shake-banner.show {
+  display: block;
+}
+
+/* ── components.css ── */
+/* =========================================================
+   كنوز الجزائر - النوافذ المنبثقة، عجلة الحظ، وبطاقة "هل تعلم؟"
+   ========================================================= */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 420px;
+  background: linear-gradient(180deg, #e3f3ff 0%, #f2faff 100%);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 25px 50px -12px rgba(10, 18, 54, 0.28), 0 0 30px rgba(58, 142, 230, 0.2);
+  transform: translateY(20px) scale(0.95);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-backdrop.active .modal-card {
+  transform: translateY(0) scale(1);
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: rgba(58, 142, 230, 0.13);
+  border: 1px solid var(--border-glass);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+/* =========================================================
+   بطاقة "هل تعلم؟" التراثية والاحتفال
+   ========================================================= */
+
+.fact-header-badge {
+  background: linear-gradient(135deg, #ff9f1c, #3a8ee6);
+  color: #e3f3ff;
+  font-weight: 800;
+  padding: 6px 18px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  box-shadow: 0 4px 15px rgba(255, 159, 28, 0.4);
+  letter-spacing: 0.5px;
+}
+
+.stars-earned-row {
+  display: flex;
+  gap: 8px;
+  font-size: 2.2rem;
+  margin-top: -6px;
+}
+
+.star-icon-anim {
+  animation: starPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.fact-content-box {
+  background: rgba(10, 18, 54, 0.10);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  text-align: right;
+}
+
+.fact-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-gold);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fact-text {
+  font-size: 0.88rem;
+  color: #0a1236;
+  line-height: 1.6;
+}
+
+.rewards-display-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  width: 100%;
+}
+
+.reward-tag {
+  background: rgba(58, 142, 230, 0.08);
+  border: 1px solid var(--border-glass);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reward-tag.gold {
+  color: var(--text-gold);
+  border-color: rgba(255, 200, 87, 0.4);
+}
+
+.reward-tag.gem {
+  color: #67e8f9;
+  border-color: rgba(6, 182, 212, 0.4);
+}
+
+/* =========================================================
+   عجلة الحظ (Wheel of Fortune)
+   ========================================================= */
+
+.wheel-wrapper {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#wheel-canvas {
+  width: 280px;
+  height: 280px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 25px rgba(58, 142, 230, 0.5), inset 0 0 15px rgba(10, 18, 54, 0.17);
+  border: 4px solid var(--c-gold);
+}
+
+.wheel-pointer {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top: 24px solid #ef4444;
+  filter: drop-shadow(0 4px 6px rgba(10, 18, 54, 0.21));
+  z-index: 10;
+}
+
+.wheel-center-pin {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: radial-gradient(circle, #b45309 0%, #2b74c7 100%);
+  border: 3px solid #fff;
+  box-shadow: 0 4px 10px rgba(10, 18, 54, 0.21);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+/* =========================================================
+   المكافأة اليومية (7-Day Streak Calendar)
+   ========================================================= */
+
+.daily-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.daily-day-card {
+  background: rgba(58, 142, 230, 0.06);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 10px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.daily-day-card.active {
+  border-color: var(--c-gold);
+  background: rgba(58, 142, 230, 0.2);
+  box-shadow: 0 0 15px rgba(255, 200, 87, 0.3);
+  transform: scale(1.05);
+}
+
+.daily-day-card.claimed {
+  opacity: 0.5;
+  filter: grayscale(0.5);
+}
+
+.daily-day-card:nth-child(7) {
+  grid-column: span 2;
+  background: linear-gradient(135deg, rgba(58, 142, 230, 0.3), rgba(225, 29, 72, 0.3));
+  border-color: var(--c-gold);
+}
+
+.day-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.day-icon {
+  font-size: 1.4rem;
+}
+
+.day-reward-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-gold);
+}
+
+/* =========================================================
+   صندوق الهدايا والمفاجآت
+   ========================================================= */
+
+.chest-visual-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 0;
+}
+
+.chest-icon-large {
+  font-size: 4.5rem;
+  filter: drop-shadow(0 10px 20px rgba(58, 142, 230, 0.6));
+  animation: floatSlow 3s ease-in-out infinite;
+}
+
+/* =========================================================
+   لوحة المتصدرين وقائمة الإنجازات
+   ========================================================= */
+
+.modal-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-left: 4px;
+}
+
+.list-item-card {
+  background: rgba(58, 142, 230, 0.06);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rank-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.rank-1 { background: #ff9f1c; color: #e3f3ff; }
+.rank-2 { background: #4a5a85; color: #f2faff; }
+.rank-3 { background: #2b74c7; color: white; }
+.rank-other { background: rgba(58, 142, 230, 0.16); color: var(--text-muted); }
+
+.item-texts {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.item-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.item-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.claim-reward-btn {
+  background: linear-gradient(135deg, #059669, #047857);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* كانفاس الألعاب النارية والاحتفال */
+#confetti-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 150;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ── interactiveMap.css ── */
+/* =========================================================
+   كنوز الجزائر - الخريطة التفاعلية وبطاقة معلومات الولاية
+   ========================================================= */
+
+/* ---------- بطاقة الخريطة ---------- */
+
+.imap-card {
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  box-shadow: var(--shadow-card);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.imap-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.imap-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.imap-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--text-gold);
+  line-height: 1.3;
+}
+
+.imap-sub {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.imap-mode-toggle {
+  display: flex;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-full);
+  padding: 3px;
+}
+
+.imap-mode-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 6px 11px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.imap-mode-btn.active {
+  background: linear-gradient(135deg, var(--c-primary), var(--c-primary-dark));
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(58, 142, 230, 0.4);
+}
+
+/* ---------- مساحة الخريطة ---------- */
+
+.imap-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 982 / 955;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(37, 201, 192, 0.28), transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(58, 142, 230, 0.14), transparent 60%),
+    rgba(10, 18, 54, 0.28);
+  border: 1px solid var(--border-glass);
+}
+
+/* موجات البحر المتوسط في الأعلى */
+.imap-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 18%;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(56, 189, 248, 0.06) 0 2px,
+    transparent 2px 9px
+  );
+  pointer-events: none;
+}
+
+.imap-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  /* يسمح بتمرير الصفحة عمودياً ما دامت الخريطة غير مكبّرة */
+  touch-action: pan-y;
+}
+
+.imap-stage.zoomed .imap-svg {
+  touch-action: none;
+}
+
+.imap-stage.dragging .imap-svg {
+  cursor: grabbing;
+}
+
+.imap-wilaya {
+  fill: var(--fill, #4a5a85);
+  fill-opacity: 0.62;
+  stroke: #f2faff;
+  stroke-width: 0.9;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  cursor: pointer;
+  outline: none;
+  transition: fill-opacity 0.2s ease, fill 0.35s ease, opacity 0.25s ease;
+}
+
+.imap-wilaya.hover,
+.imap-wilaya:focus-visible {
+  fill-opacity: 0.95;
+  stroke: #0a1236;
+  stroke-width: 1.5;
+}
+
+.imap-wilaya.dimmed {
+  opacity: 0.18;
+}
+
+.imap-wilaya.is-current {
+  stroke: #b45309;
+  stroke-width: 2;
+}
+
+.imap-wilaya.selected {
+  fill: var(--c-gold);
+  fill-opacity: 1;
+  stroke: #fff;
+  stroke-width: 2.2;
+  opacity: 1;
+  filter: url(#imap-glow);
+  animation: imapPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes imapPulse {
+  0%, 100% { fill-opacity: 1; }
+  50% { fill-opacity: 0.78; }
+}
+
+.imap-label {
+  fill: #0a1236;
+  font-family: var(--font-sans);
+  font-weight: 800;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: rgba(10, 18, 54, 0.42);
+  stroke-width: 0.25em;
+  stroke-linejoin: round;
+}
+
+.imap-label.is-code {
+  fill: rgba(10, 18, 54, 0.85);
+  font-weight: 700;
+}
+
+/* ---------- عناصر التحكم ---------- */
+
+.imap-tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--border-gold);
+  color: var(--text-main);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 3;
+}
+
+.imap-tooltip.visible {
+  opacity: 1;
+}
+
+.imap-tt-code {
+  background: var(--c-primary);
+  color: #fff;
+  font-size: 0.68rem;
+  border-radius: 6px;
+  padding: 1px 5px;
+}
+
+.imap-zoom-controls {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 2;
+}
+
+.imap-zoom-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border-glass);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--text-main);
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.imap-zoom-btn:hover {
+  border-color: var(--border-gold);
+  color: var(--c-gold);
+}
+
+.imap-zoom-btn:active {
+  transform: scale(0.9);
+}
+
+.imap-hint {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  font-size: 0.66rem;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.7);
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.imap-stage.zoomed .imap-hint {
+  opacity: 0;
+}
+
+.imap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 14px;
+}
+
+.imap-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.imap-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.imap-legend-count {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  background: rgba(58, 142, 230, 0.10);
+  border-radius: var(--radius-full);
+  padding: 0 6px;
+}
+
+/* زر المعلومات في بطاقات قائمة الولايات */
+.wilaya-info-btn {
+  border: 1px solid var(--border-glass);
+  background: rgba(58, 142, 230, 0.08);
+  color: var(--text-main);
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.wilaya-info-btn:hover {
+  border-color: var(--border-gold);
+  color: var(--c-gold);
+}
+
+/* =========================================================
+   بطاقة معلومات الولاية (Bottom Sheet)
+   ========================================================= */
+
+.sheet-backdrop {
+  align-items: flex-end;
+  padding: 0;
+}
+
+body.sheet-open {
+  overflow: hidden;
+}
+
+.wilaya-sheet {
+  --ws-accent: var(--c-gold);
+  --ws-region: var(--c-primary);
+  position: relative;
+  width: 100%;
+  max-width: var(--app-max-width);
+  max-height: 90vh;
+  max-height: 90dvh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #e3f3ff 0%, #f2faff 100%);
+  border: 1px solid var(--border-gold);
+  border-bottom: none;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -20px 50px -10px rgba(10, 18, 54, 0.28), 0 0 30px rgba(58, 142, 230, 0.15);
+  transform: translateY(100%);
+  transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+  overflow: hidden;
+}
+
+.modal-backdrop.active .wilaya-sheet {
+  transform: translateY(0);
+}
+
+.ws-handle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  cursor: grab;
+  touch-action: none;
+}
+
+.ws-handle span {
+  width: 42px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.ws-close {
+  z-index: 3;
+  background: rgba(255, 255, 255, 0.55);
+  color: #fff;
+}
+
+.ws-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: calc(18px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ws-body > * {
+  flex-shrink: 0;
+}
+
+.ws-body.swap {
+  animation: wsSwap 0.3s ease-out;
+}
+
+@keyframes wsSwap {
+  from { opacity: 0.2; transform: translateX(-14px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- رأس البطاقة ---------- */
+
+.ws-hero {
+  position: relative;
+  padding: 30px 18px 18px;
+  background: var(--ws-hero-bg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ws-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, transparent 40%, rgba(255, 255, 255, 0.55) 100%),
+    url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l20 20-20 20L0 20z' fill='%23ffffff' fill-opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.ws-silhouette {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42%;
+  height: 86%;
+  z-index: 0;
+  filter: drop-shadow(0 4px 12px rgba(10, 18, 54, 0.10));
+}
+
+.ws-silhouette path {
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 1.5;
+}
+
+.ws-hero > *:not(.ws-silhouette) {
+  position: relative;
+  z-index: 1;
+}
+
+.ws-hero-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ws-code {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(58, 142, 230, 0.35);
+  color: #fff;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+}
+
+.ws-badge-icon {
+  font-size: 1.5rem;
+}
+
+.ws-name {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  color: #fff;
+  line-height: 1.25;
+  text-shadow: 0 2px 12px rgba(10, 18, 54, 0.14);
+}
+
+.ws-name-latin {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.78);
+  font-weight: 600;
+  direction: ltr;
+  text-align: right;
+}
+
+.ws-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.ws-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(58, 142, 230, 0.29);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(6px);
+}
+
+.ws-meta-chip i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* ---------- هل تعلم ---------- */
+
+.ws-funfact {
+  margin: 0 16px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(255, 200, 87, 0.14), rgba(58, 142, 230, 0.06));
+  border: 1px solid var(--border-gold);
+}
+
+.ws-funfact-icon {
+  font-size: 1.3rem;
+  line-height: 1.4;
+}
+
+.ws-funfact-title {
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: var(--text-gold);
+  margin-bottom: 2px;
+}
+
+.ws-funfact p {
+  font-size: 0.86rem;
+  line-height: 1.7;
+  color: var(--text-main);
+}
+
+/* ---------- التبويبات ---------- */
+
+.ws-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-glass);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.ws-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.ws-tab {
+  flex: 1 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid var(--border-glass);
+  background: rgba(58, 142, 230, 0.06);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 7px 11px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.ws-tab.active {
+  color: #e3f3ff;
+  background: linear-gradient(135deg, #ffc857, #ff9f1c);
+  border-color: transparent;
+  box-shadow: 0 3px 10px rgba(255, 200, 87, 0.3);
+}
+
+/* ---------- محتوى التبويب ---------- */
+
+.ws-panel {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 140px;
+}
+
+.ws-panel.enter {
+  animation: wsPanelIn 0.28s ease-out;
+}
+
+@keyframes wsPanelIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.ws-summary {
+  font-size: 0.92rem;
+  line-height: 1.9;
+  color: #0a1236;
+}
+
+.ws-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ws-section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: var(--text-gold);
+}
+
+.ws-timeline {
+  list-style: none;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 20px;
+}
+
+.ws-timeline::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  right: 5px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--c-gold), rgba(255, 200, 87, 0.1));
+}
+
+.ws-timeline li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ws-timeline li::before {
+  content: "";
+  position: absolute;
+  right: -20px;
+  top: 5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #f2faff;
+  border: 2px solid var(--c-gold);
+}
+
+.ws-tl-date {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--c-gold);
+}
+
+.ws-tl-text {
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--text-main);
+}
+
+.ws-people {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ws-person {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: rgba(58, 142, 230, 0.06);
+  border: 1px solid var(--border-glass);
+}
+
+.ws-person-avatar {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: #fff;
+  background: linear-gradient(135deg, var(--ws-region), rgba(255, 255, 255, 0.8));
+  border: 2px solid rgba(255, 200, 87, 0.5);
+}
+
+.ws-person-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ws-person-name {
+  font-weight: 800;
+  font-size: 0.92rem;
+  color: var(--text-main);
+}
+
+.ws-person-latin {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  direction: ltr;
+  text-align: right;
+}
+
+.ws-person-role {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: #4a5a85;
+  margin-top: 2px;
+}
+
+.ws-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ws-chip {
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(58, 142, 230, 0.08);
+  border: 1px solid var(--border-glass);
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+.ws-chip.food {
+  background: rgba(255, 159, 28, 0.1);
+  border-color: rgba(255, 159, 28, 0.3);
+}
+
+.ws-chip.music {
+  background: rgba(167, 139, 250, 0.1);
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+.ws-chip.saying {
+  background: rgba(37, 201, 192, 0.1);
+  border-color: rgba(37, 201, 192, 0.3);
+  border-radius: var(--radius-sm);
+}
+
+.ws-landmarks {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.ws-landmarks li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: rgba(58, 142, 230, 0.06);
+  border: 1px solid var(--border-glass);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.ws-empty {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ---------- صندوق اللعب والتنقل ---------- */
+
+.ws-game-box {
+  margin: 4px 16px 0;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border-glass);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ws-game-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.ws-play-btn {
+  width: 100%;
+}
+
+.ws-locked-note {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.6;
+}
+
+.ws-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 0 16px;
+}
+
+.ws-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-glass);
+  background: rgba(58, 142, 230, 0.06);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 0;
+}
+
+.ws-nav-btn span:not(.ws-nav-arrow) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ws-nav-btn small {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.ws-nav-btn:hover {
+  border-color: var(--border-gold);
+}
+
+.ws-nav-arrow {
+  color: var(--c-gold);
+  font-size: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .imap-wilaya.selected { animation: none; }
+  .wilaya-sheet, .ws-panel.enter, .ws-body.swap { animation: none; transition: none; }
+}
+
+/* ── responsive.css ── */
+/* =========================================================
+   كنوز الجزائر - التصميم المتجاوب (هواتف صغيرة، أجهزة لوحية، حواسيب)
+   ========================================================= */
+
+/* على الهاتف: أعمدة الصفحة الرئيسية شفافة، ويبقى الترتيب كما هو */
+.home-list-side,
+.home-map-side {
+  display: contents;
+}
+
+.main-viewport {
+  padding-bottom: calc(90px + env(safe-area-inset-bottom));
+}
+
+.bottom-nav {
+  padding-bottom: env(safe-area-inset-bottom);
+  height: calc(72px + env(safe-area-inset-bottom));
+}
+
+/* ---------- الهواتف الصغيرة (≤ 400px) ---------- */
+
+@media (max-width: 400px) {
+  .top-header {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .player-details {
+    display: none;
+  }
+
+  .avatar-badge {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .economy-bar {
+    gap: 5px;
+  }
+
+  .eco-pill {
+    padding: 4px 8px;
+    font-size: 0.78rem;
+    gap: 3px;
+  }
+
+  .eco-icon {
+    font-size: 0.85rem;
+  }
+
+  .header-actions {
+    gap: 4px;
+  }
+
+  .header-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.95rem;
+  }
+
+  .map-container {
+    padding: 12px;
+    gap: 14px;
+  }
+
+  .hero-banner-card {
+    height: 170px;
+  }
+
+  .hero-title {
+    font-size: 1.35rem;
+  }
+
+  .quick-features-row {
+    gap: 8px;
+  }
+
+  .imap-card {
+    padding: 10px;
+  }
+
+  .imap-header {
+    flex-wrap: wrap;
+  }
+
+  .imap-title {
+    font-size: 1rem;
+  }
+
+  .imap-zoom-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 1rem;
+  }
+
+  .nav-item {
+    padding: 6px 6px;
+    font-size: 0.66rem;
+  }
+
+  .ws-name {
+    font-size: 1.45rem;
+  }
+
+  .ws-tab {
+    padding: 6px 9px;
+    font-size: 0.75rem;
+  }
+
+  .ws-nav {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ws-nav-btn {
+    padding: 9px 8px;
+    font-size: 0.74rem;
+  }
+}
+
+/* ---------- الهواتف الأفقية والشاشات القصيرة ---------- */
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .imap-stage {
+    aspect-ratio: auto;
+    height: 78vh;
+  }
+
+  .wilaya-sheet {
+    max-height: 96vh;
+    max-height: 96dvh;
+  }
+}
+
+/* ---------- الأجهزة اللوحية (≥ 700px) ---------- */
+
+@media (min-width: 700px) {
+  :root {
+    --app-max-width: 880px;
+  }
+
+  .map-container {
+    padding: 22px;
+    gap: 20px;
+  }
+
+  .hero-banner-card {
+    height: 240px;
+  }
+
+  .hero-overlay {
+    padding: 26px;
+  }
+
+  .hero-title {
+    font-size: 2.1rem;
+  }
+
+  .hero-desc {
+    font-size: 0.95rem;
+    max-width: 560px;
+  }
+
+  .imap-card {
+    padding: 18px;
+  }
+
+  .imap-title {
+    font-size: 1.3rem;
+  }
+
+  .imap-sub {
+    font-size: 0.82rem;
+  }
+
+  /* شبكة بطاقات الولايات بعمودين */
+  .wilayas-journey-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .wilayas-journey-list::before {
+    display: none;
+  }
+
+  .wilaya-card .wilaya-action-btn {
+    margin-top: auto;
+  }
+
+  .wilayas-journey-list > div:only-child {
+    grid-column: 1 / -1;
+  }
+
+  .region-chips {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  /* شريط التنقل العائم */
+  .bottom-nav {
+    max-width: 560px;
+    bottom: 14px;
+    border-radius: 24px;
+    border: 1px solid var(--border-glass);
+    box-shadow: 0 12px 40px rgba(10, 18, 54, 0.19);
+    height: 68px;
+    padding-bottom: 0;
+  }
+
+  .main-viewport {
+    padding-bottom: 110px;
+  }
+
+  /* شاشة اللعب في الوسط بعرض مريح */
+  .game-container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 22px 16px;
+  }
+
+  /* بطاقة الولاية: نافذة سفلية أعرض */
+  .wilaya-sheet {
+    max-width: 640px;
+  }
+
+  .ws-hero {
+    padding: 34px 26px 22px;
+  }
+
+  .ws-name {
+    font-size: 2rem;
+  }
+
+  .ws-funfact,
+  .ws-game-box {
+    margin-inline: 24px;
+  }
+
+  .ws-panel,
+  .ws-nav {
+    padding-inline: 24px;
+  }
+
+  .ws-tabs {
+    padding-inline: 24px;
+  }
+
+  .ws-landmarks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- الحواسيب (≥ 1100px) ---------- */
+
+@media (min-width: 1100px) {
+  :root {
+    --app-max-width: 1360px;
+    --header-h: 62px;
+  }
+
+  /* تمرير الصفحة نفسها حتى يعمل التثبيت (sticky) للخريطة */
+  .main-viewport {
+    overflow: visible;
+  }
+
+  .map-container {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "map top"
+      "map rest";
+    gap: 22px 26px;
+    padding: 24px 28px;
+    align-items: start;
+  }
+
+  .home-list-side {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    grid-area: top;
+    min-width: 0;
+  }
+
+  .home-list-rest {
+    grid-area: rest;
+  }
+
+  .home-map-side {
+    display: block;
+    grid-area: map;
+    position: sticky;
+    top: calc(var(--header-h) + 20px);
+    min-width: 0;
+  }
+
+  /* الخريطة تملأ ارتفاع الشاشة المتاح */
+  .imap-card {
+    height: calc(100vh - var(--header-h) - 130px);
+    min-height: 520px;
+  }
+
+  .imap-stage {
+    flex: 1;
+    aspect-ratio: auto;
+    min-height: 0;
+  }
+
+  .hero-banner-card {
+    height: 210px;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .search-filter-section {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 5;
+    padding: 10px 0;
+    margin: -10px 0 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.97) 75%, rgba(255, 255, 255, 0));
+  }
+
+  .wilayas-journey-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* بطاقة الولاية: درج جانبي يُبقي الخريطة ظاهرة وقابلة للنقر */
+  .sheet-backdrop {
+    /* flex-end في اتجاه RTL = الجهة اليسرى، فوق القائمة لا الخريطة */
+    justify-content: flex-end;
+    align-items: stretch;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .sheet-backdrop.active {
+    pointer-events: none;
+  }
+
+  .sheet-backdrop .wilaya-sheet {
+    pointer-events: auto;
+    width: 460px;
+    max-width: 38vw;
+    max-height: none;
+    height: 100%;
+    border-radius: 0 24px 24px 0;
+    border: 1px solid var(--border-gold);
+    border-left: none;
+    transform: translateX(-105%);
+    box-shadow: 20px 0 60px -10px rgba(10, 18, 54, 0.26), 0 0 30px rgba(58, 142, 230, 0.15);
+  }
+
+  .modal-backdrop.active .wilaya-sheet {
+    transform: translateX(0);
+  }
+
+  .ws-handle {
+    display: none;
+  }
+
+  body.sheet-open {
+    overflow: auto;
+  }
+
+  .ws-hero {
+    padding-top: 26px;
+  }
+
+  .ws-landmarks {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------- الشاشات العريضة جداً (≥ 1500px) ---------- */
+
+@media (min-width: 1500px) {
+  .wilayas-journey-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wilayas-journey-list::before {
+    display: none;
+  }
+}
+
+/* ── WLADZ : thème clair « ciel », police et couleurs de l'application ── */
+:root {
+  --c-primary: #3a8ee6;
+  --c-primary-dark: #2b74c7;
+  --c-secondary: #1fa89f;
+  --c-secondary-dark: #17867f;
+  --c-accent: #d21034;
+  --c-gold: #ffc857;
+  --bg-main: #f2faff;
+  --bg-card: rgba(255, 255, 255, 0.92);
+  --bg-card-hover: #ffffff;
+  --bg-surface: rgba(255, 255, 255, 0.96);
+  --bg-glass: rgba(58, 142, 230, 0.07);
+  --border-glass: rgba(58, 142, 230, 0.18);
+  --border-gold: rgba(255, 200, 87, 0.6);
+  --font-sans: var(--font-baloo), system-ui, sans-serif;
+  --font-display: var(--font-baloo), system-ui, sans-serif;
+  --text-main: #0a1236;
+  --text-muted: #4a5a85;
+  --text-gold: #b45309;
+  --shadow-glow: 0 0 25px rgba(58, 142, 230, 0.25);
+  --shadow-card: 0 12px 32px -8px rgba(58, 142, 230, 0.3);
+}
+body {
+  background: linear-gradient(180deg, #9ed8ff 0%, #f2faff 100%) fixed;
+}
+#app {
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 50px rgba(58, 142, 230, 0.2);
+}
+.header-btn.exit-btn { color: #d21034; }

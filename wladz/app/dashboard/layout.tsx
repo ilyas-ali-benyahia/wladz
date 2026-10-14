@@ -1,7 +1,7 @@
 import { Suspense, type ReactNode } from "react";
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { LogoutButton } from "@/components/navigation/LogoutButton";
+import { Footer } from "@/components/navigation/Footer";
+import { Sidebar } from "@/components/navigation/Sidebar";
 import { getSessionUser } from "@/lib/auth";
 
 async function SignedIn({ children }: { children: ReactNode }) {
@@ -9,32 +9,16 @@ async function SignedIn({ children }: { children: ReactNode }) {
   if (!user) redirect("/login");
 
   return (
-    <>
-      <header className="flex items-center justify-between gap-3 bg-dz-white px-4 py-3 shadow-sm">
-        <Link
-          href="/dashboard/profile"
-          className="flex min-h-11 items-center gap-2 text-lg font-extrabold text-ink"
-        >
-          <span
-            aria-hidden="true"
-            className="flex size-10 items-center justify-center rounded-full bg-dz-green text-dz-white"
-          >
-            {user.full_name[0]}
-          </span>
-          مرحباً، {user.full_name.split(" ")[0]}!
-        </Link>
-        <div className="flex items-center gap-3">
-          <p className="rounded-full bg-dz-green-soft px-3 py-2 text-base font-bold text-ink">
-            <span className="text-gold" aria-hidden="true">
-              ★
-            </span>{" "}
-            {user.points} نقطة
-          </p>
-          <LogoutButton />
+    <div className="flex min-h-dvh flex-col">
+      <div className="flex flex-1">
+        <Sidebar points={user.points} />
+        <div className="min-w-0 flex-1 px-4 pt-24 pb-6 md:px-6 md:pt-8 lg:px-8">
+          <main className="mx-auto w-full max-w-5xl">{children}</main>
         </div>
-      </header>
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">{children}</main>
-    </>
+      </div>
+      {/* Pied de page sur toute la largeur, sous la barre latérale. */}
+      <Footer />
+    </div>
   );
 }
 

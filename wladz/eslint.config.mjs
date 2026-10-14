@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored game engine copied from the standalone math game:
+    "games/math/engine/**",
+    "games/treasures/engine/**",
+    "games/skills/engine.js",
+    "games/skills/levels.js",
   ]),
 ]);
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { months } from "@/components/forms/BirthDateField";
 import { LogoutButton } from "@/components/navigation/LogoutButton";
 import { getSessionProfile } from "@/lib/auth";
@@ -31,7 +32,7 @@ function formatPhone(phone: string) {
 
 function InfoRow({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-sky-bottom px-4 py-3">
+    <div className="flex items-center gap-3 rounded-2xl bg-paper px-4 py-3">
       <span aria-hidden="true" className="text-2xl">
         {icon}
       </span>
@@ -44,14 +45,16 @@ function InfoRow({ icon, label, value }: { icon: string; label: string; value: s
 }
 
 export default async function ProfilePage() {
+  // L'âge dépend de la date du jour : rendu à la requête uniquement.
+  await connection();
   const user = await getSessionProfile();
   if (!user) redirect("/login");
 
   return (
-    <section className="mx-auto max-w-md rounded-3xl border-b-8 border-dz-green bg-dz-white p-6 shadow-xl sm:p-8">
+    <section className="mx-auto max-w-md rounded-[2rem] bg-white p-6 shadow-xl shadow-dz-green/10 sm:p-8">
       <div
         aria-hidden="true"
-        className="mx-auto flex size-24 items-center justify-center rounded-full bg-dz-green text-5xl font-black text-dz-white"
+        className="mx-auto flex size-24 items-center justify-center rounded-full bg-dz-green text-5xl font-black text-white"
       >
         {user.full_name[0]}
       </div>
@@ -78,7 +81,7 @@ export default async function ProfilePage() {
       <div className="mt-6 flex items-center justify-between gap-3">
         <Link
           href="/dashboard"
-          className="flex h-11 items-center rounded-2xl bg-dz-green px-5 text-base font-bold text-dz-white transition hover:bg-dz-green-light"
+          className="flex h-11 items-center fun-btn bg-dz-green px-5 text-base font-bold text-white transition hover:bg-dz-green-light"
         >
           العودة إلى الرئيسية
         </Link>

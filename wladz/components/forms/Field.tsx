@@ -44,7 +44,7 @@ export function SubmitButton({ pending, label }: { pending: boolean; label: stri
     <button
       type="submit"
       disabled={pending}
-      className="h-12 w-full cursor-pointer rounded-2xl bg-dz-green text-lg font-bold text-dz-white transition hover:bg-dz-green-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dz-green active:translate-y-0.5 disabled:cursor-wait disabled:opacity-60"
+      className="h-12 w-full cursor-pointer fun-btn bg-dz-green text-lg font-bold text-dz-white transition hover:bg-dz-green-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dz-green active:translate-y-0.5 disabled:cursor-wait disabled:opacity-60"
     >
       {pending ? "لحظة من فضلك…" : label}
     </button>

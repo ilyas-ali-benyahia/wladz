@@ -11,7 +11,21 @@
   --color-sky-bottom: #f2faff;
   --color-ink: #13261d;
   --color-ink-soft: #4b5d54;
+  --color-paper: #f5faf6;
+
+  /* Sky palette of the hub */
+  --color-sky-deep: #3a8ee6;
+  --color-sky: #78b4ff;
+  --color-sky-light: #9ed8ff;
+  --color-sky-soft: #e3f3ff;
+  --color-sky-white: #f2faff;
+
+  /* Playful accents */
+  --color-teal: #25c9c0;
   --color-gold: #f2b705;
+  --color-orange: #ff9f1c;
+  --color-green: #2f8f5b;
+  --color-red: #d21034;
 
   --animate-float: float 7s ease-in-out infinite;
 
@@ -27,5 +41,27 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-cairo);
+  --font-sans: var(--font-cairo), system-ui, sans-serif;
+}
+
+@utility bg-sky-grad {
+  background: linear-gradient(180deg, #9ed8ff 0%, #f2faff 100%);
+  background-attachment: fixed;
+}
+
+body {
+  background-color: #f2faff;
+}
+
+/* Bouton principal « pilule » de la page d'accueil (fun-button), pour toute l'application. */
+@utility fun-btn {
+  border-radius: 9999px;
+  box-shadow:
+    0 5px 0 color-mix(in srgb, var(--color-dz-green) 72%, #000),
+    0 10px 26px color-mix(in srgb, var(--color-dz-green) 18%, transparent);
+}
+
+::selection {
+  background: #006233;
+  color: #ffffff;
 }

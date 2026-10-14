@@ -119,6 +119,8 @@ export async function createSession(userId: string) {
   });
 }
 
+// L'expiration est comparée dans SQLite : `Date.now()` pendant le rendu
+// est refusé par Next.js (cacheComponents).
 export async function getSessionProfile(): Promise<UserProfile | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(sessionCookie)?.value;
@@ -130,9 +132,10 @@ export async function getSessionProfile(): Promise<UserProfile | null> {
               users.points, users.created_at
        FROM sessions
        JOIN users ON users.id = sessions.user_id
-       WHERE sessions.token_hash = ? AND sessions.expires_at > ?`,
+       WHERE sessions.token_hash = ?
+         AND sessions.expires_at > CAST(strftime('%s', 'now') AS INTEGER) * 1000`,
     )
-    .get(hashSessionToken(token), Date.now()) as UserProfile | undefined;
+    .get(hashSessionToken(token)) as UserProfile | undefined;
 
   return user ?? null;
 }

@@ -2,8 +2,12 @@ import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
+// À incrémenter quand le schéma change : le serveur de dev garde la connexion
+// entre deux rechargements à chaud.
+const schemaVersion = 2;
+
 const globalForAuth = globalThis as typeof globalThis & {
-  authDatabase?: DatabaseSync;
+  authDatabase?: { version: number; database: DatabaseSync };
 };
 
 function createDatabase() {
@@ -51,6 +55,14 @@ function createDatabase() {
       created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
     );
 
+    CREATE TABLE IF NOT EXISTS game_answers (
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      game TEXT NOT NULL,
+      question_id TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+      PRIMARY KEY (user_id, game, question_id)
+    );
+
     CREATE INDEX IF NOT EXISTS sessions_user_id_idx ON sessions(user_id);
     CREATE INDEX IF NOT EXISTS sessions_expires_at_idx ON sessions(expires_at);
   `);
@@ -61,5 +73,12 @@ function createDatabase() {
 // Ouverture paresseuse : `next build` importe les routes dans plusieurs
 // processus à la fois et ne doit pas toucher au fichier SQLite.
 export function getDb() {
-  return (globalForAuth.authDatabase ??= createDatabase());
+  const current = globalForAuth.authDatabase;
+  if (current?.version === schemaVersion) return current.database;
+
+  // `?.` : une connexion gardée par une ancienne version du module n'a pas cette forme.
+  current?.database?.close();
+  const database = createDatabase();
+  globalForAuth.authDatabase = { version: schemaVersion, database };
+  return database;
 }

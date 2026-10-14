@@ -31,7 +31,7 @@ export function useAuthSubmit(endpoint: "/api/auth/login" | "/api/auth/register"
       });
 
       if (response.ok) {
-        router.push("/dashboard");
+        router.replace("/dashboard");
         router.refresh();
         return;
       }
