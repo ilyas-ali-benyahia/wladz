@@ -98,6 +98,7 @@ export class MissionSystem {
     this.isInside = () => false;
     this.lightPhase = () => 'NS_GREEN';
     this.setHint = () => {};
+    this.isDriving = () => false;
     this.npcSystem = null;
 
     this.initMissions();
@@ -719,6 +720,13 @@ export class MissionSystem {
 
     this.updateBeacon(dt, playerPosition);
     if (this.missionStatus !== MissionStatus.IN_PROGRESS) { this.showHint(null); return; }
+
+    // On-foot tasks (litter, planting, watering, fires, deliveries, escorts) need the player out of the car
+    if (this.isDriving()) {
+      const target = this.getObjectivePosition(mission, playerPosition);
+      this.showHint(target && target.distanceTo(playerPosition) < 10 ? '🚗 وصلت! أوقف السيارة وانزل (E) لإكمال المهمة سيراً على الأقدام.' : null);
+      return;
+    }
 
     let hint = null;
     switch (mission.type) {

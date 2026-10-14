@@ -17,6 +17,7 @@ import { DialogueSystem } from './systems/DialogueSystem.js';
 import { TrafficSystem } from './systems/TrafficSystem.js';
 import { PedestrianSystem } from './systems/PedestrianSystem.js';
 import { InteriorSystem } from './systems/InteriorSystem.js';
+import { PlayerVehicleSystem } from './systems/PlayerVehicleSystem.js';
 
 class GhirassGameApp {
   constructor() {
@@ -68,6 +69,18 @@ class GhirassGameApp {
     this.missionSystem.emitUpdate();
 
     // Pedestrians steer around NPCs who stand still on the sidewalks
+    // The family car parked in the home driveway (the only drivable vehicle)
+    this.vehicle = new PlayerVehicleSystem(this.engine, this.collisionSystem, this.player, this.input, this.ui, this.worldBuilder.playerHome.carSpot);
+    this.vehicle.canUse = () => !this.interiors.isInside() && !this.interiors.busy;
+    this.vehicle.peopleProvider = () => [
+      ...this.pedestrianSystem.pedestrians.map(p => (p.group || p.mesh).position),
+      ...this.npcSystem.npcInstances.map(n => n.group.position),
+      ...this.npcSystem.childNPCs.map(k => k.group.position)
+    ];
+    this.missionSystem.isDriving = () => this.vehicle.driving;
+    this.trafficSystem.playerIsVehicle = () => this.vehicle.driving;
+    this.trafficSystem.extraVehicles = () => [this.vehicle.footprint];
+
     this.pedestrianSystem.setObstacleProvider(() => [
       ...this.npcSystem.npcInstances.map(n => n.group.position),
       ...this.npcSystem.childNPCs.map(k => k.group.position)
@@ -85,6 +98,8 @@ class GhirassGameApp {
   setupInputHandlers() {
     // E to interact
     this.input.onInteract = () => {
+      // The car first (enter / exit), then doors and exhibits, then people
+      if (this.vehicle.handleInteract()) return;
       if (this.interiors.tryInteract()) return;
       const nearNPC = this.npcSystem.getNearNPC();
       if (nearNPC) {
@@ -130,12 +145,14 @@ class GhirassGameApp {
 
     if (this.isGameActive) {
       // Update player
-      this.player.update(dt);
+      // Either the character walks or the car drives (never both)
+      if (this.vehicle.driving) this.vehicle.update(dt);
+      else { this.player.update(dt); this.vehicle.update(dt); }
 
       // Update NPCs
       this.npcSystem.update(dt, this.player.position);
 
-      this.interiors.update();
+      if (!this.vehicle.driving) this.interiors.update();
 
       // Update Missions
       this.missionSystem.update(dt, this.player.position);
@@ -164,7 +181,8 @@ class GhirassGameApp {
       missionIndex: this.missionSystem.currentMissionIndex,
       missionProgress: this.missionSystem.currentProgress,
       achievements: this.achievementSystem.getState(),
-      timeOfDay: this.environment.timeOfDay
+      timeOfDay: this.environment.timeOfDay,
+      vehicle: this.vehicle.getState()
     };
     this.saveSystem.saveGame(data);
   }
@@ -185,6 +203,9 @@ class GhirassGameApp {
         missionIndex: data.missionIndex,
         missionProgress: data.missionProgress
       });
+    }
+    if (data.vehicle) {
+      this.vehicle.loadState(data.vehicle);
     }
     if (data.achievements) {
       this.achievementSystem.loadState(data.achievements);

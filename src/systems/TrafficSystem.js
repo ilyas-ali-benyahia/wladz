@@ -290,7 +290,7 @@ export class TrafficSystem {
       }
     }
     if (this.extraCrossers) for (const pp of this.extraCrossers()) checkPerson(pp, true);
-    if (playerPos) checkPerson(playerPos, false);
+    if (playerPos && !(this.playerIsVehicle && this.playerIsVehicle())) checkPerson(playerPos, false);
 
     // Short, polite horn if someone keeps blocking the lane (never repeated quickly)
     veh.hornCooldown = Math.max(0, (veh.hornCooldown || 0) - dt);
@@ -313,6 +313,15 @@ export class TrafficSystem {
       const lat = lateralOf(rx, rz);
       const sameDir = fwd.x * Math.sin(other.heading) + fwd.z * Math.cos(other.heading);
       if ((sameDir > -0.3 && lat < 1.9) || lat < 1.1) brakeFor(ahead, 5.5);
+    }
+    // ...including the player's own car (moving or parked on the road)
+    if (this.extraVehicles) {
+      for (const o of this.extraVehicles()) {
+        const rx = o.x - currentPos.x, rz = o.z - currentPos.z;
+        const ahead = rx * fwd.x + rz * fwd.z;
+        if (ahead <= 0 || ahead > 22) continue;
+        if (lateralOf(rx, rz) < (veh.hw || 1) + o.hw + 0.3) brakeFor(ahead, front + o.hl + 1.2);
+      }
     }
 
     // F. Roundabout: give way to vehicles already circulating before entering

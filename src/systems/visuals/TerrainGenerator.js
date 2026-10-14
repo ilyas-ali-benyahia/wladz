@@ -199,7 +199,7 @@ export class TerrainGenerator {
     const rockMat = new THREE.MeshStandardMaterial({ color: 0x8a7e72, roughness: 0.95, flatShading: true });
     make(rockGeo, rockMat, rocks, ([x, y, z, sc], i) => {
       q.setFromEuler(new THREE.Euler(i * 0.7, i * 1.3, i * 0.4));
-      m.compose(p.set(x, y + 0.1 * sc, z), q, s.set(sc, sc, sc));
+      m.compose(p.set(x, y - 0.3 * sc, z), q, s.set(sc, sc, sc)); // half buried so slopes never leave them floating
     });
   }
 

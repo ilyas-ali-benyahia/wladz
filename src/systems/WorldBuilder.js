@@ -46,6 +46,7 @@ export class WorldBuilder {
     this.createCivilProtectionStationBuilding();
     this.createTownHallBuilding();
     this.createCasbahHeritageQuarter();
+    this.createPlayerHome();
   }
 
   // ═════════════════════════════════════════════════════
@@ -1030,6 +1031,89 @@ export class WorldBuilder {
   // ═════════════════════════════════════════════════════
   // 16. Casbah Traditional Heritage Quarter (حي القصبة العتيق)
   // ═════════════════════════════════════════════════════
+  // ═════════════════════════════════════════════════════
+  // Player's family home (south-east residential block) with courtyard and driveway
+  // ═════════════════════════════════════════════════════
+  createPlayerHome() {
+    const H = this.playerHome = {
+      house: { minX: 72.5, maxX: 80.5, minZ: 55, maxZ: 62, h: 4.2 },
+      door: [75, 54.6],
+      carSpot: { x: 70.45, z: 56.5, heading: Math.PI },
+      driveway: { minX: 68.7, maxX: 72.2, minZ: 51, maxZ: 60.5 }
+    };
+    const b = H.house;
+    const cx = (b.minX + b.maxX) / 2, cz = (b.minZ + b.maxZ) / 2;
+    const w = b.maxX - b.minX, d = b.maxZ - b.minZ;
+    const wallMat = addSurfaceDetail(new THREE.MeshStandardMaterial({ color: 0xf4ecdc, roughness: 0.9 }), 0.05);
+    const trimMat = new THREE.MeshStandardMaterial({ color: 0xd8c3a0, roughness: 0.8 });
+    const shutterMat = new THREE.MeshStandardMaterial({ color: 0x2e86c1, roughness: 0.6 });
+    const glassMat = new THREE.MeshStandardMaterial({ color: 0x23394d, roughness: 0.1, metalness: 0.1 });
+    const doorMat = new THREE.MeshStandardMaterial({ color: 0x1e6b4a, roughness: 0.55 });
+    const paveMat = addSurfaceDetail(new THREE.MeshStandardMaterial({ color: 0xcbbfae, roughness: 0.85 }), 0.06, 0.8);
+    const add = (mesh, x, y, z, shadow = true) => { mesh.position.set(x, y, z); mesh.castShadow = shadow; mesh.receiveShadow = true; this.scene.add(mesh); return mesh; };
+
+    // Paved courtyard in front of the house and the driveway (flush with the sidewalk: walkable and drivable)
+    const dw = H.driveway;
+    add(new THREE.Mesh(new RoundedBoxGeometry(dw.maxX - dw.minX, 0.2, dw.maxZ - dw.minZ, 2, 0.04), paveMat), (dw.minX + dw.maxX) / 2, 0.1, (dw.minZ + dw.maxZ) / 2, false);
+    add(new THREE.Mesh(new RoundedBoxGeometry(80.5 - dw.maxX, 0.2, b.minZ - 51, 2, 0.04), paveMat), (dw.maxX + 80.5) / 2, 0.1, (51 + b.minZ) / 2, false);
+
+    // House body on a stone plinth, with a smaller upper room and a roof-terrace parapet
+    add(new THREE.Mesh(new RoundedBoxGeometry(w + 0.3, 0.45, d + 0.3, 2, 0.06), trimMat), cx, 0.225, cz);
+    add(new THREE.Mesh(new RoundedBoxGeometry(w, b.h, d, 3, 0.12), wallMat), cx, b.h / 2, cz);
+    add(new THREE.Mesh(new RoundedBoxGeometry(w + 0.2, 0.2, d + 0.2, 2, 0.06), trimMat), cx, b.h + 0.1, cz);
+    const upper = { minX: 76.2, maxX: 80.3, minZ: 57.6, maxZ: 61.8 };
+    add(new THREE.Mesh(new RoundedBoxGeometry(upper.maxX - upper.minX, 2.8, upper.maxZ - upper.minZ, 3, 0.1), wallMat), (upper.minX + upper.maxX) / 2, b.h + 1.6, (upper.minZ + upper.maxZ) / 2);
+    add(new THREE.Mesh(new RoundedBoxGeometry(upper.maxX - upper.minX + 0.2, 0.18, upper.maxZ - upper.minZ + 0.2, 2, 0.05), trimMat), (upper.minX + upper.maxX) / 2, b.h + 3.1, (upper.minZ + upper.maxZ) / 2);
+    // Parapet along the open terrace edges (front and left)
+    add(new THREE.Mesh(new RoundedBoxGeometry(upper.minX - b.minX, 0.7, 0.18, 2, 0.05), wallMat), (b.minX + upper.minX) / 2, b.h + 0.55, b.minZ + 0.1);
+    add(new THREE.Mesh(new RoundedBoxGeometry(0.18, 0.7, d, 2, 0.05), wallMat), b.minX + 0.1, b.h + 0.55, cz);
+    add(new THREE.Mesh(new RoundedBoxGeometry(b.maxX - upper.minX, 0.7, 0.18, 2, 0.05), wallMat), (upper.minX + b.maxX) / 2, b.h + 0.55, b.minZ + 0.1);
+
+    // Arched green front door with a stone frame
+    const [doorX] = H.door;
+    add(new THREE.Mesh(new RoundedBoxGeometry(1.7, 2.75, 0.2, 2, 0.06), trimMat), doorX, 1.6, b.minZ - 0.04);
+    add(new THREE.Mesh(new RoundedBoxGeometry(1.25, 2.3, 0.1, 2, 0.04), doorMat), doorX, 1.6, b.minZ - 0.12);
+    const arch = add(new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.1, 24, 1, false, -Math.PI / 2, Math.PI), doorMat), doorX, 2.75, b.minZ - 0.12);
+    arch.rotation.x = -Math.PI / 2; // upper half-disc
+    add(new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 8), new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.7, roughness: 0.3 })), doorX + 0.42, 1.55, b.minZ - 0.2, false);
+    // Step in front of the door
+    add(new THREE.Mesh(new RoundedBoxGeometry(2.0, 0.12, 0.6, 2, 0.04), trimMat), doorX, 0.26, b.minZ - 0.3, false);
+
+    // Windows with blue shutters (front and side)
+    const windowAt = (x, y, z, rotY) => {
+      const g = new THREE.Group();
+      g.position.set(x, y, z);
+      g.rotation.y = rotY;
+      const frame = new THREE.Mesh(new RoundedBoxGeometry(1.3, 1.2, 0.12, 2, 0.04), trimMat);
+      g.add(frame);
+      const pane = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 0.95), glassMat);
+      pane.position.z = 0.07;
+      g.add(pane);
+      [-1, 1].forEach(s => {
+        const sh = new THREE.Mesh(new RoundedBoxGeometry(0.5, 1.1, 0.06, 2, 0.02), shutterMat);
+        sh.position.set(s * 0.95, 0, 0.08);
+        sh.rotation.y = s * 0.35;
+        g.add(sh);
+      });
+      g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+      this.scene.add(g);
+    };
+    windowAt(78.2, 2.1, b.minZ - 0.04, Math.PI);
+    windowAt(73.4, 2.1, b.minZ - 0.04, Math.PI);
+    windowAt(b.minX - 0.04, 2.1, 59.5, -Math.PI / 2);
+    windowAt(78.25, b.h + 1.6, upper.minZ - 0.04, Math.PI);
+
+    // Potted plants either side of the door and a small garden bed
+    this.nature.createPottedPlant(doorX - 1.4, b.minZ - 0.7, 0.9);
+    this.nature.createPottedPlant(doorX + 1.4, b.minZ - 0.7, 0.9);
+    this.nature.createCartoonBush(79.6, 52.2, 0.7, 'green');
+
+    // Solid house (door is used through the interior system), plants
+    this.collisionSystem.addBox(b.minX - 0.15, b.minZ - 0.15, b.maxX + 0.15, b.maxZ + 0.15, b.h + 3.2);
+    [doorX - 1.4, doorX + 1.4].forEach(px => this.collisionSystem.addBox(px - 0.35, b.minZ - 1.05, px + 0.35, b.minZ - 0.35, 1.2));
+    this.collisionSystem.addBox(79.0, 51.6, 80.2, 52.8, 1.2);
+  }
+
   createCasbahHeritageQuarter() {
     const cx = 63;
     const cz = 21;

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { events } from '../core/EventBus.js';
 import { addSurfaceDetail } from '../core/MaterialUpgrader.js';
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 
 /**
  * InteriorSystem: enterable landmarks with Arabic name signs.
@@ -67,7 +68,8 @@ const LANDMARKS = [
   { id: 'fire', name: 'مركز الحماية المدنية', sub: 'الإنقاذ والإسعاف', door: [-24, -54.8], normal: [0, 1], color: '#a93226' },
   { id: 'townhall', name: 'مقر البلدية', sub: 'المجلس الشعبي البلدي', door: [21, -60.5], normal: [0, 1], color: '#0b5345' },
   { id: 'casbah', name: 'دار القصبة العتيقة', sub: 'تراث عالمي', door: [54.8, 21], normal: [-1, 0], color: '#784212' },
-  { id: 'association', name: 'جمعية شباب التطوع', sub: 'يد واحدة لا تصفق', door: [-21, 10.2], normal: [0, -1], color: '#1e8449' }
+  { id: 'association', name: 'جمعية شباب التطوع', sub: 'يد واحدة لا تصفق', door: [-21, 10.2], normal: [0, -1], color: '#1e8449' },
+  { id: 'home', name: 'منزلي', sub: 'بيت العائلة', door: [75, 54.6], normal: [0, -1], color: '#7d5a3c' }
 ];
 
 export class InteriorSystem {
@@ -140,7 +142,7 @@ export class InteriorSystem {
   buildInterior(l, index) {
     const sizes = {
       museum: [24, 18, 7], mosque: [22, 20, 8], library: [20, 16, 5.5], school: [18, 14, 4.5], clinic: [16, 14, 4.5],
-      police: [18, 14, 4.5], fire: [22, 16, 7], townhall: [20, 16, 6], casbah: [16, 16, 7], association: [18, 14, 5]
+      police: [18, 14, 4.5], fire: [22, 16, 7], townhall: [20, 16, 6], casbah: [16, 16, 7], association: [18, 14, 5], home: [14, 11, 3.6]
     };
     const [w, d, h] = sizes[l.id];
     const origin = new THREE.Vector3(500 + (index % 3) * 60, 0, -60 + Math.floor(index / 3) * 60);
@@ -150,7 +152,7 @@ export class InteriorSystem {
 
     const palette = {
       museum: [0xf3ead8, 0xd9cdb6], mosque: [0xf7f3e8, 0x9c2a2a], library: [0xefe4cf, 0x8d6e53], school: [0xf2efe4, 0xc9b79a],
-      clinic: [0xf4f8f8, 0xdfe7e6], police: [0xe8ecf1, 0xb9b3a7], fire: [0xe9e4dc, 0x8a8a8a], townhall: [0xf1ece0, 0xcbbd9f], casbah: [0xfbf6ec, 0x2e86c1], association: [0xf6efe0, 0xc9b79a]
+      clinic: [0xf4f8f8, 0xdfe7e6], police: [0xe8ecf1, 0xb9b3a7], fire: [0xe9e4dc, 0x8a8a8a], townhall: [0xf1ece0, 0xcbbd9f], casbah: [0xfbf6ec, 0x2e86c1], association: [0xf6efe0, 0xc9b79a], home: [0xf7efe1, 0xa47551]
     }[l.id];
 
     // Shell: inward-facing box (walls + ceiling), lit by the shared room light; does not block the sun
@@ -343,6 +345,68 @@ export class InteriorSystem {
       poster2.rotation.y = -Math.PI / 2;
       add(poster2, w / 2 - 0.06, 2.2, 1.5);
       poi(0, -d / 2 + 2, 'لوحة المهام', 'التطوع يعني أن تقدّم وقتك وجهدك لخدمة الآخرين دون مقابل. تحدّث مع السيدة سميرة عند المدخل لاستلام مهمتك التطوعية.');
+    } else if (id === 'home') {
+      // Family home: living corner, kitchen and dining, bed corner; info points teach saving energy and water
+      const wood = mat(0x8d6e4f, 0.6), fabric = mat(0x3f6e8c, 0.9), cushion = mat(0xe8d9b5, 0.9), white = mat(0xf4f4f0, 0.5);
+      const rbox = (sx, sy, sz, m, r = 0.05) => new THREE.Mesh(new RoundedBoxGeometry(sx, sy, sz, 2, r), m);
+      // Living corner: rug, sofa facing the TV on the back wall, round coffee table
+      const rug = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 3.0), mat(0x9c3d2e, 0.95, { polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 }));
+      rug.rotation.x = -Math.PI / 2;
+      add(rug, -4, 0.02, -2.6);
+      add(rbox(2.6, 0.45, 0.9, fabric, 0.12), -4, 0.32, -0.6);
+      add(rbox(2.6, 0.75, 0.28, fabric, 0.12), -4, 0.62, -0.12);
+      [-5.25, -2.75].forEach(x => add(rbox(0.26, 0.62, 0.9, fabric, 0.1), x, 0.4, -0.6));
+      [-4.6, -3.4].forEach(x => add(rbox(1.1, 0.14, 0.75, cushion, 0.06), x, 0.6, -0.65));
+      addBox(-4, -0.45, 2.9, 1.1, 1);
+      add(new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.5, 0.06, 28), wood), -4, 0.45, -2.6);
+      add(new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.12, 0.42, 12), wood), -4, 0.21, -2.6);
+      addBox(-4, -2.6, 1.2, 1.2, 0.5);
+      add(rbox(2.6, 0.55, 0.5, wood), -4, 0.28, -5.2);
+      add(rbox(1.9, 1.05, 0.08, mat(0x111316, 0.3), 0.03), -4, 1.25, -5.4);
+      addBox(-4, -5.2, 2.7, 0.6, 1.5);
+      // Bookshelf on the left wall
+      add(rbox(0.4, 2.0, 1.6, wood, 0.03), -w / 2 + 0.25, 1.0, 2.6);
+      [0.45, 0.95, 1.45].forEach((y, i) => add(rbox(0.3, 0.32, 1.3, mat([0x922b21, 0x1f618d, 0x196f3d][i], 0.7), 0.02), -w / 2 + 0.3, y + 0.16, 2.6));
+      addBox(-w / 2 + 0.25, 2.6, 0.5, 1.7, 2);
+
+      // Kitchen along the back wall: counter, sink, fridge
+      add(rbox(4.4, 0.92, 0.7, white, 0.04), 4.0, 0.46, -5.1);
+      add(rbox(4.5, 0.06, 0.76, mat(0x6d6d6d, 0.35), 0.02), 4.0, 0.95, -5.1);
+      add(new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.35, 10), mat(0xc0c0c0, 0.2, { metalness: 0.8 })), 3.3, 1.12, -5.3);
+      add(rbox(0.6, 0.06, 0.45, mat(0x9aa4ab, 0.25, { metalness: 0.6 }), 0.02), 3.3, 0.985, -5.05);
+      add(rbox(0.85, 2.0, 0.75, mat(0xdfe3e6, 0.35), 0.08), 6.4, 1.0, -4.9);
+      addBox(4.4, -5.0, 5.4, 0.9, 2);
+
+      // Dining table with four chairs
+      add(new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.75, 0.06, 32), wood), 4, 0.76, -1.4);
+      add(new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.18, 0.74, 12), wood), 4, 0.37, -1.4);
+      [[0, 1.05], [0, -1.05], [1.05, 0], [-1.05, 0]].forEach(([ox, oz]) => {
+        const chair = rbox(0.45, 0.06, 0.45, wood, 0.02);
+        add(chair, 4 + ox, 0.46, -1.4 + oz);
+        const back = rbox(ox ? 0.06 : 0.45, 0.5, ox ? 0.45 : 0.06, wood, 0.02);
+        add(back, 4 + ox * 1.24, 0.72, -1.4 + oz * 1.24);
+      });
+      addBox(4, -1.4, 2.6, 2.6, 1);
+
+      // Bed corner by the right wall
+      add(rbox(1.7, 0.45, 2.2, wood, 0.06), w / 2 - 1.05, 0.25, 3.3);
+      add(rbox(1.6, 0.18, 2.0, mat(0xf1e9da, 0.9), 0.08), w / 2 - 1.05, 0.55, 3.3);
+      add(rbox(1.62, 0.12, 1.3, mat(0x5b8c5a, 0.9), 0.06), w / 2 - 1.05, 0.66, 3.7);
+      add(rbox(0.9, 0.16, 0.4, cushion, 0.07), w / 2 - 1.05, 0.72, 2.5);
+      addBox(w / 2 - 1.05, 3.3, 1.9, 2.4, 1);
+
+      // Family motto on the right wall
+      const motto = textPanel('بيتي جنّتي', 2.4, 1.0, { bg: '#7d5a3c', sub: 'بيت العائلة', size: 120 });
+      motto.rotation.y = -Math.PI / 2;
+      add(motto, w / 2 - 0.06, 2.0, -1.4);
+
+      // Light switch and key hook by the front door (information points)
+      add(rbox(0.12, 0.18, 0.03, white, 0.01), -1.6, 1.3, d / 2 - 0.08);
+      add(rbox(0.5, 0.08, 0.06, wood, 0.02), 1.6, 1.5, d / 2 - 0.08);
+      add(new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.012, 6, 16), mat(0xd4af37, 0.3, { metalness: 0.8 })), 1.6, 1.38, d / 2 - 0.1);
+      poi(-1.6, d / 2 - 1.2, 'مفتاح الإنارة', 'أطفئ الأضواء والأجهزة عند خروجك من البيت: ترشيد الكهرباء يحمي البيئة ويخفّف فاتورة العائلة.');
+      poi(1.6, d / 2 - 1.2, 'مفاتيح السيارة', 'سيارة العائلة متوقفة في الممر أمام المنزل. اقترب منها واضغط E للركوب. W/S للتقدم والرجوع، A/D للانعطاف، والمسافة للفرملة. احترم إشارات المرور والراجلين!');
+      poi(3.3, -4.3, 'صنبور الماء', 'أغلق الصنبور جيداً بعد الاستعمال: الماء ثروة ثمينة يجب ترشيدها.');
     } else if (id === 'casbah') {
       // Courtyard house: central fountain, arches and zellige floor
       const zellige = new THREE.Mesh(new THREE.CircleGeometry(3.2, 8), mat(0x1f618d, 0.5, { polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 }));
@@ -430,6 +494,22 @@ export class InteriorSystem {
       events.emit('TOAST', `🚪 أهلاً بك في ${it.name}`);
       events.emit('INTERIOR_ENTERED', { id: it.id });
     });
+  }
+
+  /** Place the player inside an interior immediately (game start at home) */
+  startInside(id) {
+    const l = this.landmarks.find(x => x.id === id);
+    if (!l || this.current) return;
+    const it = this.interiors[id];
+    this.returnPoint = new THREE.Vector3(l.door[0] + l.normal[0] * 1.6, 0, l.door[1] + l.normal[1] * 1.6);
+    this.returnHeading = Math.atan2(l.normal[0], l.normal[1]);
+    this.current = it;
+    it.room.visible = true;
+    this.collision.bounds = { minX: it.origin.x - it.w / 2 + 0.3, maxX: it.origin.x + it.w / 2 - 0.3, minZ: it.origin.z - it.d / 2 + 0.3, maxZ: it.origin.z + it.d / 2 - 0.3 };
+    this.player.cameraBounds = { minX: it.origin.x - it.w / 2 + 0.4, maxX: it.origin.x + it.w / 2 - 0.4, minZ: it.origin.z - it.d / 2 + 0.4, maxZ: it.origin.z + it.d / 2 - 0.4, maxY: it.h - 0.4 };
+    this.teleport(it.spawn, Math.PI, 0);
+    this.roomLight.position.set(it.origin.x, it.h - 1, it.origin.z);
+    this.roomLight.intensity = 60;
   }
 
   exit() {

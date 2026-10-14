@@ -228,6 +228,12 @@ export class UISystem {
     this.game.isGameActive = true;
     this.game.input.setEnabled(true);
 
+    // Every session begins at home: the player walks out to the street (and the family car)
+    if (!this.game.startedAtHome && this.game.interiors) {
+      this.game.startedAtHome = true;
+      this.game.interiors.startInside('home');
+    }
+
     this.showToast('🌱 مرحباً بك في مدينة «غِراس المواطنة»! ابدأ بمهمة تنظيف الشوارع.');
 
     const avatar = document.getElementById('hud-avatar');
@@ -284,7 +290,7 @@ export class UISystem {
   setCustomHint(html, source = 'interior') {
     this.customHints = this.customHints || {};
     this.customHints[source] = html;
-    this.customHint = this.customHints.interior || this.customHints.mission || null;
+    this.customHint = this.customHints.vehicle || this.customHints.interior || this.customHints.mission || null;
     this.updateInteractHint(this.lastHintNPC);
   }
 

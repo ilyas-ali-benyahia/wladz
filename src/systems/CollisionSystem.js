@@ -67,7 +67,7 @@ export class CollisionSystem {
     return h;
   }
 
-  checkCollision(pos, radius = 0.45) {
+  checkCollision(pos, radius = 0.45, ignoreVehicle = null) {
     // 1. Boundary check
     const b = this.bounds;
     const minX = b ? b.minX : this.cityMin.x, maxX = b ? b.maxX : this.cityMax.x;
@@ -95,7 +95,7 @@ export class CollisionSystem {
     // 3. Moving vehicles (oriented boxes)
     if (!b && this.vehicleProvider) {
       for (const v of this.vehicleProvider()) {
-        if (this.vehiclePenetration(v, pos.x, pos.z, radius)) return true;
+        if (v !== ignoreVehicle && this.vehiclePenetration(v, pos.x, pos.z, radius)) return true;
       }
     }
 
