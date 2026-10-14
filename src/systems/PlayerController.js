@@ -1,6 +1,9 @@
 import * as THREE from 'three';
 import { CharacterModel } from './CharacterModel.js';
 
+// Water deeper than this (metres) floats the player: swimming instead of walking on the seabed
+export const SWIM_DEPTH = 0.9;
+
 export class PlayerController {
   constructor(engine, collisionSystem, inputManager) {
     this.engine = engine;
@@ -70,13 +73,19 @@ export class PlayerController {
     if (fwd !== 0) moveDir.add(forwardVec.clone().multiplyScalar(fwd));
     if (right !== 0) moveDir.add(rightVec.clone().multiplyScalar(right));
 
+    // Water state: deep enough to float -> swim (slower, no jumping, body kept at the surface)
+    const depth = this.waterDepthAt ? this.waterDepthAt(this.position.x, this.position.z) : 0;
+    const wasSwimming = this.swimming;
+    this.swimming = depth > SWIM_DEPTH;
+    if (this.swimming !== !!wasSwimming && this.onWaterChange) this.onWaterChange(this.swimming);
+
     const isMoving = moveDir.lengthSq() > 0.001;
     let currentSpeed = 0;
     let speedRatio = 0;
 
     if (isMoving) {
       moveDir.normalize();
-      currentSpeed = isRunning ? this.runSpeed : this.walkSpeed;
+      currentSpeed = this.swimming ? (isRunning ? 3.4 : 2.3) : (isRunning ? this.runSpeed : this.walkSpeed);
       speedRatio = isRunning ? 1.5 : 1.0;
 
       // Smooth rotate towards movement direction
@@ -90,8 +99,14 @@ export class PlayerController {
       // Move using collision resolution
       const moveDelta = moveDir.clone().multiplyScalar(currentSpeed * dt);
       const newPos = this.collisionSystem.resolveMovement(this.position, moveDelta, 0.42);
-      this.position.x = newPos.x;
-      this.position.z = newPos.z;
+      // Swimming is only allowed inside the supervised zones the player has unlocked
+      const deepAhead = this.waterDepthAt && this.waterDepthAt(newPos.x, newPos.z) > SWIM_DEPTH;
+      if (deepAhead && this.swimAllowed && !this.swimAllowed(newPos.x, newPos.z)) {
+        if (this.onSwimBlocked) this.onSwimBlocked();
+      } else {
+        this.position.x = newPos.x;
+        this.position.z = newPos.z;
+      }
     }
 
     // A car that nudges into the player pushes them aside gently instead of driving through
@@ -99,7 +114,14 @@ export class PlayerController {
 
     // 2. Jumping & Gravity (feet rest on the surface underneath: sidewalk, lawn, steps...)
     const groundY = this.collisionSystem.getGroundHeight(this.position.x, this.position.z);
-    if (this.isGrounded) {
+    if (this.swimming) {
+      // Float: hips at the surface while stroking, shoulders at the surface while treading water
+      const hip = this.model.hipHeight || 0.9;
+      const targetY = (this.waterSurfaceY ?? 0.05) - hip - (isMoving ? 0.08 : 0.42);
+      this.position.y += (targetY - this.position.y) * Math.min(1, dt * 6);
+      this.verticalVelocity = 0;
+      this.isGrounded = true;
+    } else if (this.isGrounded) {
       // Step smoothly up/down curbs
       this.position.y += (groundY - this.position.y) * Math.min(1, dt * 18);
       if (isJumping && this.input.enabled) {
@@ -124,7 +146,8 @@ export class PlayerController {
     this.model.update(dt, {
       isMoving,
       speedRatio,
-      isJumping: !this.isGrounded
+      isJumping: !this.isGrounded && !this.swimming,
+      swimming: this.swimming
     });
 
     // 4. Update smooth Third Person Camera (unless another view owns it, e.g. the clothing panel)

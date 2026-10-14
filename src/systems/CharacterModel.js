@@ -810,7 +810,7 @@ export class CharacterModel {
 
   update(dt, movement = {}) {
     this.animTime += dt;
-    const { isMoving = false, speedRatio = 1.0, isJumping = false } = movement;
+    const { isMoving = false, speedRatio = 1.0, isJumping = false, swimming = false } = movement;
 
     if (this.currentAction) {
       this.actionTime -= dt;
@@ -826,7 +826,9 @@ export class CharacterModel {
     const prev = this.prevPose || (this.prevPose = joints.map(() => ({ rot: new THREE.Euler(), y: 0, init: false })));
     joints.forEach((b, i) => { prev[i].rot.copy(b.rotation); prev[i].y = b.position.y; });
 
-    if (isJumping) {
+    if (swimming) {
+      this.animateSwim(isMoving, speedRatio);
+    } else if (isJumping) {
       this.animateJump();
     } else if (isMoving) {
       this.animateRun(speedRatio);
@@ -834,7 +836,7 @@ export class CharacterModel {
       this.animateIdle();
     }
     if (this.carrying && !isJumping && !this.currentAction) this.applyCarryPose();
-    if (this.currentAction && (!isMoving || this.currentAction === 'spray')) this.animateGesture(this.currentAction);
+    if (this.currentAction && !swimming && (!isMoving || this.currentAction === 'spray' || this.currentAction === 'kick')) this.animateGesture(this.currentAction);
 
     // Exponential smoothing toward the target pose removes snapping between states
     const k = 1 - Math.exp(-dt * 18);
@@ -952,12 +954,59 @@ export class CharacterModel {
       b.leftArm.rotation.set(-1.0 - w, 0, 0.3);
       b.rightElbow.rotation.x = -0.35;
       b.leftElbow.rotation.x = -0.55;
+    } else if (action === 'kick') {
+      // Right leg swings through the ball, torso leans back a little, arms balance
+      const k = Math.min(1, (1.0 - this.actionTime) / 0.25);
+      b.rightLeg.rotation.x = -1.15 * Math.sin(k * Math.PI * 0.9);
+      b.rightKnee.rotation.x = 0.25 + 0.5 * (1 - k);
+      b.leftLeg.rotation.x = 0.15;
+      b.torso.rotation.x = -0.12;
+      b.leftArm.rotation.set(-0.5, 0, -0.5);
+      b.rightArm.rotation.set(0.4, 0, 0.3);
     } else if (action === 'celebrate') {
       const j = Math.abs(Math.sin(t * 6)) * 0.25;
       b.leftArm.rotation.set(0, 0, -2.6 - j);
       b.rightArm.rotation.set(0, 0, 2.6 + j);
       b.leftElbow.rotation.x = -0.2;
       b.rightElbow.rotation.x = -0.2;
+    }
+  }
+
+  /**
+   * Swimming: front crawl when moving (body horizontal, alternating overhead strokes, flutter kick),
+   * treading water when still (upright, sculling arms, cycling legs). Oscillations only, so the pose
+   * smoothing never has to unwrap a full turn.
+   */
+  animateSwim(moving, speedRatio = 1) {
+    const b = this.bones;
+    const t = this.animTime;
+    b.hips.position.y = this.hipHeight;
+    if (moving) {
+      const f = 4.2 * Math.min(1.4, Math.max(0.8, speedRatio));
+      b.hips.rotation.set(1.3, 0, Math.sin(t * f) * 0.12);
+      b.torso.rotation.set(0, Math.sin(t * f) * 0.15, 0);
+      b.head.rotation.set(-0.95, Math.sin(t * f) * 0.35, 0);
+      b.rightArm.rotation.set(-1.55 + Math.sin(t * f) * 1.55, 0, -0.1);
+      b.leftArm.rotation.set(-1.55 - Math.sin(t * f) * 1.55, 0, 0.1);
+      b.rightElbow.rotation.x = -0.25 - Math.max(0, Math.cos(t * f)) * 0.5;
+      b.leftElbow.rotation.x = -0.25 - Math.max(0, -Math.cos(t * f)) * 0.5;
+      b.leftLeg.rotation.set(Math.sin(t * f * 2.2) * 0.3, 0, 0.05);
+      b.rightLeg.rotation.set(-Math.sin(t * f * 2.2) * 0.3, 0, -0.05);
+      b.leftKnee.rotation.x = 0.15;
+      b.rightKnee.rotation.x = 0.15;
+    } else {
+      b.hips.rotation.set(0.18, 0, 0);
+      b.torso.rotation.set(0, 0, 0);
+      b.head.rotation.set(-0.1, 0, 0);
+      const s = Math.sin(t * 3);
+      b.rightArm.rotation.set(-0.35, 0, -(0.9 + s * 0.3));
+      b.leftArm.rotation.set(-0.35, 0, 0.9 + s * 0.3);
+      b.rightElbow.rotation.x = -0.7;
+      b.leftElbow.rotation.x = -0.7;
+      b.leftLeg.rotation.set(-0.3 + Math.sin(t * 3) * 0.35, 0, 0);
+      b.rightLeg.rotation.set(-0.3 - Math.sin(t * 3) * 0.35, 0, 0);
+      b.leftKnee.rotation.x = 0.7 + Math.cos(t * 3) * 0.3;
+      b.rightKnee.rotation.x = 0.7 - Math.cos(t * 3) * 0.3;
     }
   }
 

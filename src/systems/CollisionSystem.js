@@ -55,6 +55,11 @@ export class CollisionSystem {
 
   /** Height of the walkable surface under (x, z); 0 on plain ground and roads */
   getGroundHeight(x, z) {
+    // A separate area (e.g. the coast with its seabed) can provide its own ground model
+    if (this.groundFn) {
+      const g = this.groundFn(x, z);
+      if (g !== null) return g;
+    }
     let h = 0;
     for (let i = 0; i < this.walkables.length; i++) {
       const w = this.walkables[i];

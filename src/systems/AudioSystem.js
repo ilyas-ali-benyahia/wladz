@@ -317,6 +317,90 @@ export class AudioSystem {
     });
   }
 
+  /** Short noise burst through a filter (kicks, splashes, waves) */
+  noiseBurst(duration, freq, q, vol, type = 'lowpass') {
+    if (this.isMuted || !this.ctx) return null;
+    this.ensureContext();
+    const t = this.ctx.currentTime;
+    const len = Math.max(1, Math.floor(this.ctx.sampleRate * duration));
+    const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    const f = this.ctx.createBiquadFilter();
+    f.type = type; f.frequency.value = freq; f.Q.value = q;
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(this.volume * vol, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+    src.connect(f); f.connect(g); g.connect(this.ctx.destination);
+    src.start(t);
+    return { src, g, f };
+  }
+
+  /** Ball kick: a dull thump that gets brighter with power */
+  playKick(power = 0.5) {
+    this.noiseBurst(0.12, 500 + power * 900, 0.8, 0.5 + power * 0.3);
+    this.playTone(90 + power * 40, 0.09, 'sine');
+  }
+
+  playWhistle() {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    const t = this.ctx.currentTime;
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain(), lfo = this.ctx.createOscillator(), lg = this.ctx.createGain();
+    o.type = 'sine'; o.frequency.value = 2900;
+    lfo.frequency.value = 38; lg.gain.value = 140;
+    lfo.connect(lg); lg.connect(o.frequency);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(this.volume * 0.12, t + 0.03);
+    g.gain.setValueAtTime(this.volume * 0.12, t + 0.35);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+    o.connect(g); g.connect(this.ctx.destination);
+    o.start(t); lfo.start(t); o.stop(t + 0.5); lfo.stop(t + 0.5);
+  }
+
+  playSplash(big = false) {
+    this.noiseBurst(big ? 0.6 : 0.3, big ? 1400 : 2200, 0.6, big ? 0.55 : 0.3, 'bandpass');
+  }
+
+  playGoal() {
+    [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => this.playTone(f, 0.22, 'triangle'), i * 110));
+    this.noiseBurst(1.1, 900, 0.4, 0.18, 'bandpass'); // distant crowd cheer
+  }
+
+  /** Beach ambience: rolling waves and an occasional seagull (never more than one call every few seconds) */
+  setBeachAmbience(on, intensity = 1) {
+    this.beachOn = on;
+    this.beachIntensity = intensity;
+    if (!on || this.beachTimer) return;
+    const tick = () => {
+      if (!this.beachOn) { this.beachTimer = null; return; }
+      this.noiseBurst(2.4, 450, 0.5, 0.12 * this.beachIntensity);
+      if (Math.random() < 0.35) this.playSeagull();
+      this.beachTimer = setTimeout(tick, 2600 + Math.random() * 1800);
+    };
+    this.beachTimer = setTimeout(tick, 200);
+  }
+
+  playSeagull() {
+    if (this.isMuted || !this.ctx) return;
+    this.ensureContext();
+    const t = this.ctx.currentTime;
+    for (let k = 0; k < 2; k++) {
+      const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+      const t0 = t + k * 0.28;
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(1500, t0);
+      o.frequency.exponentialRampToValueAtTime(900, t0 + 0.22);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(this.volume * 0.05, t0 + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.24);
+      o.connect(g); g.connect(this.ctx.destination);
+      o.start(t0); o.stop(t0 + 0.26);
+    }
+  }
+
   playCrosswalkBeep() {
     this.playTone(1200, 0.08, 'sine');
   }

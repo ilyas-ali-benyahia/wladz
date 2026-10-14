@@ -208,6 +208,7 @@ export class TerrainGenerator {
     const stone = addSurfaceDetail(new THREE.MeshStandardMaterial({ color: 0xb8a58a, roughness: 0.9 }), 0.08, 0.5);
     const dark = new THREE.MeshBasicMaterial({ color: 0x0b0b0d });
     const sign = makeSignTexture('⛰️ النفق مغلق للصيانة', 'Tunnel fermé');
+    const beachSign = makeSignTexture('🏖️ نفق الشاطئ والملعب', 'Plage • Stade');
 
     // Main avenue / boulevard: along +x, -x, +z, -z
     [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dz]) => {
@@ -247,7 +248,8 @@ export class TerrainGenerator {
       g.add(mouth);
 
       // Sign above the portal and a row of barriers in front of it
-      const board = new THREE.Mesh(new THREE.PlaneGeometry(6, 1.2), new THREE.MeshBasicMaterial({ map: sign }));
+      // The south tunnel leads to the coastal district (on foot, E at the barrier)
+      const board = new THREE.Mesh(new THREE.PlaneGeometry(6, 1.2), new THREE.MeshBasicMaterial({ map: dz === 1 ? beachSign : sign }));
       board.position.copy(at(0, 8.1, PORTAL - 1.65));
       board.rotation.y = Math.PI;
       g.add(board);

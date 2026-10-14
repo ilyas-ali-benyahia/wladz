@@ -356,7 +356,7 @@ export class UISystem {
   setCustomHint(html, source = 'interior') {
     this.customHints = this.customHints || {};
     this.customHints[source] = html;
-    this.customHint = this.customHints.vehicle || this.customHints.interior || this.customHints.mission || null;
+    this.customHint = this.customHints.vehicle || this.customHints.interior || this.customHints.zone || this.customHints.mission || null;
     this.updateInteractHint(this.lastHintNPC);
   }
 

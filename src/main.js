@@ -19,6 +19,8 @@ import { PedestrianSystem } from './systems/PedestrianSystem.js';
 import { InteriorSystem } from './systems/InteriorSystem.js';
 import { PlayerVehicleSystem } from './systems/PlayerVehicleSystem.js';
 import { WardrobeSystem } from './systems/WardrobeSystem.js';
+import { ActivitySystem } from './systems/activities/ActivitySystem.js';
+import { CoastSystem } from './systems/coast/CoastSystem.js';
 import { events } from './core/EventBus.js';
 
 class GhirassGameApp {
@@ -81,13 +83,18 @@ class GhirassGameApp {
 
     // The family car parked in the home driveway (the only drivable vehicle)
     this.vehicle = new PlayerVehicleSystem(this.engine, this.collisionSystem, this.player, this.input, this.ui, this.worldBuilder.playerHome.carSpot);
-    this.vehicle.canUse = () => !this.interiors.isInside() && !this.interiors.busy;
+    this.vehicle.canUse = () => !this.interiors.isInside() && !this.interiors.busy && !(this.coast && this.coast.inCoast);
     this.vehicle.peopleProvider = () => [
       ...this.pedestrianSystem.pedestrians.map(p => (p.group || p.mesh).position),
       ...this.npcSystem.npcInstances.map(n => n.group.position),
       ...this.npcSystem.childNPCs.map(k => k.group.position)
     ];
     this.missionSystem.isDriving = () => this.vehicle.driving;
+
+    // Facility activities and the coastal district (beach, swimming school, football ground) through the south tunnel
+    this.activities = new ActivitySystem(this);
+    this.coast = new CoastSystem(this);
+    this.missionSystem.isInside = () => this.interiors.isInside() || this.coast.inCoast;
     this.trafficSystem.playerIsVehicle = () => this.vehicle.driving;
     this.trafficSystem.extraVehicles = () => [this.vehicle.footprint];
 
@@ -111,6 +118,7 @@ class GhirassGameApp {
       // The car first (enter / exit), then doors and exhibits, then people
       if (this.vehicle.handleInteract()) return;
       if (this.interiors.tryInteract()) return;
+      if (this.coast.tryInteract()) return;
       const nearNPC = this.npcSystem.getNearNPC();
       if (nearNPC) {
         // Mission givers (association) and "talk to" objectives are handled by the mission system
@@ -130,6 +138,8 @@ class GhirassGameApp {
     // Escape for pause menu
     this.input.onEscape = () => {
       if (this.wardrobe && this.wardrobe.isOpen) { this.wardrobe.close(); return; }
+      if (this.activities && this.activities.menuOpen) { this.activities.closeMenu(); return; }
+      if (this.activities && this.activities.quizOpen) { this.activities.stop(); return; }
       if (this.ui.dialogOverlay.classList.contains('show')) {
         this.ui.closeDialogue();
       } else if (this.ui.questionOverlay.classList.contains('show')) {
@@ -167,6 +177,8 @@ class GhirassGameApp {
       this.npcSystem.update(dt, this.player.position);
 
       if (!this.vehicle.driving) this.interiors.update();
+      this.coast.update(dt);
+      this.activities.update(dt);
 
       // Clothing panel open: show the character from the front, standing left of the panel
       if (this.wardrobe.isOpen) this.updateWardrobeCamera(dt);
@@ -229,7 +241,8 @@ class GhirassGameApp {
       achievements: this.achievementSystem.getState(),
       timeOfDay: this.environment.timeOfDay,
       vehicle: this.vehicle.getState(),
-      wardrobe: this.wardrobe.getState()
+      wardrobe: this.wardrobe.getState(),
+      activities: this.activities.getState()
     };
     this.saveSystem.saveGame(data);
   }
@@ -239,6 +252,7 @@ class GhirassGameApp {
     if (!data) return;
 
     if (data.wardrobe) this.wardrobe.loadState(data.wardrobe);
+    if (data.activities) this.activities.loadState(data.activities);
     if (data.gender) {
       // Only two characters remain (boy / girl): older saves with another girl map to the girl
       const type = /^girl|^sara|^rayan/.test(data.gender) ? 'girl_green' : 'boy_purple';

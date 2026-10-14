@@ -524,3 +524,81 @@
 .wd-swatch.on { border-color: #fff; box-shadow: 0 0 0 3px #2ecc71; }
 .wd-chip { font: inherit; font-size: 12.5px; font-weight: 700; color: #e9eef4; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); border-radius: 50px; padding: 6px 12px; cursor: pointer; }
 .wd-chip.on { background: rgba(46, 204, 113, 0.25); border-color: #2ecc71; color: #fff; }
+
+/* ═══════════════════════════════════════════════
+   FACILITY ACTIVITIES: objective HUD, giver menu, quiz
+═══════════════════════════════════════════════ */
+#activity-hud {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translate(-50%, -140%);
+  width: min(520px, calc(100vw - 32px));
+  background: rgba(12, 20, 34, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  padding: 10px 16px 12px;
+  color: #fff;
+  direction: rtl;
+  z-index: 70;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  transition: transform 0.35s cubic-bezier(.2, .8, .2, 1);
+  font-family: var(--font-arabic);
+  pointer-events: none;
+}
+#activity-hud.show { transform: translate(-50%, 0); }
+.ac-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.ac-title { font-size: 14px; font-weight: 900; color: #f1c40f; }
+.ac-timer { font-size: 15px; font-weight: 900; color: #fff; }
+.ac-timer.low { color: #ff6b6b; }
+.ac-obj { font-size: 14px; margin: 4px 0 8px; line-height: 1.5; }
+.ac-bar { height: 8px; background: rgba(255, 255, 255, 0.12); border-radius: 8px; overflow: hidden; }
+.ac-fill { height: 100%; width: 0; background: linear-gradient(90deg, #2ecc71, #27ae60); border-radius: 8px; transition: width 0.25s ease; }
+
+#activity-menu, #activity-quiz { z-index: 320; }
+.ac-card {
+  width: min(560px, 100%);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(145deg, #131d2a, #0b1118);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 22px;
+  padding: 18px 20px;
+  color: #fff;
+  direction: rtl;
+  font-family: var(--font-arabic);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+.ac-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.ac-head > div { flex: 1; }
+.ac-head h3 { font-size: 20px; font-weight: 900; }
+.ac-head small { color: #f1c40f; font-weight: 700; }
+.ac-avatar { font-size: 30px; width: 54px; height: 54px; display: grid; place-items: center; border-radius: 16px; background: rgba(46, 204, 113, 0.18); }
+.ac-intro { font-size: 14px; color: #c8d3df; line-height: 1.6; margin-bottom: 10px; }
+.ac-list { overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-left: 2px; }
+.ac-stage { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; background: rgba(255, 255, 255, 0.05); }
+.ac-stage.done { background: rgba(46, 204, 113, 0.1); }
+.ac-stage.locked { opacity: 0.55; }
+.ac-num { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; background: rgba(255, 255, 255, 0.1); flex-shrink: 0; }
+.ac-stage.done .ac-num { background: #27ae60; }
+.ac-info { flex: 1; min-width: 0; }
+.ac-info b { display: block; font-size: 14.5px; }
+.ac-info small { display: block; font-size: 12px; color: #aab8c6; line-height: 1.45; }
+.ac-best { display: inline-block; font-size: 11.5px; color: #f1c40f; font-weight: 700; margin-top: 2px; }
+.ac-lock { font-size: 12px; color: #aab8c6; white-space: nowrap; }
+.ac-foot { display: flex; gap: 10px; justify-content: center; margin-top: 12px; }
+.ac-foot:empty { display: none; }
+.ac-q { font-size: 17px; font-weight: 800; margin: 8px 0 12px; line-height: 1.6; }
+.ac-options { display: flex; flex-direction: column; gap: 8px; }
+.ac-opt { font: inherit; font-size: 15px; font-weight: 700; text-align: right; color: #fff; background: rgba(255, 255, 255, 0.07); border: 2px solid rgba(255, 255, 255, 0.12); border-radius: 12px; padding: 11px 14px; cursor: pointer; }
+.ac-opt:hover { background: rgba(255, 255, 255, 0.12); }
+.ac-opt.right { border-color: #2ecc71; background: rgba(46, 204, 113, 0.2); }
+.ac-opt.wrong { border-color: #e74c3c; background: rgba(231, 76, 60, 0.18); }
+.ac-why { min-height: 24px; margin-top: 10px; font-size: 14px; color: #f7dc6f; line-height: 1.6; }
+
+/* Kick power meter */
+#kick-meter { position: fixed; left: 50%; bottom: 120px; transform: translateX(-50%); width: 220px; height: 14px; border-radius: 10px; background: rgba(12, 20, 34, 0.75); border: 2px solid rgba(255,255,255,0.3); overflow: hidden; display: none; z-index: 65; }
+#kick-meter.show { display: block; }
+#kick-meter div { height: 100%; width: 0; background: linear-gradient(90deg, #2ecc71, #f1c40f, #e74c3c); }
