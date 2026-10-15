@@ -603,3 +603,308 @@
     transition: none;
   }
 }
+
+/* ---------- Média des cartes de jeux : trailer ou illustration (components/ui/GameMedia.tsx) ---------- */
+
+.wz-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #0f2a20;
+}
+.wz-media--art {
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 25% 20%, rgb(255 255 255 / 0.85), transparent 45%),
+    linear-gradient(135deg, color-mix(in srgb, var(--tone) 16%, white), color-mix(in srgb, var(--tone) 40%, white));
+}
+.wz-trailer-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border-radius: 1.4rem;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.6);
+}
+.wz-trailer-frame .wz-media {
+  transition: transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.wz-tilt:is(:hover, :focus-within) .wz-trailer-frame .wz-media {
+  transform: scale(1.045);
+}
+
+/* ---------- Carrousel de jeux (components/ui/GameCarousel.tsx) ---------- */
+
+.wz-carousel {
+  position: relative;
+  overflow-x: clip;
+  overflow-y: visible;
+}
+.wz-carousel-track {
+  position: relative;
+  display: grid;
+  padding-block: 10px 4px;
+  touch-action: pan-y;
+  user-select: none;
+}
+.wz-carousel-slot {
+  grid-area: 1 / 1;
+  justify-self: center;
+  z-index: calc(10 - var(--abs));
+  transition:
+    transform 650ms var(--wz-ease-out),
+    opacity 450ms ease,
+    filter 450ms ease;
+}
+.wz-carousel-slot :is(video, img) {
+  -webkit-user-drag: none;
+}
+
+/* Ordinateur : 3 cartes au premier plan, 2 de chaque côté en retrait et estompées. */
+.wz-carousel[data-mode="coverflow"] .wz-carousel-track {
+  padding-inline: 4%;
+}
+.wz-carousel[data-mode="coverflow"] .wz-carousel-slot {
+  width: min(30%, 360px);
+  transform: translateX(calc(var(--offset) * -106%));
+}
+.wz-carousel[data-mode="coverflow"] .wz-carousel-slot[data-distance="2"] {
+  opacity: 0.38;
+  filter: saturate(0.6) blur(1px);
+  transform: translateX(calc(var(--offset) * -84%)) scale(0.8);
+  cursor: pointer;
+}
+.wz-carousel[data-mode="coverflow"] .wz-carousel-slot[data-distance="2"] > * {
+  pointer-events: none;
+}
+.wz-carousel[data-mode="coverflow"] .wz-carousel-slot[data-distance="3"] {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(calc(var(--offset) * -60%)) scale(0.7);
+}
+.wz-carousel-arrow {
+  position: absolute;
+  inset-block-start: calc(50% - 28px);
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 50%;
+  color: var(--wz-white);
+  background: var(--wz-green);
+  box-shadow:
+    0 5px 0 color-mix(in srgb, var(--wz-green) 72%, #000),
+    0 10px 26px color-mix(in srgb, var(--wz-green) 26%, transparent);
+  cursor: pointer;
+  transition: transform 220ms var(--wz-ease-bounce);
+}
+.wz-carousel-arrow svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+.wz-carousel-arrow:hover {
+  transform: translateY(-3px) scale(1.06);
+}
+.wz-carousel-arrow:active {
+  transform: translateY(3px) scale(0.95);
+}
+.wz-carousel-arrow:focus-visible {
+  outline: 3px solid var(--wz-red);
+  outline-offset: 4px;
+}
+/* En arabe, les jeux suivants arrivent par la gauche. */
+.wz-carousel-arrow--next {
+  left: 0;
+}
+.wz-carousel-arrow--prev {
+  right: 0;
+}
+
+/* Téléphone : anneau 3D. */
+.wz-carousel[data-mode="ring"] .wz-carousel-track {
+  perspective: 1100px;
+  perspective-origin: 50% 40%;
+}
+.wz-carousel[data-mode="ring"] .wz-carousel-slot {
+  width: min(82vw, 330px);
+  opacity: clamp(0, calc(1.15 - var(--abs) * 0.5), 1);
+  transform: translateX(calc(var(--offset) * -70%)) translateZ(calc(var(--abs) * -190px))
+    rotateY(calc(var(--offset) * -32deg));
+}
+.wz-carousel[data-mode="ring"] .wz-carousel-slot:not([data-active]) {
+  cursor: pointer;
+}
+.wz-carousel[data-mode="ring"] .wz-carousel-slot:not([data-active]) > * {
+  pointer-events: none;
+}
+
+.wz-carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin-block-start: 14px;
+}
+.wz-carousel-dots button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+.wz-carousel-dots button span {
+  width: 9px;
+  height: 9px;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--wz-green) 25%, transparent);
+  transition:
+    width 300ms,
+    background 300ms;
+}
+.wz-carousel-dots button[aria-current="true"] span {
+  width: 26px;
+  background: var(--wz-green);
+}
+
+/* ---------- Interrupteur jeux classiques / jeux rapides (components/games/GamesBrowser.tsx) ---------- */
+
+.wz-switch {
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 5px;
+  border-radius: 9999px;
+}
+.wz-switch-thumb {
+  position: absolute;
+  inset-block: 5px;
+  inset-inline-start: 5px;
+  width: calc(50% - 5px);
+  border-radius: 9999px;
+  background: var(--wz-green);
+  box-shadow:
+    0 4px 0 color-mix(in srgb, var(--wz-green) 72%, #000),
+    0 8px 20px color-mix(in srgb, var(--wz-green) 26%, transparent);
+  transition: inset-inline-start 380ms var(--wz-ease-bounce);
+}
+.wz-switch[data-value="quick"] .wz-switch-thumb {
+  inset-inline-start: 50%;
+}
+.wz-switch button {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.9rem;
+  padding-inline: 1.25rem;
+  border-radius: 9999px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--wz-ink-soft);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 300ms;
+}
+.wz-switch button[aria-checked="true"] {
+  color: var(--wz-white);
+}
+.wz-switch button svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+/* ---------- Barre latérale repliable (components/navigation/Sidebar.tsx) ---------- */
+
+.wz-sidebar-toggle {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  color: var(--wz-white);
+  background: var(--wz-green);
+  box-shadow:
+    0 4px 0 color-mix(in srgb, var(--wz-green) 72%, #000),
+    0 8px 20px color-mix(in srgb, var(--wz-green) 26%, transparent);
+  cursor: pointer;
+  transition: transform 220ms var(--wz-ease-bounce);
+}
+.wz-sidebar-toggle:hover {
+  transform: scale(1.08);
+}
+.wz-sidebar-toggle svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+/* ---------- Pied de page : deux logos séparés par un trait blanc ---------- */
+
+.wz-footer-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-areas:
+    "logo line ministry"
+    "tag line ministry";
+  align-items: center;
+  column-gap: clamp(1.5rem, 5vw, 4rem);
+  row-gap: 0.75rem;
+}
+.wz-footer-logo {
+  grid-area: logo;
+  justify-self: end;
+}
+.wz-footer-tag {
+  grid-area: tag;
+  justify-self: end;
+  max-width: 24rem;
+  text-align: center;
+}
+.wz-footer-line {
+  grid-area: line;
+  align-self: stretch;
+  width: 2px;
+  min-height: 7rem;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 0.85);
+}
+.wz-footer-ministry {
+  grid-area: ministry;
+  justify-self: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  text-align: center;
+}
+@media (max-width: 700px) {
+  .wz-footer-grid {
+    grid-template-areas:
+      "logo line ministry"
+      "tag tag tag";
+    column-gap: 1.25rem;
+    row-gap: 1.25rem;
+  }
+  .wz-footer-tag {
+    justify-self: center;
+  }
+  .wz-footer-line {
+    min-height: 5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wz-carousel-slot,
+  .wz-switch-thumb {
+    transition: none;
+  }
+}
+
+/* Barre latérale repliée : place pour le bouton de réouverture en haut à droite. */
+@media (min-width: 768px) {
+  html[data-sidebar="collapsed"] .wz-dash-main {
+    padding-inline-start: 4.75rem;
+  }
+}

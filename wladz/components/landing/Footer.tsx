@@ -1,8 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import Clouds from "./Clouds";
+import Lake from "./Lake";
 import Icon from "./Icon";
 import { useParallax } from "./useParallax";
 
@@ -11,51 +10,31 @@ export default function Footer() {
 
   return (
     <footer ref={ref} className="landing-footer">
-      <Clouds footer />
+      <Lake deep />
       <div className="footer-content section-shell">
-        <div className="footer-main">
-          <div className="footer-brand">
-            <a href="#home" aria-label="ولادز — العودة إلى الرئيسية">
-              <Image
-                src="/images/logo-3.png"
-                alt="ولادز"
-                width={1412}
-                height={704}
-                loading="eager"
-              />
-            </a>
+        {/* Deux logos séparés par un trait blanc (styles .wz-footer-grid dans app/ui.css). */}
+        <div className="footer-main wz-footer-grid">
+          <a href="#home" className="wz-footer-logo footer-logo" aria-label="ولادز — العودة إلى الرئيسية">
+            <Image src="/images/wladz-logo.webp" alt="ولادز" width={1000} height={418} />
+          </a>
+          <div className="wz-footer-tag footer-tag">
             <p>نلعب، نتعلّم، ونكبر بقيم جميلة. مغامرات صغيرة تصنع فرقًا كبيرًا.</p>
             <span>
               صُنع بحبّ لأبناء الجزائر
               <Icon name="heart" />
             </span>
           </div>
-
-          <nav className="footer-links" aria-label="روابط أسفل الصفحة">
-            <p>اكتشف ولادز</p>
-            <a href="#home">الرئيسية</a>
-            <a href="#games">الألعاب</a>
-            <a href="#about">لماذا ولادز</a>
-            <Link href="/login" prefetch={false}>
-              دخول
-            </Link>
-            <Link href="/register" prefetch={false}>
-              إنشاء حساب
-            </Link>
-          </nav>
-
-          <div className="ministry-motion" data-parallax-y={-45} data-parallax-scale={0.06}>
-            <div className="ministry" data-reveal>
-              <div className="ministry-logo">
-                <Image
-                  src="/landing/ministere-jeunesse-sport.svg"
-                  alt="شعار وزارة الشباب والرياضة الجزائرية"
-                  width={2342}
-                  height={2004}
-                />
-              </div>
-              <p>بدعم من وزارة الشباب والرياضة</p>
+          <span className="wz-footer-line" aria-hidden="true" />
+          <div className="wz-footer-ministry ministry-motion" data-parallax-y={-30} data-parallax-scale={0.04}>
+            <div className="ministry-logo">
+              <Image
+                src="/landing/ministere-jeunesse-sport.svg"
+                alt="شعار وزارة الشباب والرياضة الجزائرية"
+                width={2342}
+                height={2004}
+              />
             </div>
+            <p className="ministry-caption">بدعم من وزارة الشباب والرياضة</p>
           </div>
         </div>
 

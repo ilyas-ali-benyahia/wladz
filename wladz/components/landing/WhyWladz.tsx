@@ -4,7 +4,7 @@ import type { CSSProperties } from "react";
 import { Amphora, Compass, Rocket, ShieldCheck, Target, type LucideIcon } from "lucide-react";
 import { IconTile } from "@/components/ui/GameIcon";
 import { Tilt } from "@/components/ui/Tilt";
-import Clouds from "./Clouds";
+import Lake from "./Lake";
 import { games } from "@/lib/games";
 import FunButton from "./FunButton";
 import Icon, { type IconName } from "./Icon";
@@ -82,7 +82,7 @@ export default function WhyWladz() {
 
   return (
     <section ref={ref} id="about" className="why-section" aria-labelledby="why-title">
-      <Clouds section />
+      <Lake />
       <div className="section-shell">
         <header className="why-heading" data-reveal>
           <p className="section-kicker">

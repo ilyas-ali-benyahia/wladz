@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
-import { CalendarDays, Hourglass, Cake, House, Phone, Star, type LucideIcon } from "lucide-react";
+import { CalendarDays, Hourglass, Cake, House, Phone, Star, Trophy, type LucideIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { months } from "@/components/forms/BirthDateField";
@@ -80,7 +80,12 @@ export default async function ProfilePage() {
         <InfoRow icon={CalendarDays} tone="#3a8ee6" label="عضو منذ" value={formatDate(user.created_at)} />
       </dl>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+      {/* Le classement est dans « حسابي » (il n'a plus de lien dans la barre de navigation). */}
+      <ButtonLink href="/dashboard/ranking" variant="gold" icon={Trophy} block className="mt-6">
+        ترتيبي في لوحة المتصدرين
+      </ButtonLink>
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <ButtonLink href="/dashboard" size="sm" icon={House}>
           العودة إلى الرئيسية
         </ButtonLink>
