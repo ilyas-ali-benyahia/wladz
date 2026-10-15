@@ -23,10 +23,10 @@ export function AuthScene({
 
       <section className="wz-glass wz-rise relative w-full max-w-md rounded-[2rem] p-6 sm:p-8">
         <Image
-          src="/images/logo-3.png"
+          src="/images/wladz-logo.webp"
           alt="WLADZ"
-          width={1412}
-          height={704}
+          width={1000}
+          height={418}
           priority
           className="mx-auto h-auto w-48 drop-shadow-md"
         />

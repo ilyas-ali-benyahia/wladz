@@ -1,19 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import {
-  useEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-  type CSSProperties,
-  type MouseEvent,
-  type PointerEvent,
-} from "react";
-import { Bot, Calculator, CircleHelp, Hand, HeartHandshake, Lightbulb, type LucideIcon } from "lucide-react";
-import { GameIcon } from "@/components/ui/GameIcon";
+import { useState, type PointerEvent } from "react";
+import { GameCarousel, useIsMobile } from "@/components/ui/GameCarousel";
+import { GameMedia } from "@/components/ui/GameMedia";
 import Icon from "./Icon";
+import River from "./River";
 import { useParallax } from "./useParallax";
 
 type Game = {
@@ -23,13 +15,9 @@ type Game = {
   type: string;
   description: string;
   color: "sky" | "mint" | "sand" | "rose";
-  video?: string;
-  image?: string;
-  // Sans image ni vidéo : icône du jeu en grand et deux icônes flottantes sur un fond coloré.
-  art?: [LucideIcon, LucideIcon];
 };
 
-// Les jeux disponibles dans l'application (voir lib/games.ts).
+// Jeux présentés sur la page d'accueil, chacun avec son trailer (public/trailers/<id>.mp4).
 const games: readonly Game[] = [
   {
     id: "amine",
@@ -38,143 +26,40 @@ const games: readonly Game[] = [
     type: "عالم مفتوح ثلاثي الأبعاد",
     description: "عِش حياة أمين في حومة جزائرية: 68 فصلاً و72 نهاية مختلفة حسب قراراتك.",
     color: "sand",
-    video: "/landing/games/hayat-amine.mp4",
   },
   {
     id: "space",
     title: "الرائد الصغير — رحلة إلى الفضاء",
     category: "علوم ومغامرة",
     type: "مغامرة ثلاثية الأبعاد",
-    description:
-      "انظر عبر التلسكوب السحري واكتشف أسرار الشمس والكواكب والنجوم.",
+    description: "انظر عبر التلسكوب السحري واكتشف أسرار الشمس والكواكب والنجوم.",
     color: "sky",
-    video: "/landing/games/fadha.mp4",
   },
   {
-    id: "choices",
-    title: "قرارات الأبطال",
-    category: "الوقاية",
-    type: "قصة تفاعلية",
+    id: "mujahideen",
+    title: "المجاهدون الستة",
+    category: "التاريخ والذاكرة",
+    type: "مغامرة تاريخية",
     description:
-      "مواقف من الحياة اليومية: اختر ما ستفعله، وتعلّم كيف تحمي نفسك وتقول «لا».",
-    color: "mint",
-    art: [Hand, HeartHandshake],
-  },
-  {
-    id: "treasures",
-    title: "كنوز الجزائر",
-    category: "التاريخ والتراث",
-    type: "رحلة عبر 58 ولاية",
-    description:
-      "اكتشف معالم كل ولاية وتراثها وتاريخها، وافتح ولاية جديدة كلما أكملت واحدة.",
+      "تعرّف على تاريخ الجزائر وعلى المجاهدين الذين ضحّوا من أجل تحرير وطننا، ليلة أول نوفمبر 1954.",
     color: "sand",
-    image: "/games/treasures/assets/banner.jpg",
   },
   {
     id: "ghiras",
     title: "غِراس المواطنة",
-    category: "المواطنة والبيئة",
+    category: "التطوّع والمواطنة",
     type: "مدينة ثلاثية الأبعاد",
-    description: "نظّف حيّك، اغرس الأشجار، ساعد الكبار، وزر المتحف في مدينة جزائرية تستكشفها بحرّية.",
-    color: "mint",
-    image: "/games/ghiras/cover.jpg",
-  },
-  {
-    id: "salati",
-    title: "صلاتي",
-    category: "القيم والعبادات",
-    type: "مسجد ثلاثي الأبعاد",
-    description: "تعلّم حركات الصلاة وترتيبها خطوة بخطوة، مع أسئلة قصيرة عن الأذكار.",
-    color: "mint",
-    image: "/games/salati/thumbnail.webp",
-  },
-  {
-    id: "skills",
-    title: "درب المهارات",
-    category: "المهارات الحياتية",
-    type: "6 محطات",
     description:
-      "بطاقات تتعلّم منها وتحدّيات تختبر قراراتك: الثقة، الاحترام، والعمل في فريق.",
-    color: "rose",
-    image: "/landing/games/game-4.svg",
-  },
-  {
-    id: "math",
-    title: "احسب وصوّب",
-    category: "الرياضيات",
-    type: "تحدٍّ سريع",
-    description:
-      "احسب العملية بسرعة وصوّب نحو الروبوت الذي يحمل الجواب الصحيح.",
-    color: "sky",
-    art: [Calculator, Bot],
-  },
-  {
-    id: "myths",
-    title: "حقيقة أم خرافة؟",
-    category: "الوقاية",
-    type: "لعبة سريعة",
-    description:
-      "اكشف المعلومات الخاطئة عن التدخين والمخدرات، بطاقةً بعد بطاقة.",
+      "تطوّع في حيّك: نظّف، اغرس الأشجار، وساعد غيرك. كل عمل نافع يجعل مدينتك أجمل.",
     color: "mint",
-    art: [Lightbulb, CircleHelp],
   },
 ];
 
-const MOBILE_QUERY = "(max-width: 700px)";
-const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
-const AUTOPLAY_MS = 3200;
-const SWIPE_PAUSE_MS = 7000;
-const SWIPE_THRESHOLD = 40;
-
-// Outside the component: React 19 forbids impure calls (Date.now) during render.
-function now() {
-  return Date.now();
-}
-
-function useMediaQuery(query: string) {
-  return useSyncExternalStore(
-    (onChange) => {
-      const media = window.matchMedia(query);
-      media.addEventListener("change", onChange);
-      return () => media.removeEventListener("change", onChange);
-    },
-    () => window.matchMedia(query).matches,
-    () => false,
-  );
-}
-
-// Position of a card relative to the active one, wrapped around the ring.
-function ringOffset(index: number, active: number, total: number) {
-  const offset = (((index - active) % total) + total) % total;
-  return offset > total / 2 ? offset - total : offset;
-}
-
-function GameCard({
-  game,
-  index,
-  featured,
-}: {
-  game: Game;
-  index: number;
-  featured: boolean;
-}) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+function GameCard({ game, index, featured = false }: { game: Game; index: number; featured?: boolean }) {
   const [hovered, setHovered] = useState(false);
-  const playing = hovered || featured;
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (playing) {
-      video.play().catch(() => {});
-    } else {
-      video.pause();
-      video.currentTime = 0.1;
-    }
-  }, [playing]);
 
   function tilt(event: PointerEvent<HTMLElement>) {
-    if (event.pointerType !== "mouse") return;
+    if (event.pointerType !== "mouse" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const card = event.currentTarget;
     const bounds = card.getBoundingClientRect();
     const x = (event.clientX - bounds.left) / bounds.width;
@@ -197,10 +82,7 @@ function GameCard({
   return (
     <article
       className={`game-card game-card--${game.color}`}
-      data-reveal
-      onPointerEnter={(event) =>
-        event.pointerType === "mouse" && setHovered(true)
-      }
+      onPointerEnter={(event) => event.pointerType === "mouse" && setHovered(true)}
       onPointerMove={tilt}
       onPointerLeave={resetTilt}
       onFocus={() => setHovered(true)}
@@ -213,35 +95,7 @@ function GameCard({
         aria-labelledby={`${game.id}-title`}
       >
         <div className="game-art">
-          {game.video ? (
-            <video
-              ref={videoRef}
-              className="game-video"
-              src={`${game.video}#t=0.1`}
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              aria-hidden="true"
-            />
-          ) : game.image ? (
-            <Image
-              src={game.image}
-              alt=""
-              width={800}
-              height={500}
-              sizes="(max-width: 700px) 82vw, (max-width: 1200px) 46vw, 540px"
-            />
-          ) : (
-            <span className="game-icon-art" aria-hidden="true">
-              <GameIcon slug={game.id} size="xl" />
-              {game.art?.map((ArtIcon, artIndex) => (
-                <span key={artIndex} className={`game-icon-extra game-icon-extra--${artIndex + 1}`}>
-                  <ArtIcon strokeWidth={2.2} />
-                </span>
-              ))}
-            </span>
-          )}
+          <GameMedia slug={game.id} playing={hovered || featured} />
           <span className="game-category">{game.category}</span>
           <span className="game-number" aria-hidden="true">
             0{index + 1}
@@ -269,146 +123,49 @@ function GameCard({
 
 export default function GamesPreview() {
   const ref = useParallax<HTMLElement>();
-  const gridRef = useRef<HTMLDivElement>(null);
-  const carousel = useMediaQuery(MOBILE_QUERY);
-  const reducedMotion = useMediaQuery(REDUCED_MOTION_QUERY);
-  const [active, setActive] = useState(0);
-  const [inView, setInView] = useState(false);
-  const pausedUntil = useRef(0);
-  const swipeStart = useRef<{ x: number; y: number } | null>(null);
-  const suppressClick = useRef(false);
-
-  useEffect(() => {
-    const grid = gridRef.current;
-    if (!grid) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setInView(entry.isIntersecting),
-      {
-        threshold: 0.25,
-      },
-    );
-    observer.observe(grid);
-    return () => observer.disconnect();
-  }, []);
-
-  // Mobile ring turns on its own while visible, and waits 7 s after a swipe.
-  useEffect(() => {
-    if (!carousel || reducedMotion || !inView) return;
-    const timer = window.setInterval(() => {
-      if (now() < pausedUntil.current || document.hidden) return;
-      setActive((current) => (current + 1) % games.length);
-    }, AUTOPLAY_MS);
-    return () => window.clearInterval(timer);
-  }, [carousel, reducedMotion, inView]);
-
-  function select(index: number) {
-    pausedUntil.current = now() + SWIPE_PAUSE_MS;
-    setActive(((index % games.length) + games.length) % games.length);
-  }
-
-  function onPointerDown(event: PointerEvent<HTMLDivElement>) {
-    if (carousel) swipeStart.current = { x: event.clientX, y: event.clientY };
-  }
-
-  function onPointerUp(event: PointerEvent<HTMLDivElement>) {
-    const start = swipeStart.current;
-    swipeStart.current = null;
-    if (!carousel || !start) return;
-    const dx = event.clientX - start.x;
-    const dy = event.clientY - start.y;
-    if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy)) return;
-    suppressClick.current = true;
-    // In RTL the next cards wait on the left: a swipe to the right brings them in.
-    select(active + (dx > 0 ? 1 : -1));
-  }
-
-  function onClickCapture(event: MouseEvent<HTMLDivElement>) {
-    if (!suppressClick.current) return;
-    suppressClick.current = false;
-    event.preventDefault();
-  }
+  const mobile = useIsMobile();
 
   return (
-    <section
-      ref={ref}
-      id="games"
-      className="games-section section-shell"
-      aria-labelledby="games-title"
-    >
-      <header className="section-heading" data-reveal>
-        <div>
-          <p className="section-kicker">
-            <Icon name="spark" />
-            عالم صغير، اكتشافات كبيرة
-          </p>
-          <h2 id="games-title">
-            ألعاب <span className="outlined-word">تنتظرك</span>
-          </h2>
-        </div>
-      </header>
+    <section ref={ref} id="games" className="games-section" aria-labelledby="games-title">
+      {/* Ordinateur : les cartes sortent de la rivière. Téléphone : anneau 3D qui se swipe. */}
+      {mobile ? null : <River />}
+      <div className="section-shell games-inner">
+        <header className="section-heading" data-reveal>
+          <div>
+            <p className="section-kicker">
+              <Icon name="spark" />
+              عالم صغير، اكتشافات كبيرة
+            </p>
+            <h2 id="games-title">
+              ألعاب <span className="outlined-word">تنتظرك</span>
+            </h2>
+          </div>
+        </header>
 
-      <div
-        ref={gridRef}
-        className="games-grid"
-        data-carousel={carousel ? "true" : undefined}
-        onPointerDown={onPointerDown}
-        onPointerUp={onPointerUp}
-        onPointerCancel={() => (swipeStart.current = null)}
-        onClickCapture={onClickCapture}
-      >
-        {games.map((game, index) => {
-          const offset = ringOffset(index, active, games.length);
-          return (
-            <div
-              key={game.id}
-              className="game-slot"
-              data-active={carousel && offset === 0 ? "true" : undefined}
-              style={
-                {
-                  "--offset": offset,
-                  "--abs": Math.abs(offset),
-                } as CSSProperties
-              }
-              onClickCapture={(event) => {
-                if (!carousel || offset === 0) return;
-                event.preventDefault();
-                select(index);
-              }}
-            >
-              <div
-                className={`game-depth game-depth--${index % 2}`}
-                data-parallax-y={index % 2 === 0 ? -32 : -85}
-              >
-                <GameCard
-                  game={game}
-                  index={index}
-                  featured={
-                    carousel && inView && offset === 0 && !reducedMotion
-                  }
-                />
+        {mobile ? (
+          <GameCarousel
+            items={games}
+            getKey={(game) => game.id}
+            getLabel={(game) => game.title}
+            label="ألعاب ولادز"
+            renderItem={(game, { featured }) => (
+              <GameCard game={game} index={games.indexOf(game)} featured={featured} />
+            )}
+          />
+        ) : (
+          <div className="games-grid">
+            {games.map((game, index) => (
+              <div key={game.id} className={`game-slot game-slot--${index % 2}`}>
+                <div className="game-depth">
+                  <GameCard game={game} index={index} />
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            ))}
+          </div>
+        )}
 
-      <div className="carousel-dots" role="group" aria-label="اختيار اللعبة">
-        {games.map((game, index) => (
-          <button
-            key={game.id}
-            type="button"
-            aria-label={game.title}
-            aria-current={active === index ? "true" : undefined}
-            onClick={() => select(index)}
-          >
-            <span />
-          </button>
-        ))}
+        <p className="preview-note">سجّل الدخول لتلعب وتجمع النقاط وتصعد في لوحة المتصدرين.</p>
       </div>
-
-      <p className="preview-note">
-        سجّل الدخول لتلعب وتجمع النقاط وتصعد في لوحة المتصدرين.
-      </p>
     </section>
   );
 }

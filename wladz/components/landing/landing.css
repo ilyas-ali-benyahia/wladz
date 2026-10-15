@@ -169,14 +169,20 @@ html:has(.landing-page) {
 .nav-login svg {
   width: 19px;
 }
+.nav-menu-button,
+.nav-mobile-layer {
+  display: none;
+}
 
+/* Fond de la page par niveaux : ciel et montagnes (hero) → rivière dans la prairie (jeux)
+   → lac (لماذا ولادز) → lac profond (pied de page), séparés par un léger voile blanc. */
 .hero {
+
   position: relative;
   isolation: isolate;
   display: flex;
   justify-content: center;
-  min-height: 880px;
-  min-height: max(800px, 100svh);
+  min-height: max(740px, 100svh);
   background: linear-gradient(
     180deg,
     var(--color-sky-top),
@@ -300,19 +306,11 @@ html:has(.landing-page) {
   width: 35px;
   height: 35px;
 }
-.hero-floor {
-  position: absolute;
-  inset-inline: 0;
-  inset-block-end: 0;
-  height: 170px;
-  z-index: 4;
-  background: linear-gradient(transparent, var(--color-dz-white));
-  pointer-events: none;
-}
 .scroll-cue {
   position: absolute;
   z-index: 6;
-  inset-block-end: 24px;
+  /* Bas du premier écran, juste au-dessus des montagnes. */
+  inset-block-start: calc(max(800px, 100svh) - 104px);
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -556,7 +554,38 @@ html:has(.landing-page) {
 /* Slightly staggered columns follow the depth and rhythm of the reference. */
 .games-section {
   position: relative;
+  isolation: isolate;
   padding-block: 94px 76px;
+  background: linear-gradient(
+    180deg,
+    #f4fbf6 0%,
+    #e6f5ea 18%,
+    #def1e4 55%,
+    #e6f4ee 86%,
+    var(--color-dz-white) 100%
+  );
+}
+/* Voiles blancs : la rivière naît de la brume et se fond dans le lac. */
+.games-section::before,
+.games-section::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  z-index: 1;
+  height: 110px;
+  pointer-events: none;
+}
+.games-section::before {
+  inset-block-start: 0;
+  background: linear-gradient(#f4fbf6, transparent);
+}
+.games-section::after {
+  inset-block-end: 0;
+  background: linear-gradient(transparent, var(--color-dz-white));
+}
+.games-inner {
+  position: relative;
+  z-index: 2;
 }
 .section-heading {
   display: flex;
@@ -597,12 +626,11 @@ html:has(.landing-page) {
 .games-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 42px 34px;
-}
-.game-depth--1 {
-  padding-block-start: 66px;
+  /* Espace central pour la rivière entre les deux colonnes de cartes. */
+  gap: 42px clamp(140px, 17vw, 220px);
 }
 .game-card {
+  position: relative;
   padding: 11px;
   border: 1px solid
     color-mix(in srgb, var(--color-dz-green) 9%, var(--color-dz-white));
@@ -675,31 +703,6 @@ html:has(.landing-page) {
 .game-card:focus-within .game-art :is(img, video),
 .game-card:active .game-art :is(img, video) {
   transform: scale(1.045);
-}
-.carousel-dots {
-  display: none;
-  justify-content: center;
-  gap: 2px;
-  margin-block-start: 14px;
-}
-.carousel-dots button {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-}
-.carousel-dots button span {
-  width: 9px;
-  height: 9px;
-  border-radius: 99px;
-  background: color-mix(in srgb, var(--color-dz-green) 25%, transparent);
-  transition:
-    width 300ms,
-    background 300ms;
-}
-.carousel-dots button[aria-current="true"] span {
-  width: 26px;
-  background: var(--color-dz-green);
 }
 .game-category {
   position: absolute;
@@ -816,10 +819,10 @@ html:has(.landing-page) {
 .landing-footer {
   position: relative;
   isolation: isolate;
-  background: var(--color-dz-green);
+  overflow-x: clip;
+  background: linear-gradient(180deg, #2b8fa6 0%, #187489 32%, #0f5868 68%, #0b4652 100%);
   color: var(--color-dz-white);
-  margin-block-start: -55px;
-  padding-block-start: 135px;
+  padding-block-start: 96px;
 }
 .footer-content {
   position: relative;
@@ -928,25 +931,6 @@ html:has(.landing-page) {
   gap: 16px;
   min-height: 44px;
 }
-.clouds--footer {
-  z-index: -1;
-  opacity: 0.12;
-}
-.clouds--footer .cloud-layer--start {
-  inset-block-start: auto;
-  inset-block-end: -185px;
-  width: 630px;
-}
-.clouds--footer .cloud-layer--end {
-  inset-block-start: auto;
-  inset-block-end: -170px;
-  width: 720px;
-}
-.clouds--footer .cloud-layer--far,
-.clouds--footer .cloud-layer--front {
-  display: none;
-}
-
 [data-motion-active="false"] :is(.floating-tag, .scroll-cue > svg),
 [data-motion-active="false"] .fun-button::before {
   animation-play-state: paused;
@@ -1144,8 +1128,8 @@ html:has(.landing-page) {
     white-space: nowrap;
   }
   .hero {
-    min-height: 900px;
-    min-height: max(870px, 100svh);
+
+    min-height: max(740px, 100svh);
   }
   .hero-content {
     padding-block-start: 186px;
@@ -1249,7 +1233,7 @@ html:has(.landing-page) {
     height: 24px;
   }
   .scroll-cue {
-    inset-block-end: 12px;
+    inset-block-start: calc(max(870px, 100svh) - 96px);
     gap: 3px;
   }
   .scroll-cue-line {
@@ -1276,40 +1260,6 @@ html:has(.landing-page) {
   .games-grid {
     grid-template-columns: 1fr;
     gap: 26px;
-  }
-  /* Mobile: the cards turn on a 3D ring instead of stacking. */
-  .games-grid[data-carousel] {
-    gap: 0;
-    perspective: 1100px;
-    perspective-origin: 50% 40%;
-    touch-action: pan-y;
-    padding-block: 6px;
-  }
-  .games-grid[data-carousel] .game-slot {
-    grid-area: 1 / 1;
-    justify-self: center;
-    width: 84%;
-    cursor: pointer;
-    transform: translateX(calc(var(--offset) * -70%))
-      translateZ(calc(var(--abs) * -190px))
-      rotateY(calc(var(--offset) * -32deg));
-    opacity: clamp(0, calc(1.15 - var(--abs) * 0.5), 1);
-    z-index: calc(10 - var(--abs));
-    transition:
-      transform 650ms cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 450ms;
-  }
-  .games-grid[data-carousel] .game-slot[data-active] {
-    cursor: auto;
-  }
-  .games-grid[data-carousel] .game-depth {
-    transform: none !important;
-  }
-  .carousel-dots {
-    display: flex;
-  }
-  .game-depth--1 {
-    padding-block-start: 0;
   }
   .game-card {
     border-radius: 27px;
@@ -1429,52 +1379,57 @@ html:has(.landing-page) {
 }
 
 /* ── WLADZ : section « لماذا ولادز » (remplace « كيف تلعب ») ── */
+/* Le lac : la rivière s'y jette au centre (embouchure), sous un léger voile blanc. */
 .why-section {
   position: relative;
   isolation: isolate;
   overflow: clip;
   padding-block: 90px 100px;
-  background: linear-gradient(
-    180deg,
-    var(--color-dz-white) 0%,
-    #e4f4ff 16%,
-    #cbe9ff 52%,
-    #dff1ff 78%,
-    var(--color-dz-green-soft) 100%
-  );
-  border-radius: 0 0 64px 64px;
+  background:
+    radial-gradient(70px 240px at 50% 0, color-mix(in srgb, #4aa3e6 34%, transparent), transparent 85%),
+    radial-gradient(42% 260px at 50% 0, color-mix(in srgb, #4aa3e6 14%, transparent), transparent 80%),
+    linear-gradient(180deg, var(--color-dz-white) 0%, #eef9fb 6%, #d9f1f7 18%, #c4e8f2 45%, #b2dfee 72%, #a6d8eb 100%);
 }
 .why-section > .section-shell {
   position: relative;
   z-index: 1;
 }
-/* Nuages en parallax derrière la section (Clouds section). */
-.clouds--section {
+/* Vagues du lac (Lake.tsx). */
+.lake {
+  position: absolute;
+  inset: 0;
   z-index: 0;
+  overflow: clip;
+  pointer-events: none;
 }
-.cloud-layer--s1 {
-  width: 560px;
-  inset-inline-start: -230px;
-  inset-block-start: 3%;
-  opacity: 0.95;
+.lake-wave {
+  position: absolute;
+  height: 26px;
 }
-.cloud-layer--s2 {
-  width: 480px;
-  inset-inline-end: -190px;
-  inset-block-start: 24%;
-  opacity: 0.85;
+.lake-wave svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: lake-sway 7s ease-in-out infinite alternate;
 }
-.cloud-layer--s3 {
-  width: 420px;
-  inset-inline-start: 4%;
-  inset-block-start: 55%;
-  opacity: 0.75;
+.lake-wave path {
+  fill: none;
+  stroke: var(--color-dz-white);
+  stroke-width: 3;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
 }
-.cloud-layer--s4 {
-  width: 600px;
-  inset-inline-end: -240px;
-  inset-block-start: 70%;
-  opacity: 0.9;
+.lake--deep .lake-wave path {
+  stroke: rgb(255 255 255 / 0.3);
+}
+@keyframes lake-sway {
+  from {
+    translate: -18px 0;
+  }
+  to {
+    translate: 18px 0;
+  }
 }
 .why-heading {
   text-align: center;
@@ -1776,5 +1731,440 @@ html:has(.landing-page) {
 @media (prefers-reduced-motion: reduce) {
   .game-card:is(:hover, :focus-within) .game-icon-art {
     transform: none;
+  }
+}
+
+/* One continuous valley: the source and river share the same 7.5% opening. */
+.hero {
+  background: linear-gradient(180deg, var(--color-sky-top), var(--color-sky-bottom) 72%, #f5faf7);
+}
+.hero-content {
+  padding-block-start: clamp(108px, 13svh, 140px);
+}
+.hero-logo {
+  width: clamp(260px, 35svh, 440px);
+  max-width: 85%;
+}
+.landscape {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: -1px;
+  height: clamp(250px, 39svh, 430px);
+  z-index: 2;
+  overflow: clip;
+  pointer-events: none;
+}
+.landscape > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.scroll-cue {
+  inset-block-start: auto;
+  inset-block-end: 72px;
+  font-size: 14px;
+}
+.scroll-cue-line { height: 20px; }
+.games-section {
+  padding-block: 74px 330px;
+  background: linear-gradient(180deg, #f5faf7, #f9fcf9 34%, #f1f8f3 72%, #f5faf7);
+}
+.games-section::before,
+.games-section::after { display: none; }
+.games-inner { width: min(900px, calc(100% - 80px)); }
+.games-section .section-heading { margin-block-end: 62px; }
+.games-section .section-heading > div { max-width: 44%; }
+.games-grid {
+  grid-template-columns: repeat(2, minmax(0, 340px));
+  justify-content: space-between;
+  align-items: start;
+  column-gap: clamp(110px, 14vw, 200px);
+  row-gap: 56px;
+}
+.game-slot { position: relative; min-width: 0; }
+.game-slot--1 { margin-block-start: 170px; }
+.game-depth { position: relative; }
+.games-section[data-journey-ready] .game-depth {
+  opacity: var(--card-opacity, 1);
+  transform: translate3d(calc(var(--source-x, 0px) * (1 - var(--emerge, 1))), calc(var(--source-y, 0px) * (1 - var(--emerge, 1))), 0) scale(calc(.18 + .82 * var(--emerge, 1)));
+  clip-path: inset(-12px round max(26px, var(--organic-radius, 0%)));
+}
+.game-depth::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: max(26px, var(--organic-radius, 0%));
+  background: linear-gradient(145deg, #c3e9eb, #8fd1de);
+  opacity: var(--water-opacity, 0);
+}
+.game-slot:focus-within .game-depth {
+  opacity: 1;
+  transform: none;
+  clip-path: none;
+}
+.game-slot:focus-within .game-depth::after { opacity: 0; }
+.games-section[data-journey-ready] .game-slot[data-emerged="true"] .game-depth { clip-path: none; }
+.game-card {
+  padding: 8px;
+  border-radius: 26px;
+  background: var(--color-dz-white);
+  box-shadow: 0 8px 28px rgb(40 83 64 / .06);
+  transition: transform 300ms, box-shadow 300ms;
+}
+.game-art { aspect-ratio: 16 / 9; border-radius: 19px; }
+.game-category { inset-block-start: 10px; inset-inline-start: 10px; padding: 3px 12px; }
+.game-number {
+  inset-block-start: 12px;
+  inset-inline-end: 12px;
+  background: rgb(255 255 255 / .9);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+}
+.game-art-label { inset-block-end: 10px; inset-inline-end: 10px; padding: 2px 10px; }
+.game-info { padding: 15px 10px 13px; }
+.game-info h3 { font-size: 20px; padding-inline-end: 32px; margin-block: 6px; }
+.game-info p { line-height: 1.7; }
+.game-arrow { width: 32px; height: 32px; inset-block-start: 45px; inset-inline-end: 6px; }
+.game-arrow svg { width: 19px; height: 19px; }
+.preview-note { max-width: 410px; margin: 65px auto 0; text-wrap: balance; }
+.river {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.river-shore { fill: none; stroke-width: 20; stroke-linejoin: round; }
+.river-tributaries { opacity: .8; }
+.river-current {
+  fill: none;
+  stroke-width: 16;
+  stroke-linecap: round;
+}
+.river-flow-line {
+  fill: none;
+  stroke: rgb(255 255 255 / 0.48);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 22 58;
+  animation: river-current-flow 2.2s linear infinite;
+}
+.river-glints {
+  fill: none;
+  stroke: rgb(255 255 255 / .65);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 12 26;
+  animation: river-current-flow 1.8s linear infinite;
+}
+@keyframes river-current-flow {
+  to { stroke-dashoffset: -80; }
+}
+.why-section {
+  padding-block-start: 45px;
+  background: linear-gradient(180deg, #e2f3f4, #d8edf0 32%, #b8dce2 72%, #91c7d1);
+}
+.lake-wave { opacity: .35; }
+.lake-wave path { stroke-width: 1.5; }
+.landing-footer {
+  background: linear-gradient(180deg, #91c7d1, #5598a6 110px, #246d7e 240px, #164f60);
+  padding-block-start: 180px;
+}
+
+@media (max-width: 1100px) and (min-width: 701px) {
+  .hero-content { width: 82%; }
+  .hero-slogan { font-size: 30px; }
+  .games-inner { width: calc(100% - 60px); }
+  .game-slot--1 { margin-block-start: 195px; }
+}
+@media (max-width: 700px) {
+  .hero { min-height: max(680px, 100svh); }
+  .hero-content { padding-block-start: 146px; width: calc(100% - 32px); }
+  .hero-logo { width: clamp(220px, 32svh, 300px); margin-block: 3px 8px; }
+  .hero-eyebrow { font-size: 14px; }
+  .hero-slogan { font-size: clamp(23px, 5.8vw, 30px); }
+  .hero-description { margin-block: 10px 14px; }
+  .hero-actions { flex-direction: row; gap: 8px; }
+  .hero-actions .fun-button { min-width: 0; font-size: 16px; padding: 7px 13px; gap: 8px; min-height: 48px; }
+  .hero-actions .fun-button .button-icon { width: 28px; height: 28px; }
+  .hero-note { font-size: 14px; margin-block-start: 12px; }
+  .landscape { height: 230px; }
+  .scroll-cue { inset-block-end: 53px; font-size: 13px; gap: 2px; }
+  .scroll-cue-line { height: 14px; }
+  .tag-position--3, .tag-position--6 { display: none; }
+  .games-section { padding-block: 48px 300px; }
+  .games-inner { width: auto; margin-inline-start: 18px; margin-inline-end: 76px; }
+  .games-section .section-heading { margin-block-end: 40px; }
+  .games-section .section-heading > div { max-width: none; }
+  .games-section .section-kicker { font-size: 14px; gap: 6px; }
+  .games-section .section-heading h2 { font-size: 32px; }
+  .games-grid { grid-template-columns: minmax(0, 340px); justify-content: center; gap: 48px; }
+  .game-slot--1 { margin-block-start: 0; }
+  .game-info h3 { font-size: 19px; }
+  .game-category, .game-art-label { font-size: 14px; }
+  .game-type { font-size: 14px; }
+  .river-shore { stroke-width: 10; }
+  .river-current { stroke-width: 6; }
+  .river-glints { stroke-width: 2; }
+  .preview-note { margin-block-start: 38px; }
+  .why-section { padding-block-start: 30px; }
+}
+
+/* Final responsive pass: lighter UI, a true mobile menu, and a compact game journey. */
+@media (min-width: 701px) {
+  .landing-nav { height: 68px; max-width: 1100px; }
+  .nav-brand img { height: 50px; }
+  .nav-links a { padding-inline: 22px; }
+  .hero-content { width: min(900px, 82%); }
+  .hero-logo { width: clamp(300px, 39svh, 490px); }
+  .hero-slogan { font-size: clamp(30px, 3.15vw, 46px); }
+  .hero-description { font-size: 19px; }
+  .games-section { padding-block-end: 120px; }
+}
+
+.games-carousel-dots { display: none; }
+
+@media (max-width: 700px) {
+  html:has(.landing-page) { scroll-padding-block-start: 82px; }
+  .landing-header,
+  .landing-header[data-compact="true"] { inset-block-start: 10px; padding-inline: 12px; }
+  .landing-nav,
+  .landing-header[data-compact="true"] .landing-nav {
+    min-height: 64px;
+    height: 64px;
+    padding: 7px 9px;
+    flex-wrap: nowrap;
+    border-radius: 22px;
+    background: rgb(255 255 255 / 0.72);
+    backdrop-filter: blur(18px);
+  }
+  .nav-brand { order: 1; margin-inline: auto 0; }
+  .nav-brand img,
+  .landing-header[data-compact="true"] .nav-brand img { height: 43px; }
+  .nav-links--desktop,
+  .landing-nav > .nav-login { display: none; }
+  .nav-menu-button {
+    order: 2;
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 16px;
+    color: var(--color-dz-white);
+    background: var(--color-dz-green);
+    box-shadow: 0 6px 18px rgb(0 98 51 / 0.2);
+  }
+  .nav-menu-button svg { width: 23px; height: 23px; }
+  .nav-mobile-layer {
+    display: grid;
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    padding: 88px 16px 16px;
+    align-items: start;
+    background: rgb(18 43 32 / 0);
+    backdrop-filter: blur(0);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 280ms ease, background 280ms ease, backdrop-filter 280ms ease, visibility 280ms;
+  }
+  .nav-mobile-layer[data-open="true"] {
+    z-index: 19;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    background: rgb(18 43 32 / 0.26);
+    backdrop-filter: blur(12px);
+  }
+  .nav-mobile-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 16px;
+    border: 1px solid rgb(255 255 255 / 0.8);
+    border-radius: 26px;
+    background: rgb(249 253 250 / 0.97);
+    box-shadow: 0 24px 70px rgb(12 44 30 / 0.24);
+    transform: translateY(-18px) scale(0.97);
+    transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .nav-mobile-layer[data-open="true"] .nav-mobile-panel { transform: none; }
+  .nav-mobile-heading { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px 10px; font-weight: 800; }
+  .nav-mobile-heading button { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 14px; background: var(--color-dz-green-soft); color: var(--color-dz-green); }
+  .nav-mobile-panel > a { min-height: 50px; padding: 10px 16px; border-radius: 17px; font-size: 17px; font-weight: 700; }
+  .nav-mobile-panel > a[aria-current="true"] { color: var(--color-dz-green); background: var(--color-dz-green-soft); }
+  .nav-mobile-panel .nav-mobile-login { display: flex; align-items: center; justify-content: space-between; color: white; background: var(--color-dz-green); }
+  .nav-mobile-login svg { width: 20px; }
+
+  .hero { min-height: max(760px, 100svh); }
+  .hero-content { padding-block-start: 128px; transform: translateY(44px); width: calc(100% - 34px); }
+  .hero-logo { width: clamp(220px, 30svh, 292px); }
+  .hero-slogan { font-size: clamp(22px, 5.7vw, 28px); }
+  .hero-description { font-size: 15px; line-height: 1.75; }
+  .hero-actions .fun-button { font-size: 15px; padding-inline: 11px; min-height: 46px; }
+  .hero-note { font-size: 13px; }
+  .floating-tag { font-size: 14px; min-height: 40px; padding: 6px 11px; }
+
+  .games-section { padding-block: 52px 92px; overflow: hidden; }
+  .games-inner { width: calc(100% - 32px); margin-inline: auto; }
+  .games-section .river { display: none; }
+  .games-grid[data-mobile-carousel="true"] {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    min-height: 430px;
+    perspective: 1100px;
+  }
+  .games-grid[data-mobile-carousel="true"] .game-slot {
+    grid-area: 1 / 1;
+    width: min(82vw, 330px);
+    justify-self: center;
+    margin: 0;
+    opacity: clamp(0, calc(1 - abs(var(--carousel-offset)) * 0.45), 1);
+    transform: translateX(calc(var(--carousel-offset) * -76%)) translateZ(calc(abs(var(--carousel-offset)) * -180px)) rotateY(calc(var(--carousel-offset) * -25deg));
+    pointer-events: none;
+    transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1), opacity 450ms ease;
+  }
+  .games-grid[data-mobile-carousel="true"] .game-slot[data-active="true"] { pointer-events: auto; z-index: 5; }
+  .games-grid[data-mobile-carousel="true"] .game-depth {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+  .games-grid[data-mobile-carousel="true"] .game-depth::after { display: none; }
+  .games-carousel-dots { display: flex; justify-content: center; gap: 8px; margin-block-start: 14px; }
+  .games-carousel-dots button { width: 9px; height: 9px; border-radius: 99px; background: rgb(0 98 51 / 0.2); transition: width 250ms, background 250ms; }
+  .games-carousel-dots button[aria-current="true"] { width: 28px; background: var(--color-dz-green); }
+  .preview-note { margin-block-start: 26px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .games-section[data-journey-ready] .game-depth { transform: none; opacity: 1; clip-path: none; }
+  .game-depth::after { display: none; }
+}
+
+/* ── Trailers, footer à deux logos, hero mobile centré (octobre 2026) ── */
+
+/* Média des cartes (trailer ou illustration, components/ui/GameMedia.tsx). */
+.game-art .wz-media {
+  width: 100%;
+  height: 100%;
+}
+/* Plus de coins blancs entre le lac clair et le lac profond. */
+.why-section {
+  border-radius: 0;
+}
+/* Pied de page : logo WLADZ et logo du ministère, séparés par un trait blanc. */
+.landing-footer {
+  padding-block-start: 72px;
+}
+.landing-footer .footer-main.wz-footer-grid {
+  grid-template-columns: 1fr auto 1fr;
+  padding-block-end: 56px;
+}
+.footer-logo img {
+  display: block;
+  width: clamp(200px, 22vw, 290px);
+  height: auto;
+  filter: drop-shadow(0 10px 22px rgb(0 0 0 / 0.25));
+}
+.footer-tag p {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+.footer-tag > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-block-start: 8px;
+  font-size: 16px;
+  color: rgb(255 255 255 / 0.9);
+}
+.footer-tag > span svg {
+  width: 18px;
+  height: 18px;
+}
+.landing-footer .ministry-logo {
+  width: 150px;
+  height: 150px;
+  margin: 0;
+  border-radius: 50%;
+}
+.ministry-caption {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+@media (max-width: 700px) {
+  /* Navbar : logo à droite, menu à gauche. */
+  .nav-brand {
+    margin-inline: 0 auto;
+  }
+  /* Hero : le contenu remplit l'espace entre la navbar et les montagnes. */
+  .hero {
+    flex-direction: column;
+    align-items: center;
+  }
+  .hero-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-block: 150px 250px;
+  }
+  .tag-position--1,
+  .tag-position--4 {
+    inset-block-start: 92px;
+  }
+  .landing-footer {
+    padding-block-start: 40px;
+  }
+  .landing-footer .footer-main.wz-footer-grid {
+    grid-template-columns: 1fr auto 1fr;
+    padding-block-end: 30px;
+  }
+  .footer-logo img {
+    width: min(38vw, 160px);
+  }
+  .landing-footer .ministry-logo {
+    width: 104px;
+    height: 104px;
+    padding: 10px;
+  }
+  .ministry-caption {
+    font-size: 14px;
+  }
+  .footer-tag p {
+    font-size: 17px;
+  }
+  .footer-tag > span {
+    font-size: 14px;
+  }
+  /* Carrousel des jeux : les cartes gardent leur taille et le texte reste lisible. */
+  .wz-carousel .game-card {
+    height: 100%;
+  }
+}
+/* Le pied de page remonte juste sous les boutons « أنشئ حسابك ». */
+.why-section {
+  padding-block-end: 36px;
+}
+.landing-footer {
+  padding-block-start: 40px;
+}
+@media (max-width: 700px) {
+  .why-section {
+    padding-block-end: 24px;
+  }
+  .landing-footer {
+    padding-block-start: 24px;
   }
 }

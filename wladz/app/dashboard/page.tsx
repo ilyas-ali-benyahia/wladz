@@ -1,9 +1,9 @@
 import type { CSSProperties, ReactNode } from "react";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { ArrowLeft, Gamepad2, Hand, Medal, Play, Sparkles, Star, Trophy } from "lucide-react";
 import { ageTier } from "@/games/ageTier";
+import { GameShowcase } from "@/components/games/GameShowcase";
 import { ButtonLink } from "@/components/ui/Button";
 import { GameIcon, IconTile } from "@/components/ui/GameIcon";
 import { RankMedal } from "@/components/ui/RankMedal";
@@ -38,13 +38,13 @@ function order(index: number) {
 
 function SectionTitle({ icon, title, link }: { icon: ReactNode; title: string; link?: { href: string; label: string } }) {
   return (
-    <div className="mb-4 flex items-center justify-between gap-3">
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
       <h2 className="flex items-center gap-3 text-xl font-extrabold text-ink">
         {icon}
         {title}
       </h2>
       {link ? (
-        <ButtonLink href={link.href} variant="secondary" size="sm" icon={ArrowLeft}>
+        <ButtonLink href={link.href} variant="secondary" size="sm" icon={ArrowLeft} className="max-w-full shrink-0 whitespace-nowrap">
           {link.label}
         </ButtonLink>
       ) : null}
@@ -227,25 +227,9 @@ export default async function DashboardPage() {
             icon={<IconTile icon={Sparkles} tone="#d21034" size="sm" />}
             title="ألعاب لم تجرّبها بعد"
           />
-          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {notPlayed.slice(0, 3).map((game) => (
-              <Tilt as="li" key={game.slug} className="wz-glass-soft rounded-3xl">
-                <Link
-                  href={`/dashboard/games/${game.slug}`}
-                  className="flex h-full items-center gap-3 rounded-3xl p-3"
-                >
-                  <GameIcon slug={game.slug} size="md" />
-                  <span className="min-w-0">
-                    <span className="block font-extrabold text-ink">{game.title}</span>
-                    <span className="mt-0.5 flex items-center gap-1 text-sm font-bold text-dz-green">
-                      جرّبها الآن
-                      <ArrowLeft size={16} strokeWidth={2.6} aria-hidden="true" />
-                    </span>
-                  </span>
-                </Link>
-              </Tilt>
-            ))}
-          </ul>
+          <GameShowcase
+            games={notPlayed.map(({ slug, title, description }) => ({ slug, title, description }))}
+          />
         </section>
       ) : null}
     </div>

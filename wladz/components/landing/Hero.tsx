@@ -5,6 +5,7 @@ import Clouds from "./Clouds";
 import FloatingTags from "./FloatingTags";
 import FunButton from "./FunButton";
 import Icon from "./Icon";
+import Landscape from "./Landscape";
 import { useParallax } from "./useParallax";
 
 export default function Hero() {
@@ -31,10 +32,10 @@ export default function Hero() {
         </p>
         <h1 id="hero-title" className="hero-logo intro-logo">
           <Image
-            src="/images/logo-3.png"
+            src="/images/wladz-logo.webp"
             alt="WLADZ — ولادز"
-            width={1412}
-            height={704}
+            width={1000}
+            height={418}
             loading="eager"
             fetchPriority="high"
           />
@@ -71,6 +72,7 @@ export default function Hero() {
       <div className="hero-spark hero-spark--two" aria-hidden="true">
         <Icon name="spark" />
       </div>
+      <Landscape />
       <a href="#games" className="scroll-cue">
         <span className="scroll-cue-line" />
         مرّر للأسفل
@@ -86,7 +88,7 @@ export default function Hero() {
           <path d="m6 9 6 6 6-6" />
         </svg>
       </a>
-      <div className="hero-floor" aria-hidden="true" />
+
     </section>
   );
 }

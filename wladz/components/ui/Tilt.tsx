@@ -19,6 +19,7 @@ export function Tilt({
   children: ReactNode;
 } & HTMLAttributes<HTMLElement>) {
   function onPointerMove(event: PointerEvent<HTMLElement>) {
+    rest.onPointerMove?.(event);
     if (event.pointerType !== "mouse") return;
     const card = event.currentTarget;
     const bounds = card.getBoundingClientRect();
@@ -32,6 +33,7 @@ export function Tilt({
   }
 
   function onPointerLeave(event: PointerEvent<HTMLElement>) {
+    rest.onPointerLeave?.(event);
     const card = event.currentTarget;
     card.style.setProperty("--rx", "0deg");
     card.style.setProperty("--ry", "0deg");

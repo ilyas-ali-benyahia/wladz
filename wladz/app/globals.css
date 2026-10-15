@@ -53,6 +53,13 @@ body {
   background-color: #f2faff;
 }
 
+.dashboard-mobile-nav {
+  border: 1px solid rgb(255 255 255 / 0.82);
+  background: rgb(242 250 247 / 0.92);
+  box-shadow: 0 12px 36px rgb(19 38 29 / 0.18), inset 0 1px rgb(255 255 255 / 0.85);
+  backdrop-filter: blur(22px) saturate(1.15);
+}
+
 /* Grands écrans : toute l'interface (tailles en rem de Tailwind) grandit avec la fenêtre,
    au lieu de rester petite au milieu d'un écran vide. Les points de rupture (md, lg…) ne
    changent pas : les media queries en rem utilisent toujours 16px. */
@@ -63,12 +70,12 @@ body {
 }
 @media (min-width: 1900px) {
   html {
-    font-size: 125%;
+    font-size: 112.5%;
   }
 }
 @media (min-width: 2400px) {
   html {
-    font-size: 150%;
+    font-size: 125%;
   }
 }
 
