@@ -32,7 +32,7 @@ export default function Hero() {
         </p>
         <h1 id="hero-title" className="hero-logo intro-logo">
           <Image
-            src="/images/wladz-logo.webp"
+            src="/images/logo-3.png"
             alt="WLADZ — ولادز"
             width={1000}
             height={418}
@@ -88,7 +88,6 @@ export default function Hero() {
           <path d="m6 9 6 6 6-6" />
         </svg>
       </a>
-
     </section>
   );
 }

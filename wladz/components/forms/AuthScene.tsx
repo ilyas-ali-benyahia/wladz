@@ -23,7 +23,7 @@ export function AuthScene({
 
       <section className="wz-glass wz-rise relative w-full max-w-md rounded-[2rem] p-6 sm:p-8">
         <Image
-          src="/images/wladz-logo.webp"
+          src="/images/logo-3.png"
           alt="WLADZ"
           width={1000}
           height={418}
@@ -33,7 +33,9 @@ export function AuthScene({
         <div className="mt-4 flex justify-center">
           <IconTile icon={icon} tone={tone} size="lg" className="wz-bob" />
         </div>
-        <h1 className="mt-4 text-center text-2xl font-extrabold text-ink">{title}</h1>
+        <h1 className="mt-4 text-center text-2xl font-extrabold text-ink">
+          {title}
+        </h1>
         <p className="mt-1 text-center text-base text-ink-soft">{subtitle}</p>
         {children}
       </section>

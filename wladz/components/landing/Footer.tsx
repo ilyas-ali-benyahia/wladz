@@ -14,18 +14,33 @@ export default function Footer() {
       <div className="footer-content section-shell">
         {/* Deux logos séparés par un trait blanc (styles .wz-footer-grid dans app/ui.css). */}
         <div className="footer-main wz-footer-grid">
-          <a href="#home" className="wz-footer-logo footer-logo" aria-label="ولادز — العودة إلى الرئيسية">
-            <Image src="/images/wladz-logo.webp" alt="ولادز" width={1000} height={418} />
+          <a
+            href="#home"
+            className="wz-footer-logo footer-logo"
+            aria-label="ولادز — العودة إلى الرئيسية"
+          >
+            <Image
+              src="/images/logo-3.png"
+              alt="ولادز"
+              width={1000}
+              height={418}
+            />
           </a>
           <div className="wz-footer-tag footer-tag">
-            <p>نلعب، نتعلّم، ونكبر بقيم جميلة. مغامرات صغيرة تصنع فرقًا كبيرًا.</p>
+            <p>
+              نلعب، نتعلّم، ونكبر بقيم جميلة. مغامرات صغيرة تصنع فرقًا كبيرًا.
+            </p>
             <span>
               صُنع بحبّ لأبناء الجزائر
               <Icon name="heart" />
             </span>
           </div>
           <span className="wz-footer-line" aria-hidden="true" />
-          <div className="wz-footer-ministry ministry-motion" data-parallax-y={-30} data-parallax-scale={0.04}>
+          <div
+            className="wz-footer-ministry ministry-motion"
+            data-parallax-y={-30}
+            data-parallax-scale={0.04}
+          >
             <div className="ministry-logo">
               <Image
                 src="/landing/ministere-jeunesse-sport.svg"

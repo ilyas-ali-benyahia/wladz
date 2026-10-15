@@ -6,7 +6,12 @@ import { useEffect, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { ChevronsLeft, ChevronsRight, LogOut, Star } from "lucide-react";
 import { LogoutButton } from "@/components/navigation/LogoutButton";
-import { gamesLink, homeLink, profileLink, type NavLink } from "@/components/navigation/navLinks";
+import {
+  gamesLink,
+  homeLink,
+  profileLink,
+  type NavLink,
+} from "@/components/navigation/navLinks";
 import { IconTile, gameArtFor } from "@/components/ui/GameIcon";
 import { featuredGame, gameTitle } from "@/lib/games";
 
@@ -35,8 +40,14 @@ function useIsActive() {
     if (href === featuredHref) return pathname.startsWith(featuredHref);
     // Les jeux rapides sont dans « الألعاب », le classement dans « حسابي ».
     if (href === gamesLink.href)
-      return (pathname.startsWith(href) && !pathname.startsWith(featuredHref)) || pathname.startsWith("/dashboard/quick-games");
-    if (href === profileLink.href) return pathname.startsWith(href) || pathname.startsWith("/dashboard/ranking");
+      return (
+        (pathname.startsWith(href) && !pathname.startsWith(featuredHref)) ||
+        pathname.startsWith("/dashboard/quick-games")
+      );
+    if (href === profileLink.href)
+      return (
+        pathname.startsWith(href) || pathname.startsWith("/dashboard/ranking")
+      );
     return pathname.startsWith(href);
   };
 }
@@ -65,7 +76,11 @@ function subscribeCollapsed(onChange: () => void) {
 }
 
 function useCollapsed() {
-  const collapsed = useSyncExternalStore(subscribeCollapsed, readCollapsed, () => false);
+  const collapsed = useSyncExternalStore(
+    subscribeCollapsed,
+    readCollapsed,
+    () => false,
+  );
 
   useEffect(() => {
     document.documentElement.dataset.sidebar = collapsed ? "collapsed" : "open";
@@ -89,7 +104,13 @@ function useCollapsed() {
 const navItem =
   "wz-nav-item flex items-center gap-3 rounded-3xl p-2.5 text-lg font-bold transition-all duration-300";
 
-export function Sidebar({ points, firstName }: { points: number; firstName: string }) {
+export function Sidebar({
+  points,
+  firstName,
+}: {
+  points: number;
+  firstName: string;
+}) {
   const isActive = useIsActive();
   const [collapsed, toggleCollapsed] = useCollapsed();
   const links = navLinksFor(firstName);
@@ -114,9 +135,13 @@ export function Sidebar({ points, firstName }: { points: number; firstName: stri
           <ChevronsRight aria-hidden="true" />
         </button>
 
-        <Link href="/dashboard" aria-label="WLADZ" className="mb-6 flex items-center justify-center">
+        <Link
+          href="/dashboard"
+          aria-label="WLADZ"
+          className="mb-6 flex items-center justify-center"
+        >
           <Image
-            src="/images/wladz-logo.webp"
+            src="/images/logo-3.png"
             alt="WLADZ"
             width={1000}
             height={418}
@@ -151,11 +176,18 @@ export function Sidebar({ points, firstName }: { points: number; firstName: stri
                       : "text-ink-soft hover:bg-white/60 hover:text-ink"
                 }`}
               >
-                <IconTile icon={icon} tone={tone} size="sm" className={`shrink-0 ${active ? "scale-110" : ""}`} />
+                <IconTile
+                  icon={icon}
+                  tone={tone}
+                  size="sm"
+                  className={`shrink-0 ${active ? "scale-110" : ""}`}
+                />
                 {featured ? (
                   <span className="hidden min-w-0 lg:block">
                     <span className="block truncate">{label}</span>
-                    <span className="block text-xs font-bold text-[#7c5ce6]">اللعبة الرئيسية</span>
+                    <span className="block text-xs font-bold text-[#7c5ce6]">
+                      اللعبة الرئيسية
+                    </span>
                   </span>
                 ) : (
                   <span className="hidden lg:inline">{label}</span>
@@ -192,9 +224,13 @@ export function Sidebar({ points, firstName }: { points: number; firstName: stri
 
       {/* Phone: top brand bar */}
       <header className="wz-glass fixed inset-x-0 top-0 z-30 flex items-center justify-between rounded-b-[1.75rem] px-4 py-3 short:absolute md:hidden">
-        <Link href="/dashboard" aria-label="WLADZ" className="flex items-center">
+        <Link
+          href="/dashboard"
+          aria-label="WLADZ"
+          className="flex items-center"
+        >
           <Image
-            src="/images/wladz-logo.webp"
+            src="/images/logo-3.png"
             alt="WLADZ"
             width={1000}
             height={418}
@@ -238,12 +274,22 @@ export function Sidebar({ points, firstName }: { points: number; firstName: stri
   );
 }
 
-function PointsChip({ points, className = "" }: { points: number; className?: string }) {
+function PointsChip({
+  points,
+  className = "",
+}: {
+  points: number;
+  className?: string;
+}) {
   return (
     <p
       className={`wz-glass-soft flex items-center justify-center gap-1.5 rounded-3xl px-3 py-2 text-base font-extrabold text-ink ${className}`}
     >
-      <Star size={20} className="fill-gold text-gold drop-shadow-sm" aria-hidden="true" />
+      <Star
+        size={20}
+        className="fill-gold text-gold drop-shadow-sm"
+        aria-hidden="true"
+      />
       <span>{points}</span>
       <span className="sr-only lg:not-sr-only">نقطة</span>
     </p>

@@ -20,10 +20,10 @@ export function Footer() {
         <Link
           href="/dashboard"
           aria-label="WLADZ"
-          className="wz-footer-logo rounded-3xl bg-white px-4 py-3 shadow-xl transition-transform duration-300 hover:-rotate-2 hover:scale-105 md:px-5"
+          className="wz-footer-logo rounded-3xl transition-transform duration-300 hover:-rotate-2 hover:scale-105 md:px-5"
         >
           <Image
-            src="/images/wladz-logo.webp"
+            src="/images/logo-3.png"
             alt="WLADZ"
             width={1000}
             height={418}
@@ -32,11 +32,13 @@ export function Footer() {
         </Link>
         <div className="wz-footer-tag">
           <p className="text-lg font-bold">نلعب، نتعلّم، ونكبر معاً.</p>
-          <p className="mt-1 text-base text-white/85">ألعاب تعليمية وتوعوية لأطفال وشباب الجزائر.</p>
+          <p className="mt-1 text-base text-white/85">
+            ألعاب تعليمية وتوعوية لأطفال وشباب الجزائر.
+          </p>
         </div>
         <span className="wz-footer-line" aria-hidden="true" />
         <div className="wz-footer-ministry">
-          <div className="grid size-28 place-items-center rounded-3xl bg-white p-3 shadow-xl transition-transform duration-300 hover:-rotate-2 hover:scale-105 md:size-32">
+          <div className="grid size-28 place-items-center rounded-full bg-white shadow-xl transition-transform duration-300 hover:-rotate-2 hover:scale-105 md:size-32">
             <Image
               src="/landing/ministere-jeunesse-sport.svg"
               alt="شعار وزارة الشباب والرياضة"
@@ -45,19 +47,28 @@ export function Footer() {
               className="h-full w-full object-contain"
             />
           </div>
-          <p className="text-base font-extrabold md:text-lg">بدعم من وزارة الشباب والرياضة</p>
+          <p className="text-base font-extrabold md:text-lg">
+            بدعم من وزارة الشباب والرياضة
+          </p>
         </div>
       </div>
 
       <div className="relative mx-auto mt-8 flex max-w-6xl flex-col gap-2 border-t border-white/25 pt-4 text-base text-white/90 sm:flex-row sm:items-center sm:justify-between">
         <p className="flex items-center gap-1.5">
           صُنع بكل
-          <Heart size={18} className="fill-dz-red text-dz-red" aria-label="حب" />
+          <Heart
+            size={18}
+            className="fill-dz-red text-dz-red"
+            aria-label="حب"
+          />
           لأطفال الجزائر
         </p>
         <p>
           <bdi>© WLADZ</bdi> — جميع الحقوق محفوظة ·{" "}
-          <Link href="/dashboard/contact" className="font-bold underline-offset-4 hover:underline">
+          <Link
+            href="/dashboard/contact"
+            className="font-bold underline-offset-4 hover:underline"
+          >
             اتصل بنا
           </Link>
         </p>
